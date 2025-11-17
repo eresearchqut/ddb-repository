@@ -1,1 +1,3 @@
-console.log('Happy developing ✨')
+export * from "./DynamoDbRepository";
+
+
