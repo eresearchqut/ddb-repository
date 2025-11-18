@@ -1,8 +1,13 @@
 import {
+    BatchGetItemCommand,
+    BatchGetItemCommandInput,
     DeleteItemCommand,
     DynamoDBClient,
-    GetItemCommand, paginateQuery,
-    PutItemCommand, QueryCommandInput, UpdateItemCommand,
+    GetItemCommand,
+    paginateQuery,
+    PutItemCommand,
+    QueryCommandInput,
+    UpdateItemCommand,
 } from "@aws-sdk/client-dynamodb";
 import {marshall, unmarshall} from "@aws-sdk/util-dynamodb";
 import {replace} from "lodash";
@@ -44,11 +49,8 @@ export interface ProjectedQuery {
 
 export interface Query
     extends Partial<FilterableQuery>, Partial<ProjectedQuery> {
-    // index?: string
+    index?: string
 }
-
-
-
 
 const mapInKeys = (filterExpression: FilterExpression) =>
     Array.isArray(filterExpression.value)
@@ -104,14 +106,14 @@ const mapFilterExpressionValues = (
             filterExpression.value,
         };
 
-// const paginate = <T>(array: Array<T>, pageSize: number) => {
-//     return array.reduce((acc, val, i) => {
-//         let idx = Math.floor(i / pageSize)
-//         let page = acc[idx] || (acc[idx] = [])
-//         page.push(val)
-//         return acc
-//     }, [] as Array<Array<T>>);
-// }
+const paginate = <T>(array: Array<T>, pageSize: number) => {
+    return array.reduce((acc, val, i) => {
+        let idx = Math.floor(i / pageSize)
+        let page = acc[idx] || (acc[idx] = [])
+        page.push(val)
+        return acc
+    }, [] as Array<Array<T>>);
+}
 
 export class DynamoDbRepository<K, T> {
 
@@ -149,9 +151,9 @@ export class DynamoDbRepository<K, T> {
 
     deleteItem = async (key: K) => {
         return this.dynamoDBClient.send(new DeleteItemCommand({
-                    TableName: this.tableName,
-                    Key: marshall(key),
-                })).then((result) => result.Attributes ?
+            TableName: this.tableName,
+            Key: marshall(key),
+        })).then((result) => result.Attributes ?
             unmarshall(result.Attributes) : undefined);
     };
 
@@ -196,7 +198,7 @@ export class DynamoDbRepository<K, T> {
                         removeAttributeNames,
                     ),
                 ) as Record<string, string>,
-            ExpressionAttributeValues: hasUpdates?  marshall(
+            ExpressionAttributeValues: hasUpdates ? marshall(
                 Object.entries(updates).reduce(
                     (acc, [key, value]) => ({
                         ...acc,
@@ -215,11 +217,10 @@ export class DynamoDbRepository<K, T> {
     };
 
 
-
     getItems = async (
         keyQuery: K & Query,
     ): Promise<Array<T> | undefined> => {
-        const { filterExpressions, projectedAttributes, ...keys} = keyQuery;
+        const {index, filterExpressions, projectedAttributes, ...keys} = keyQuery;
 
         const KeyConditionExpression = Object.keys(keys)
             .map((key) => `#${expressionAttributeKey(key)} = :${expressionAttributeKey(key)}`).join(' AND ');
@@ -269,7 +270,7 @@ export class DynamoDbRepository<K, T> {
             : {};
         const queryCommandInput: QueryCommandInput = {
             TableName: this.tableName,
-            // IndexName: index,
+            IndexName: index,
             KeyConditionExpression,
             FilterExpression,
             ProjectionExpression,
@@ -288,19 +289,18 @@ export class DynamoDbRepository<K, T> {
             queryCommandInput,
         );
 
-        // if (index) {
-        //     const keys: Array<K> = [];
-        //     for await (const page of paginator) {
-        //         if (page.Items) {
-        //             keys.push(
-        //                 ...(page.Items?.map((item) =>
-        //                     unmarshall(item)).map((item) => ({[PK_ATTRIBUTE]: get(item, PK_ATTRIBUTE)}))),
-        //             )
-        //         }
-        //     }
-        //     const items = await this.batchGetItems(keys);
-        //     return items as Array<[Metadata, Record<string, any>]>;
-        // }
+        if (index) {
+            const keys: Array<K> = [];
+            for await (const page of paginator) {
+                if (page.Items) {
+                    keys.push(
+                        ...(page.Items.map((item) => unmarshall(item) as K)),
+                    )
+                }
+            }
+            const items = await this.batchGetItems(keys);
+            return items as Array<T>;
+        }
 
         const items: Array<T> = [];
         for await (const page of paginator) {
@@ -312,26 +312,26 @@ export class DynamoDbRepository<K, T> {
         }
         return items;
     };
-    //
-    //
-    // batchGetItems = async (
-    //     keys: Key[],
-    // ): Promise<Array<[Metadata, Record<string, any>] | undefined>> => {
-    //     const keyPages = paginate(keys, 100);
-    //     return Promise.all((keyPages.map(async (keyPage) => {
-    //         const batchRequest: BatchGetItemCommandInput = {
-    //             RequestItems: {
-    //                 [this.tableName]: {
-    //                     Keys: keyPage.map((key) => (marshall(key))),
-    //                 }
-    //             }
-    //         }
-    //         return this.dynamoDBClient.send(new BatchGetItemCommand(batchRequest)).then(result =>
-    //             result.Responses?.[this.tableName].map((item) => extract(unmarshall(item))));
-    //     })))
-    //         .then((itemSets) => itemSets.flat());
-    //
-    // };
+
+
+    batchGetItems = async (
+        keys: K[],
+    ): Promise<Array<T | undefined>> => {
+        const keyPages = paginate(keys, 100);
+        return Promise.all((keyPages.map(async (keyPage) => {
+            const batchRequest: BatchGetItemCommandInput = {
+                RequestItems: {
+                    [this.tableName]: {
+                        Keys: keyPage.map((key) => (marshall(key))),
+                    }
+                }
+            }
+            return this.dynamoDBClient.send(new BatchGetItemCommand(batchRequest)).then(result =>
+                result.Responses?.[this.tableName].map((item) => unmarshall(item) as T));
+        })))
+            .then((itemSets) => itemSets.flat());
+
+    };
 
 }
 
