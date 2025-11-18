@@ -1,13 +1,14 @@
-
 import { DynamoDBClient, CreateTableCommand, DescribeTableCommand } from "@aws-sdk/client-dynamodb";
 import { LocalstackContainer, StartedLocalStackContainer } from "@testcontainers/localstack";
-import { DynamoDbRepository } from "../src";
+import { DynamoDbRepository, FilterOperator } from "../src";
 
 describe('DynamoDbRepository Integration Tests', () => {
     let container: StartedLocalStackContainer;
     let dynamoDBClient: DynamoDBClient;
     let repository: DynamoDbRepository<{ id: string }, { id: string; name: string; email?: string; age?: number; status?: string }>;
+    let compositeRepository: DynamoDbRepository<{ userId: string; itemId?: string }, { userId: string; itemId: string; name: string; category?: string; price?: number }>;
     const tableName = 'test-table';
+    const compositeTableName = 'test-composite-table';
 
     beforeAll(async () => {
         // Start LocalStack container with DynamoDB
@@ -24,7 +25,7 @@ describe('DynamoDbRepository Integration Tests', () => {
             },
         });
 
-        // Create the test table
+        // Create the test table with simple key
         await dynamoDBClient.send(
             new CreateTableCommand({
                 TableName: tableName,
@@ -38,20 +39,39 @@ describe('DynamoDbRepository Integration Tests', () => {
             })
         );
 
-        // Wait for table to be active
-        let tableActive = false;
-        while (!tableActive) {
-            const response = await dynamoDBClient.send(
-                new DescribeTableCommand({ TableName: tableName })
-            );
-            tableActive = response.Table?.TableStatus === "ACTIVE";
-            if (!tableActive) {
-                await new Promise(resolve => setTimeout(resolve, 100));
+        // Create the test table with composite key (partition key + sort key)
+        await dynamoDBClient.send(
+            new CreateTableCommand({
+                TableName: compositeTableName,
+                KeySchema: [
+                    { AttributeName: "userId", KeyType: "HASH" },
+                    { AttributeName: "itemId", KeyType: "RANGE" },
+                ],
+                AttributeDefinitions: [
+                    { AttributeName: "userId", AttributeType: "S" },
+                    { AttributeName: "itemId", AttributeType: "S" },
+                ],
+                BillingMode: "PAY_PER_REQUEST",
+            })
+        );
+
+        // Wait for tables to be active
+        for (const table of [tableName, compositeTableName]) {
+            let tableActive = false;
+            while (!tableActive) {
+                const response = await dynamoDBClient.send(
+                    new DescribeTableCommand({ TableName: table })
+                );
+                tableActive = response.Table?.TableStatus === "ACTIVE";
+                if (!tableActive) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
             }
         }
 
-        // Initialize repository
+        // Initialize repositories
         repository = new DynamoDbRepository(dynamoDBClient, tableName);
+        compositeRepository = new DynamoDbRepository(dynamoDBClient, compositeTableName);
     });
 
     afterAll(async () => {
@@ -403,6 +423,290 @@ describe('DynamoDbRepository Integration Tests', () => {
             const result = await repository.updateItem(key, { name: 'Updated User' });
 
             expect(result?.id).toBe('preserve-key');
+        });
+    });
+
+    describe('getItems', () => {
+        describe('with simple partition key', () => {
+            beforeEach(async () => {
+                // Clean up and create test data
+                const testId = 'query-test-simple';
+                await repository.putItem({ id: testId }, { id: testId, name: 'Test Item', age: 25 });
+            });
+
+            it('should retrieve item by partition key', async () => {
+                const testId = 'query-test-simple';
+                const results = await repository.getItems({ id: testId });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBe(1);
+                expect(results?.[0]).toEqual({
+                    id: testId,
+                    name: 'Test Item',
+                    age: 25
+                });
+            });
+
+            it('should return empty array when no items match', async () => {
+                const results = await repository.getItems({ id: 'non-existent-query' });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBe(0);
+            });
+        });
+
+        describe('with composite key (partition + sort)', () => {
+            beforeEach(async () => {
+                // Create multiple items for the same user
+                const userId = 'user-123';
+                await compositeRepository.putItem(
+                    { userId, itemId: 'item-1' },
+                    { userId, itemId: 'item-1', name: 'Item One', category: 'electronics', price: 100 }
+                );
+                await compositeRepository.putItem(
+                    { userId, itemId: 'item-2' },
+                    { userId, itemId: 'item-2', name: 'Item Two', category: 'books', price: 20 }
+                );
+                await compositeRepository.putItem(
+                    { userId, itemId: 'item-3' },
+                    { userId, itemId: 'item-3', name: 'Item Three', category: 'electronics', price: 150 }
+                );
+                await compositeRepository.putItem(
+                    { userId, itemId: 'item-4' },
+                    { userId, itemId: 'item-4', name: 'Item Four', category: 'books', price: 30 }
+                );
+            });
+
+            it('should retrieve all items for a partition key', async () => {
+                const results = await compositeRepository.getItems({ userId: 'user-123' });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBe(4);
+            });
+
+            it('should retrieve specific item with both keys', async () => {
+                const results = await compositeRepository.getItems({
+                    userId: 'user-123',
+                    itemId: 'item-2'
+                });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBe(1);
+                expect(results?.[0]).toEqual({
+                    userId: 'user-123',
+                    itemId: 'item-2',
+                    name: 'Item Two',
+                    category: 'books',
+                    price: 20
+                });
+            });
+
+            it('should filter results with EQUALS operator', async () => {
+                const results = await compositeRepository.getItems({
+                    userId: 'user-123',
+                    filterExpressions: [
+                        { attribute: 'category', value: 'electronics', operator: FilterOperator.EQUALS }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBe(2);
+                expect(results?.every(item => item.category === 'electronics')).toBe(true);
+            });
+
+            it('should filter results with NOT_EQUALS operator', async () => {
+                const results = await compositeRepository.getItems({
+                    userId: 'user-123',
+                    filterExpressions: [
+                        { attribute: 'category', value: 'books', operator: FilterOperator.NOT_EQUALS }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBe(2);
+                expect(results?.every(item => item.category === 'electronics')).toBe(true);
+            });
+
+            it('should filter results with GREATER_THAN operator', async () => {
+                const results = await compositeRepository.getItems({
+                    userId: 'user-123',
+                    filterExpressions: [
+                        { attribute: 'price', value: 50, operator: FilterOperator.GREATER_THAN }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBe(2);
+                expect(results?.every(item => item.price! > 50)).toBe(true);
+            });
+
+            it('should filter results with GREATER_THAN_OR_EQUALS operator', async () => {
+                const results = await compositeRepository.getItems({
+                    userId: 'user-123',
+                    filterExpressions: [
+                        { attribute: 'price', value: 100, operator: FilterOperator.GREATER_THAN_OR_EQUALS }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBe(2);
+                expect(results?.every(item => item.price! >= 100)).toBe(true);
+            });
+
+            it('should filter results with LESS_THAN operator', async () => {
+                const results = await compositeRepository.getItems({
+                    userId: 'user-123',
+                    filterExpressions: [
+                        { attribute: 'price', value: 50, operator: FilterOperator.LESS_THAN }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBe(2);
+                expect(results?.every(item => item.price! < 50)).toBe(true);
+            });
+
+            it('should filter results with LESS_THAN_OR_EQUALS operator', async () => {
+                const results = await compositeRepository.getItems({
+                    userId: 'user-123',
+                    filterExpressions: [
+                        { attribute: 'price', value: 30, operator: FilterOperator.LESS_THAN_OR_EQUALS }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBe(2);
+                expect(results?.every(item => item.price! <= 30)).toBe(true);
+            });
+
+            it('should filter results with IN operator', async () => {
+                const results = await compositeRepository.getItems({
+                    userId: 'user-123',
+                    filterExpressions: [
+                        { attribute: 'price', value: [20, 100], operator: FilterOperator.IN }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBe(2);
+                expect(results?.every(item => [20, 100].includes(item.price!))).toBe(true);
+            });
+
+            it('should filter results with BETWEEN operator', async () => {
+                const results = await compositeRepository.getItems({
+                    userId: 'user-123',
+                    filterExpressions: [
+                        { attribute: 'price', value: [20, 100], operator: FilterOperator.BETWEEN }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBe(3);
+                expect(results?.every(item => item.price! >= 20 && item.price! <= 100)).toBe(true);
+            });
+
+            it('should filter results with negated expression', async () => {
+                const results = await compositeRepository.getItems({
+                    userId: 'user-123',
+                    filterExpressions: [
+                        { attribute: 'category', value: 'electronics', operator: FilterOperator.EQUALS, negate: true }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBe(2);
+                expect(results?.every(item => item.category === 'books')).toBe(true);
+            });
+
+            it('should filter results with multiple filter expressions (AND)', async () => {
+                const results = await compositeRepository.getItems({
+                    userId: 'user-123',
+                    filterExpressions: [
+                        { attribute: 'category', value: 'electronics', operator: FilterOperator.EQUALS },
+                        { attribute: 'price', value: 100, operator: FilterOperator.GREATER_THAN }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBe(1);
+                expect(results?.[0]).toMatchObject({
+                    category: 'electronics',
+                    itemId: 'item-3',
+                    price: 150
+                });
+            });
+
+            it('should project only specified attributes', async () => {
+                const results = await compositeRepository.getItems({
+                    userId: 'user-123',
+                    itemId: 'item-1',
+                    projectedAttributes: ['name', 'price']
+                });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBe(1);
+                expect(results?.[0]).toHaveProperty('name');
+                expect(results?.[0]).toHaveProperty('price');
+                expect(results?.[0]).not.toHaveProperty('category');
+            });
+
+            it('should combine filters and projections', async () => {
+                const results = await compositeRepository.getItems({
+                    userId: 'user-123',
+                    filterExpressions: [
+                        { attribute: 'category', value: 'books', operator: FilterOperator.EQUALS }
+                    ],
+                    projectedAttributes: ['itemId', 'name']
+                });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBe(2);
+                results?.forEach(item => {
+                    expect(item).toHaveProperty('itemId');
+                    expect(item).toHaveProperty('name');
+                    expect(item).not.toHaveProperty('price');
+                    expect(item).not.toHaveProperty('category');
+                });
+            });
+        });
+
+        describe('pagination', () => {
+            beforeEach(async () => {
+                // Create many items to test pagination
+                const userId = 'user-pagination';
+                for (let i = 1; i <= 150; i++) {
+                    await compositeRepository.putItem(
+                        { userId, itemId: `item-${i.toString().padStart(3, '0')}` },
+                        {
+                            userId,
+                            itemId: `item-${i.toString().padStart(3, '0')}`,
+                            name: `Item ${i}`,
+                            category: i % 2 === 0 ? 'even' : 'odd',
+                            price: i * 10
+                        }
+                    );
+                }
+            });
+
+            it('should retrieve all items across multiple pages', async () => {
+                const results = await compositeRepository.getItems({ userId: 'user-pagination' });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBe(150);
+            }, 30000); // Increase timeout for this test
+
+            it('should filter across multiple pages', async () => {
+                const results = await compositeRepository.getItems({
+                    userId: 'user-pagination',
+                    filterExpressions: [
+                        { attribute: 'category', value: 'even', operator: FilterOperator.EQUALS }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBe(75);
+                expect(results?.every(item => item.category === 'even')).toBe(true);
+            }, 30000);
         });
     });
 
