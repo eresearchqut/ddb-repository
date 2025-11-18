@@ -247,10 +247,11 @@ export class DynamoDbRepository<K, T> {
             }),
             Object.assign({}),
         ) : {}
-        const FilterExpression = filterExpressions
+        const hasFilterExpressions = Array.isArray(filterExpressions) && filterExpressions.length > 0;
+        const FilterExpression = hasFilterExpressions
             ? mapFilterExpressions(filterExpressions)
             : undefined;
-        const filterAttributeNames: Record<string, string> = filterExpressions
+        const filterAttributeNames: Record<string, string> = hasFilterExpressions
             ? filterExpressions.reduce(
                 (
                     reduction: Record<string, string>,

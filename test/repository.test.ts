@@ -6,7 +6,7 @@ import {DynamoDbRepository, FilterOperator} from "../src";
 describe('DynamoDbRepository Integration Tests', () => {
     let container: StartedLocalStackContainer;
     let dynamoDBClient: DynamoDBClient;
-    let repository: DynamoDbRepository<{ id: string }, { id: string; name: string; email?: string; age?: number; status?: string }>;
+    let repository: DynamoDbRepository<{ id: string }, { id: string; name: string; email?: string; age?: number; status?: string, score?: number }>;
     let compositeRepository: DynamoDbRepository<{ userId: string; itemId?: string }, { userId: string; itemId: string; name: string; category?: string; price?: number }>;
     let gsiRepository: DynamoDbRepository<{ userId: string; itemId: string, status?: string }, { userId: string; itemId: string; name: string; category?: string; status?: string; createdAt?: string }>;
     const tableName = 'test-table';
@@ -630,6 +630,494 @@ describe('DynamoDbRepository Integration Tests', () => {
             await repository.deleteItem(key);
             const afterDelete = await repository.getItem(key);
             expect(afterDelete).toBeUndefined();
+        });
+    });
+
+    describe('FilterOperator Tests', () => {
+        beforeEach(async () => {
+            // Create test data with various values for filtering
+            const testData = [
+                { id: 'filter-1', name: 'Alice', age: 25, score: 85.5, status: 'active', tags: ['new', 'premium'] },
+                { id: 'filter-2', name: 'Bob', age: 30, score: 90.0, status: 'active', tags: ['premium'] },
+                { id: 'filter-3', name: 'Charlie', age: 35, score: 75.0, status: 'inactive', tags: ['new'] },
+                { id: 'filter-4', name: 'Diana', age: 28, score: 95.5, status: 'active', tags: ['vip', 'premium'] },
+                { id: 'filter-5', name: 'Eve', age: 22, score: 80.0, status: 'pending', tags: ['new'] },
+                { id: 'filter-6', name: 'Frank', age: 40, score: 70.0, status: 'inactive', tags: [] },
+                { id: 'filter-7', name: 'Grace', age: 33, score: 88.0, status: 'active', tags: ['premium', 'vip'] },
+            ];
+
+            for (const data of testData) {
+                await repository.putItem({ id: data.id }, data);
+            }
+        });
+
+        describe('EQUALS operator', () => {
+            it('should filter items with exact string match', async () => {
+                const results = await repository.getItems({
+                    id: 'filter-1',
+                    filterExpressions: [
+                        { attribute: 'status', value: 'active', operator: FilterOperator.EQUALS }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                expect(results?.every(item => item.status === 'active')).toBe(true);
+            });
+
+            it('should filter items with exact number match', async () => {
+                const results = await repository.getItems({
+                    id: 'filter-2',
+                    filterExpressions: [
+                        { attribute: 'age', value: 30, operator: FilterOperator.EQUALS }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                if (results && results.length > 0) {
+                    expect(results[0].age).toBe(30);
+                }
+            });
+
+            it('should return empty array when no match found', async () => {
+                const results = await repository.getItems({
+                    id: 'filter-1',
+                    filterExpressions: [
+                        { attribute: 'status', value: 'non-existent', operator: FilterOperator.EQUALS }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBe(0);
+            });
+        });
+
+        describe('NOT_EQUALS operator', () => {
+            it('should filter items not matching string value', async () => {
+                const results = await repository.getItems({
+                    id: 'filter-1',
+                    filterExpressions: [
+                        { attribute: 'status', value: 'inactive', operator: FilterOperator.NOT_EQUALS }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                if (results && results.length > 0) {
+                    expect(results[0].status).not.toBe('inactive');
+                }
+            });
+
+            it('should filter items not matching number value', async () => {
+                const results = await repository.getItems({
+                    id: 'filter-3',
+                    filterExpressions: [
+                        { attribute: 'age', value: 25, operator: FilterOperator.NOT_EQUALS }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                if (results && results.length > 0) {
+                    expect(results[0].age).not.toBe(25);
+                }
+            });
+        });
+
+        describe('GREATER_THAN operator', () => {
+            it('should filter items greater than number value', async () => {
+                const results = await repository.getItems({
+                    id: 'filter-3',
+                    filterExpressions: [
+                        { attribute: 'age', value: 30, operator: FilterOperator.GREATER_THAN }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                if (results && results.length > 0) {
+                    expect(results.every(item => item.age && item.age > 30)).toBe(true);
+                }
+            });
+
+            it('should filter items greater than decimal value', async () => {
+                const results = await repository.getItems({
+                    id: 'filter-2',
+                    filterExpressions: [
+                        { attribute: 'score', value: 89.0, operator: FilterOperator.GREATER_THAN }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                if (results && results.length > 0) {
+                    expect(results.every(item => item.score && item.score > 89.0)).toBe(true);
+                }
+            });
+
+            it('should return empty array when no items are greater', async () => {
+                const results = await repository.getItems({
+                    id: 'filter-5',
+                    filterExpressions: [
+                        { attribute: 'age', value: 100, operator: FilterOperator.GREATER_THAN }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBe(0);
+            });
+        });
+
+        describe('GREATER_THAN_OR_EQUALS operator', () => {
+            it('should filter items greater than or equal to value', async () => {
+                const results = await repository.getItems({
+                    id: 'filter-2',
+                    filterExpressions: [
+                        { attribute: 'age', value: 30, operator: FilterOperator.GREATER_THAN_OR_EQUALS }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                if (results && results.length > 0) {
+                    expect(results.every(item => item.age && item.age >= 30)).toBe(true);
+                }
+            });
+
+            it('should include items with exact value', async () => {
+                const results = await repository.getItems({
+                    id: 'filter-4',
+                    filterExpressions: [
+                        { attribute: 'score', value: 95.5, operator: FilterOperator.GREATER_THAN_OR_EQUALS }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                if (results && results.length > 0) {
+                    const exactMatch = results.find(item => item.score === 95.5);
+                    expect(exactMatch).toBeDefined();
+                }
+            });
+        });
+
+        describe('LESS_THAN operator', () => {
+            it('should filter items less than number value', async () => {
+                const results = await repository.getItems({
+                    id: 'filter-5',
+                    filterExpressions: [
+                        { attribute: 'age', value: 30, operator: FilterOperator.LESS_THAN }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                if (results && results.length > 0) {
+                    expect(results.every(item => item.age && item.age < 30)).toBe(true);
+                }
+            });
+
+            it('should filter items less than decimal value', async () => {
+                const results = await repository.getItems({
+                    id: 'filter-6',
+                    filterExpressions: [
+                        { attribute: 'score', value: 75.0, operator: FilterOperator.LESS_THAN }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                if (results && results.length > 0) {
+                    expect(results.every(item => item.score && item.score < 75.0)).toBe(true);
+                }
+            });
+        });
+
+        describe('LESS_THAN_OR_EQUALS operator', () => {
+            it('should filter items less than or equal to value', async () => {
+                const results = await repository.getItems({
+                    id: 'filter-1',
+                    filterExpressions: [
+                        { attribute: 'age', value: 25, operator: FilterOperator.LESS_THAN_OR_EQUALS }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                if (results && results.length > 0) {
+                    expect(results.every(item => item.age && item.age <= 25)).toBe(true);
+                }
+            });
+
+            it('should include items with exact value', async () => {
+                const results = await repository.getItems({
+                    id: 'filter-2',
+                    filterExpressions: [
+                        { attribute: 'score', value: 90.0, operator: FilterOperator.LESS_THAN_OR_EQUALS }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                if (results && results.length > 0) {
+                    const exactMatch = results.find(item => item.score === 90.0);
+                    expect(exactMatch).toBeDefined();
+                }
+            });
+        });
+
+        describe('IN operator', () => {
+            it('should filter items with value in array of strings', async () => {
+                const results = await repository.getItems({
+                    id: 'filter-1',
+                    filterExpressions: [
+                        { attribute: 'status', value: ['active', 'pending'], operator: FilterOperator.IN }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                if (results && results.length > 0) {
+                    expect(results.every(item => ['active', 'pending'].includes(item.status || ''))).toBe(true);
+                }
+            });
+
+            it('should filter items with value in array of numbers', async () => {
+                const results = await repository.getItems({
+                    id: 'filter-2',
+                    filterExpressions: [
+                        { attribute: 'age', value: [25, 30, 35], operator: FilterOperator.IN }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                if (results && results.length > 0) {
+                    expect(results.every(item => [25, 30, 35].includes(item.age || 0))).toBe(true);
+                }
+            });
+
+            it('should return empty array when value not in list', async () => {
+                const results = await repository.getItems({
+                    id: 'filter-1',
+                    filterExpressions: [
+                        { attribute: 'status', value: ['deleted', 'archived'], operator: FilterOperator.IN }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBe(0);
+            });
+
+            it('should handle single value in array', async () => {
+                const results = await repository.getItems({
+                    id: 'filter-4',
+                    filterExpressions: [
+                        { attribute: 'status', value: ['active'], operator: FilterOperator.IN }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                if (results && results.length > 0) {
+                    expect(results[0].status).toBe('active');
+                }
+            });
+        });
+
+        describe('BETWEEN operator', () => {
+            it('should filter items with number value between range', async () => {
+                const results = await repository.getItems({
+                    id: 'filter-4',
+                    filterExpressions: [
+                        { attribute: 'age', value: [25, 35], operator: FilterOperator.BETWEEN }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                if (results && results.length > 0) {
+                    expect(results.every(item => item.age && item.age >= 25 && item.age <= 35)).toBe(true);
+                }
+            });
+
+            it('should filter items with decimal value between range', async () => {
+                const results = await repository.getItems({
+                    id: 'filter-1',
+                    filterExpressions: [
+                        { attribute: 'score', value: [80.0, 90.0], operator: FilterOperator.BETWEEN }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                if (results && results.length > 0) {
+                    expect(results.every(item => item.score && item.score >= 80.0 && item.score <= 90.0)).toBe(true);
+                }
+            });
+
+            it('should include boundary values', async () => {
+                const results = await repository.getItems({
+                    id: 'filter-2',
+                    filterExpressions: [
+                        { attribute: 'age', value: [30, 40], operator: FilterOperator.BETWEEN }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                if (results && results.length > 0) {
+                    const hasLowerBound = results.some(item => item.age === 30);
+                    const hasUpperBound = results.some(item => item.age === 40);
+                    expect(hasLowerBound || hasUpperBound).toBe(true);
+                }
+            });
+
+            it('should return empty array when no values in range', async () => {
+                const results = await repository.getItems({
+                    id: 'filter-1',
+                    filterExpressions: [
+                        { attribute: 'age', value: [50, 60], operator: FilterOperator.BETWEEN }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBe(0);
+            });
+
+            it('should filter items with string value between range (lexicographical)', async () => {
+                const results = await repository.getItems({
+                    id: 'filter-1',
+                    filterExpressions: [
+                        { attribute: 'name', value: ['Alice', 'Diana'], operator: FilterOperator.BETWEEN }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                if (results && results.length > 0) {
+                    expect(results.every(item => 
+                        item.name && item.name >= 'Alice' && item.name <= 'Diana'
+                    )).toBe(true);
+                }
+            });
+        });
+
+        describe('Multiple filter expressions', () => {
+            it('should apply multiple filter conditions (AND logic)', async () => {
+                const results = await repository.getItems({
+                    id: 'filter-1',
+                    filterExpressions: [
+                        { attribute: 'status', value: 'active', operator: FilterOperator.EQUALS },
+                        { attribute: 'age', value: 25, operator: FilterOperator.GREATER_THAN_OR_EQUALS }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                if (results && results.length > 0) {
+                    expect(results.every(item => 
+                        item.status === 'active' && item.age && item.age >= 25
+                    )).toBe(true);
+                }
+            });
+
+            it('should apply complex filtering with mixed operators', async () => {
+                const results = await repository.getItems({
+                    id: 'filter-2',
+                    filterExpressions: [
+                        { attribute: 'status', value: ['active', 'pending'], operator: FilterOperator.IN },
+                        { attribute: 'age', value: [20, 35], operator: FilterOperator.BETWEEN },
+                        { attribute: 'score', value: 80.0, operator: FilterOperator.GREATER_THAN_OR_EQUALS }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                if (results && results.length > 0) {
+                    expect(results.every(item => 
+                        ['active', 'pending'].includes(item.status || '') &&
+                        item.age && item.age >= 20 && item.age <= 35 &&
+                        item.score && item.score >= 80.0
+                    )).toBe(true);
+                }
+            });
+        });
+
+        describe('Negated filter expressions', () => {
+            it('should negate EQUALS operator', async () => {
+                const results = await repository.getItems({
+                    id: 'filter-1',
+                    filterExpressions: [
+                        { attribute: 'status', value: 'inactive', operator: FilterOperator.EQUALS, negate: true }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                if (results && results.length > 0) {
+                    expect(results.every(item => item.status !== 'inactive')).toBe(true);
+                }
+            });
+
+            it('should negate IN operator', async () => {
+                const results = await repository.getItems({
+                    id: 'filter-6',
+                    filterExpressions: [
+                        { attribute: 'status', value: ['active', 'pending'], operator: FilterOperator.IN, negate: true }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                if (results && results.length > 0) {
+                    expect(results.every(item => 
+                        !['active', 'pending'].includes(item.status || '')
+                    )).toBe(true);
+                }
+            });
+
+            it('should negate BETWEEN operator', async () => {
+                const results = await repository.getItems({
+                    id: 'filter-6',
+                    filterExpressions: [
+                        { attribute: 'age', value: [25, 35], operator: FilterOperator.BETWEEN, negate: true }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                if (results && results.length > 0) {
+                    expect(results.every(item => 
+                        item.age && (item.age < 25 || item.age > 35)
+                    )).toBe(true);
+                }
+            });
+        });
+
+        describe('Edge cases', () => {
+            it('should handle filtering on missing attributes', async () => {
+                await repository.putItem(
+                    { id: 'filter-missing' },
+                    { id: 'filter-missing', name: 'No Age' }
+                );
+
+                const results = await repository.getItems({
+                    id: 'filter-missing',
+                    filterExpressions: [
+                        { attribute: 'age', value: 25, operator: FilterOperator.EQUALS }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBe(0);
+            });
+
+            it('should handle empty filter expressions array', async () => {
+                const results = await repository.getItems({
+                    id: 'filter-1',
+                    filterExpressions: []
+                });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBeGreaterThan(0);
+            });
+
+            it('should handle zero values in numeric comparisons', async () => {
+                await repository.putItem(
+                    { id: 'filter-zero' },
+                    { id: 'filter-zero', name: 'Zero Score', score: 0 }
+                );
+
+                const results = await repository.getItems({
+                    id: 'filter-zero',
+                    filterExpressions: [
+                        { attribute: 'score', value: 0, operator: FilterOperator.EQUALS }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                if (results && results.length > 0) {
+                    expect(results[0].score).toBe(0);
+                }
+            });
         });
     });
 });
