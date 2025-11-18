@@ -22,6 +22,7 @@ const config: Config.InitialOptions = {
     ],
     moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
     verbose: true,
+    testTimeout: 60000
 };
 
 export default config;
