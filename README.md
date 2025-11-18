@@ -91,8 +91,20 @@ new DynamoDbRepository<T>(client: DynamoDBClient, tableName: string, partitionKe
 # Install dependencies
 npm install
 
+# Run linter
+npm run lint
+
+# Fix linting issues automatically
+npm run lint:fix
+
 # Run tests
 npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage report
+npm run test:coverage
 
 # Build the project
 npm run build
@@ -103,6 +115,21 @@ The project uses Jest with Testcontainers for integration testing against a real
 ```sh
 npm test
 ```
+
+### Run tests with coverage
+
+Generate coverage report
+
+```sh
+npm run test:coverage
+```
+
+Coverage reports are generated in the coverage/ directory:
+* coverage/lcov-report/index.html - Interactive HTML report
+* coverage/lcov.info - LCOV format for CI/CD integration
+
+View HTML coverage report, open coverage/lcov-report/index.html
+
 ## Configuration
 
 ### AWS Credentials
