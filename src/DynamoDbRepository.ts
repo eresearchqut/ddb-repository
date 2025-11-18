@@ -10,8 +10,7 @@ import {
     UpdateItemCommand,
 } from "@aws-sdk/client-dynamodb";
 import {marshall, unmarshall} from "@aws-sdk/util-dynamodb";
-import {replace} from "lodash";
-
+import {replace, uniqWith, isEqual, pickBy} from "lodash";
 
 const expressionAttributeKey = (key: string) => replace(key, /-/g, "_");
 
@@ -51,6 +50,8 @@ export interface Query
     extends Partial<FilterableQuery>, Partial<ProjectedQuery> {
     index?: string
 }
+
+
 
 const mapInKeys = (filterExpression: FilterExpression) =>
     Array.isArray(filterExpression.value)
@@ -120,6 +121,8 @@ export class DynamoDbRepository<K, T> {
     constructor(
         private readonly dynamoDBClient: DynamoDBClient,
         private readonly tableName: string,
+        private readonly hashKey: string,
+        private readonly rangKey?: string,
     ) {
 
     }
@@ -218,10 +221,9 @@ export class DynamoDbRepository<K, T> {
 
 
     getItems = async (
-        keyQuery: K & Query,
+        query: Query & (K | Record<string, any>),
     ): Promise<Array<T> | undefined> => {
-        const {index, filterExpressions, projectedAttributes, ...keys} = keyQuery;
-
+        const {index, filterExpressions, projectedAttributes, ...keys} = query;
         const KeyConditionExpression = Object.keys(keys)
             .map((key) => `#${expressionAttributeKey(key)} = :${expressionAttributeKey(key)}`).join(' AND ');
         const keyExpressionAttributeNames = Object.keys(keys)
@@ -294,7 +296,8 @@ export class DynamoDbRepository<K, T> {
             for await (const page of paginator) {
                 if (page.Items) {
                     keys.push(
-                        ...(page.Items.map((item) => unmarshall(item) as K)),
+                        ...(page.Items.map((item) => unmarshall(item) as T)
+                            .map((item: any) => pickBy(item, (value, key) => value !== undefined && (key === this.hashKey || key === this.rangKey)) as K)),
                     )
                 }
             }
@@ -317,7 +320,8 @@ export class DynamoDbRepository<K, T> {
     batchGetItems = async (
         keys: K[],
     ): Promise<Array<T | undefined>> => {
-        const keyPages = paginate(keys, 100);
+        const uniqueKeys = uniqWith(keys, isEqual);
+        const keyPages = paginate(uniqueKeys, 100);
         return Promise.all((keyPages.map(async (keyPage) => {
             const batchRequest: BatchGetItemCommandInput = {
                 RequestItems: {
