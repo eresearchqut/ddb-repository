@@ -46,11 +46,13 @@ export interface ProjectedQuery {
     projectedAttributes: string[];
 }
 
-export interface Query
-    extends Partial<FilterableQuery>, Partial<ProjectedQuery> {
-    index?: string
+export interface IndexedQuery {
+    index: string;
 }
 
+export interface Query extends Partial<FilterableQuery>, Partial<ProjectedQuery>, Partial<IndexedQuery> {
+    [key: string]: unknown;
+}
 
 
 const mapInKeys = (filterExpression: FilterExpression) =>
@@ -109,8 +111,8 @@ const mapFilterExpressionValues = (
 
 const paginate = <T>(array: Array<T>, pageSize: number) => {
     return array.reduce((acc, val, i) => {
-        let idx = Math.floor(i / pageSize)
-        let page = acc[idx] || (acc[idx] = [])
+        const idx = Math.floor(i / pageSize)
+        const page = acc[idx] || (acc[idx] = [])
         page.push(val)
         return acc
     }, [] as Array<Array<T>>);
@@ -168,7 +170,7 @@ export class DynamoDbRepository<K, T> {
     ): Promise<T | undefined> => {
         const hasUpdates = Object.keys(updates).length > 0;
         const setAttributesExpression = hasUpdates ? `SET ${Object.entries(updates)
-            .filter(([_, value]) => value !== undefined)
+            .filter(([, value]) => value !== undefined)
             .map(
                 ([key]) =>
                     `#${expressionAttributeKey(key)} = :${expressionAttributeKey(key)}`,
@@ -191,7 +193,7 @@ export class DynamoDbRepository<K, T> {
             Key: marshall(key),
             UpdateExpression: `${setAttributesExpression}${removeAttributesExpression}`,
             ExpressionAttributeNames: Object.entries(updates)
-                .filter(([_, value]) => value !== undefined)
+                .filter(([, value]) => value !== undefined)
                 .reduce(
                     (acc, [key]) => ({
                         ...acc,
@@ -221,7 +223,7 @@ export class DynamoDbRepository<K, T> {
 
 
     getItems = async (
-        query: Query & (K | Record<string, any>),
+        query: Query
     ): Promise<Array<T> | undefined> => {
         const {index, filterExpressions, projectedAttributes, ...keys} = query;
         const KeyConditionExpression = Object.keys(keys)
@@ -261,9 +263,9 @@ export class DynamoDbRepository<K, T> {
                 Object.assign({}),
             )
             : {};
-        const filterAttributeValues: Record<string, string> = filterExpressions
+        const filterAttributeValues = filterExpressions
             ? filterExpressions.reduce(
-                (reduction: Record<string, any>, filterExpression) => ({
+                (reduction, filterExpression) => ({
                     ...reduction,
                     ...mapFilterExpressionValues(filterExpression),
                 }),
@@ -297,8 +299,8 @@ export class DynamoDbRepository<K, T> {
                 if (page.Items) {
                     keys.push(
                         ...(page.Items.map((item) => unmarshall(item) as T)
-                            .map((item: any) =>
-                                pickBy(item, (_, key) => (key === this.hashKey || key === this.rangKey)) as K)),
+                            .map((item: T) =>
+                                pickBy(item as object, (_, key) => (key === this.hashKey || key === this.rangKey)) as K)),
                     )
                 }
             }
@@ -310,7 +312,7 @@ export class DynamoDbRepository<K, T> {
         for await (const page of paginator) {
             if (page.Items) {
                 items.push(
-                    ...(page.Items?.map((item) => unmarshall(item) as T)),
+                    ...(page.Items?.map((item) => unmarshall(item) as T) || []),
                 )
             }
         }

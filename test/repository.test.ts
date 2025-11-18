@@ -1,14 +1,14 @@
 
 import { DynamoDBClient, CreateTableCommand, DescribeTableCommand } from "@aws-sdk/client-dynamodb";
 import { LocalstackContainer, StartedLocalStackContainer } from "@testcontainers/localstack";
-import { DynamoDbRepository, FilterOperator } from "../src";
+import {DynamoDbRepository, FilterOperator} from "../src";
 
 describe('DynamoDbRepository Integration Tests', () => {
     let container: StartedLocalStackContainer;
     let dynamoDBClient: DynamoDBClient;
     let repository: DynamoDbRepository<{ id: string }, { id: string; name: string; email?: string; age?: number; status?: string }>;
     let compositeRepository: DynamoDbRepository<{ userId: string; itemId?: string }, { userId: string; itemId: string; name: string; category?: string; price?: number }>;
-    let gsiRepository: DynamoDbRepository<{ userId: string; itemId: string }, { userId: string; itemId: string; name: string; category?: string; status?: string; createdAt?: string }>;
+    let gsiRepository: DynamoDbRepository<{ userId: string; itemId: string, status?: string }, { userId: string; itemId: string; name: string; category?: string; status?: string; createdAt?: string }>;
     const tableName = 'test-table';
     const compositeTableName = 'test-composite-table';
     const gsiTableName = 'test-gsi-table';
@@ -399,7 +399,6 @@ describe('DynamoDbRepository Integration Tests', () => {
                         { attribute: 'category', value: 'electronics', operator: FilterOperator.EQUALS }
                     ]
                 });
-
                 expect(results).toBeDefined();
                 expect(results?.length).toBe(2);
                 expect(results?.every(item => item.category === 'electronics')).toBe(true);
@@ -475,8 +474,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                 const results = await gsiRepository.getItems({
                     status: 'active',
                     index: 'StatusIndex'
-                } as any);
-
+                });
                 expect(results).toBeDefined();
                 // When using index, it queries GSI then uses batchGetItems to fetch full items
                 expect(Array.isArray(results)).toBe(true);
@@ -486,7 +484,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                 const results = await gsiRepository.getItems({
                     status: 'active',
                     index: 'StatusIndex'
-                } as any);
+                });
 
                 expect(results).toBeDefined();
                 if (results && results.length > 0) {
@@ -504,7 +502,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                     filterExpressions: [
                         { attribute: 'category', value: 'electronics', operator: FilterOperator.EQUALS }
                     ]
-                } as any);
+                });
 
                 expect(results).toBeDefined();
                 if (results && results.length > 0) {
@@ -519,7 +517,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                 const results = await gsiRepository.getItems({
                     status: 'active',
                     index: 'StatusIndex'
-                } as any);
+                });
 
                 expect(results).toBeDefined();
                 if (results && results.length > 0) {
@@ -540,7 +538,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                 const results = await gsiRepository.getItems({
                     status: 'active',
                     index: 'StatusIndex'
-                } as any);
+                });
 
                 expect(results).toBeDefined();
                 expect(Array.isArray(results)).toBe(true);
@@ -559,7 +557,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                     status: 'active',
                     index: 'StatusIndex',
                     projectedAttributes: ['name', 'status']
-                } as any);
+                });
 
                 expect(results).toBeDefined();
                 if (results && results.length > 0) {
@@ -576,7 +574,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                 const results = await gsiRepository.getItems({
                     status: 'non-existent-status',
                     index: 'StatusIndex'
-                } as any);
+                });
 
                 expect(results).toBeDefined();
                 expect(results?.length).toBe(0);
@@ -609,7 +607,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                 const results = await gsiRepository.getItems({
                     status: 'paginated',
                     index: 'StatusIndex'
-                } as any);
+                });
 
                 expect(results).toBeDefined();
                 expect(Array.isArray(results)).toBe(true);
