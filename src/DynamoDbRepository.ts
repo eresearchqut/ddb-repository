@@ -231,10 +231,10 @@ export class DynamoDbRepository<K, T> {
         const keyExpressionAttributeValues = Object.entries(keys)
             .reduce((acc, [key, value]) => ({...acc, [`:${expressionAttributeKey(key)}`]: value}), Object.assign({}));
 
-        const ProjectionExpression = projectedAttributes
+        const ProjectionExpression = !index && projectedAttributes
             ? projectedAttributes.map((attribute) => `#${expressionAttributeKey(attribute)}`).join(',')
             : undefined;
-        const projectionAttributeNames: Record<string, string> = projectedAttributes ? projectedAttributes.reduce(
+        const projectionAttributeNames: Record<string, string> = !index && projectedAttributes ? projectedAttributes.reduce(
             (
                 reduction: Record<string, string>,
                 attribute: string,
@@ -297,11 +297,12 @@ export class DynamoDbRepository<K, T> {
                 if (page.Items) {
                     keys.push(
                         ...(page.Items.map((item) => unmarshall(item) as T)
-                            .map((item: any) => pickBy(item, (value, key) => value !== undefined && (key === this.hashKey || key === this.rangKey)) as K)),
+                            .map((item: any) =>
+                                pickBy(item, (_, key) => (key === this.hashKey || key === this.rangKey)) as K)),
                     )
                 }
             }
-            const items = await this.batchGetItems(keys);
+            const items = await this.batchGetItems(keys, query as ProjectedQuery);
             return items as Array<T>;
         }
 
@@ -318,15 +319,33 @@ export class DynamoDbRepository<K, T> {
 
 
     batchGetItems = async (
-        keys: K[],
+        keys: K[], projectedQuery?: ProjectedQuery
     ): Promise<Array<T | undefined>> => {
         const uniqueKeys = uniqWith(keys, isEqual);
         const keyPages = paginate(uniqueKeys, 100);
+        const {projectedAttributes} = projectedQuery || {};
+        const ProjectionExpression = projectedAttributes
+            ? projectedAttributes.map((attribute) => `#${expressionAttributeKey(attribute)}`).join(',')
+            : undefined;
+        const ExpressionAttributeNames = projectedAttributes ?
+            projectedAttributes.reduce(
+            (
+                reduction: Record<string, string>,
+                attribute: string,
+            ) => ({
+                ...reduction,
+                [`#${expressionAttributeKey(attribute)}`]:
+                attribute,
+            }),
+            Object.assign({}),
+        ) : undefined;
         return Promise.all((keyPages.map(async (keyPage) => {
             const batchRequest: BatchGetItemCommandInput = {
                 RequestItems: {
                     [this.tableName]: {
                         Keys: keyPage.map((key) => (marshall(key))),
+                        ProjectionExpression,
+                        ExpressionAttributeNames
                     }
                 }
             }
