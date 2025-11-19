@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/eresearchqut/ddb-repository/compare/v1.0.1...v1.0.2) (2025-11-19)
+
+
+### Bug Fixes
+
+* setting publish config access to public ([eed3a3b](https://github.com/eresearchqut/ddb-repository/commit/eed3a3b382153c457e3508d844e111b7f5b3123d))
+
 ## [1.0.1](https://github.com/eresearchqut/ddb-repository/compare/v1.0.0...v1.0.1) (2025-11-19)
 
 
