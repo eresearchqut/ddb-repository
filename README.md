@@ -1,5 +1,6 @@
 # DynamoDB Repository
 
+[![npm version](https://badge.fury.io/js/@eresearchqut%2Fddb-repository.svg)](https://badge.fury.io/js/@eresearchqut%2Fddb-repository)
 [![Coverage Status](https://coveralls.io/repos/github/eresearchqut/ddb-repository/badge.svg?branch=main)](https://coveralls.io/github/eresearchqut/ddb-repository?branch=main)
 
 A TypeScript library providing a generic repository pattern implementation for AWS DynamoDB, simplifying CRUD operations and common database interactions.
