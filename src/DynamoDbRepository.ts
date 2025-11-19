@@ -7,6 +7,7 @@ import {
     paginateQuery,
     PutItemCommand,
     QueryCommandInput,
+    ReturnConsumedCapacity,
     UpdateItemCommand,
 } from "@aws-sdk/client-dynamodb";
 import {marshall, unmarshall} from "@aws-sdk/util-dynamodb";
@@ -125,6 +126,7 @@ export class DynamoDbRepository<K, T> {
         private readonly tableName: string,
         private readonly hashKey: string,
         private readonly rangKey?: string,
+        private readonly returnConsumedCapacity: ReturnConsumedCapacity | undefined = ReturnConsumedCapacity.TOTAL,
     ) {
 
     }
@@ -135,6 +137,7 @@ export class DynamoDbRepository<K, T> {
                 new GetItemCommand({
                     TableName: this.tableName,
                     Key: marshall(key, {removeUndefinedValues: true}),
+                    ReturnConsumedCapacity: this.returnConsumedCapacity,
                 }),
             )
             .then((result) =>
@@ -148,6 +151,7 @@ export class DynamoDbRepository<K, T> {
             .send(
                 new PutItemCommand({
                     TableName: this.tableName,
+                    ReturnConsumedCapacity: this.returnConsumedCapacity,
                     Item,
                 }),
             )
@@ -215,6 +219,7 @@ export class DynamoDbRepository<K, T> {
                 ),
                 {removeUndefinedValues: true},
             ) : undefined,
+            ReturnConsumedCapacity: this.returnConsumedCapacity,
         };
         return this.dynamoDBClient
             .send(new UpdateItemCommand(updateItemCommandInput))
@@ -275,6 +280,7 @@ export class DynamoDbRepository<K, T> {
             : {};
         const queryCommandInput: QueryCommandInput = {
             TableName: this.tableName,
+            ReturnConsumedCapacity: this.returnConsumedCapacity,
             IndexName: index,
             KeyConditionExpression,
             FilterExpression,
@@ -348,9 +354,10 @@ export class DynamoDbRepository<K, T> {
                     [this.tableName]: {
                         Keys: keyPage.map((key) => (marshall(key))),
                         ProjectionExpression,
-                        ExpressionAttributeNames
+                        ExpressionAttributeNames,
                     }
-                }
+                },
+                ReturnConsumedCapacity: this.returnConsumedCapacity,
             }
             return this.dynamoDBClient.send(new BatchGetItemCommand(batchRequest)).then(result =>
                 result.Responses?.[this.tableName].map((item) => unmarshall(item) as T));
