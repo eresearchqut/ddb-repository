@@ -38,6 +38,5 @@
     "@aws-sdk/client-dynamodb": ">= 3.49.0",
     "@aws-sdk/util-dynamodb": ">= 3.49.0",
     "lodash": "^4.17.20"
-  },
-  "private": true
+  }
 }
