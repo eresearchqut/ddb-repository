@@ -1,7 +1,7 @@
 
 import { DynamoDBClient, CreateTableCommand, DescribeTableCommand } from "@aws-sdk/client-dynamodb";
 import { LocalstackContainer, StartedLocalStackContainer } from "@testcontainers/localstack";
-import {DynamoDbRepository, FilterOperator} from "../src";
+import {ConsumedCapacityDetail, consumedCapacityMiddleware, DynamoDbRepository, FilterOperator} from "../src";
 
 describe('DynamoDbRepository Integration Tests', () => {
     let container: StartedLocalStackContainer;
@@ -12,6 +12,11 @@ describe('DynamoDbRepository Integration Tests', () => {
     const tableName = 'test-table';
     const compositeTableName = 'test-composite-table';
     const gsiTableName = 'test-gsi-table';
+    const consumedCapacityRegister = new Array<ConsumedCapacityDetail>() ;
+
+    const sumConsumedCapacity = () =>
+        consumedCapacityRegister.reduce((total, value) =>
+            total + (value.ConsumedCapacity?.CapacityUnits || 0), 0);
 
     beforeAll(async () => {
         // Start LocalStack container with DynamoDB
@@ -28,7 +33,10 @@ describe('DynamoDbRepository Integration Tests', () => {
             },
         });
 
-        // Create the test table with simple key
+        dynamoDBClient.middlewareStack
+            .add(consumedCapacityMiddleware({onConsumedCapacity: async (consumedCapacity) => consumedCapacityRegister.push(consumedCapacity)}));
+
+        // Create the test table with a simple key
         await dynamoDBClient.send(
             new CreateTableCommand({
                 TableName: tableName,
@@ -42,7 +50,7 @@ describe('DynamoDbRepository Integration Tests', () => {
             })
         );
 
-        // Create the test table with composite key (partition key + sort key)
+        // Create the test table with a composite key (partition key + sort key)
         await dynamoDBClient.send(
             new CreateTableCommand({
                 TableName: compositeTableName,
@@ -108,6 +116,10 @@ describe('DynamoDbRepository Integration Tests', () => {
         gsiRepository = new DynamoDbRepository(dynamoDBClient, gsiTableName, "userId", "itemId");
     });
 
+    afterEach(async () => {
+        consumedCapacityRegister.splice(0, consumedCapacityRegister.length);
+    });
+
     afterAll(async () => {
         // Clean up
         if (dynamoDBClient) {
@@ -122,6 +134,7 @@ describe('DynamoDbRepository Integration Tests', () => {
         it('should return undefined when item does not exist', async () => {
             const result = await repository.getItem({ id: 'non-existent' });
             expect(result).toBeUndefined();
+            expect(sumConsumedCapacity()).toEqual(0.5);
         });
 
         it('should return the item when it exists', async () => {
@@ -132,6 +145,7 @@ describe('DynamoDbRepository Integration Tests', () => {
             const result = await repository.getItem(key);
 
             expect(result).toEqual(record);
+            expect(sumConsumedCapacity()).toEqual(2);
         });
     });
 
@@ -143,6 +157,7 @@ describe('DynamoDbRepository Integration Tests', () => {
             const result = await repository.putItem(key, record);
 
             expect(result).toEqual(record);
+            expect(sumConsumedCapacity()).toEqual(1.5);
         });
     });
 
@@ -155,6 +170,7 @@ describe('DynamoDbRepository Integration Tests', () => {
             await repository.deleteItem(key);
             const afterDelete = await repository.getItem(key);
             expect(afterDelete).toBeUndefined();
+            expect(sumConsumedCapacity()).toEqual(2);
         });
     });
 

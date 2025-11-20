@@ -1,6 +1,7 @@
 import {
     BatchGetItemCommand,
     BatchGetItemCommandInput,
+    ConsumedCapacity,
     DeleteItemCommand,
     DynamoDBClient,
     GetItemCommand,
@@ -11,7 +12,14 @@ import {
     UpdateItemCommand,
 } from "@aws-sdk/client-dynamodb";
 import {marshall, unmarshall} from "@aws-sdk/util-dynamodb";
-import {replace, uniqWith, isEqual, pickBy} from "lodash";
+import {replace, uniqWith, isEqual, pickBy, get} from "lodash";
+import {
+    HandlerExecutionContext,
+    InitializeHandler,
+    InitializeHandlerArguments,
+    InitializeHandlerOutput,
+    MetadataBearer
+} from "@smithy/types";
 
 const expressionAttributeKey = (key: string) => replace(key, /-/g, "_");
 
@@ -118,6 +126,35 @@ const paginate = <T>(array: Array<T>, pageSize: number) => {
         return acc
     }, [] as Array<Array<T>>);
 }
+
+export interface ConsumedCapacityDetail {
+    ReturnConsumedCapacity: ReturnConsumedCapacity | undefined
+    ConsumedCapacity: ConsumedCapacity | undefined
+}
+
+export interface ConsumedCapacityMiddlewareConfig {
+    onConsumedCapacity: (consumedCapacity: ConsumedCapacityDetail) => Promise<unknown>;
+}
+
+export const consumedCapacityMiddleware =
+    (consumedCapacityMiddlewareConfig: ConsumedCapacityMiddlewareConfig) =>
+        <Output extends MetadataBearer = MetadataBearer>(
+            next: InitializeHandler<any, Output>,
+            context: HandlerExecutionContext
+        ): InitializeHandler<any, Output> =>
+            async (args: InitializeHandlerArguments<any>): Promise<InitializeHandlerOutput<Output>> => {
+                try {
+                    const {input} = args;
+                    const {ReturnConsumedCapacity} = input;
+                    const response = await next(args);
+                    const {output} = response;
+                    const consumedCapacity = get(output, "ConsumedCapacity") as ConsumedCapacity | undefined;
+                    await consumedCapacityMiddlewareConfig.onConsumedCapacity({ReturnConsumedCapacity, ConsumedCapacity: consumedCapacity});
+                    return response;
+                } catch (error) {
+                    throw error;
+                }
+            };
 
 export class DynamoDbRepository<K, T> {
 
