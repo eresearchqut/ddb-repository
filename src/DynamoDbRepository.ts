@@ -129,7 +129,7 @@ const paginate = <T>(array: Array<T>, pageSize: number) => {
 
 export interface ConsumedCapacityDetail {
     ReturnConsumedCapacity: ReturnConsumedCapacity | undefined
-    ConsumedCapacity: ConsumedCapacity | undefined
+    ConsumedCapacity: ConsumedCapacity | ConsumedCapacity[] | undefined
 }
 
 export interface ConsumedCapacityMiddlewareConfig {

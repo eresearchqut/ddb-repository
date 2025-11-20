@@ -14,9 +14,17 @@ describe('DynamoDbRepository Integration Tests', () => {
     const gsiTableName = 'test-gsi-table';
     const consumedCapacityRegister = new Array<ConsumedCapacityDetail>() ;
 
+    const getConsumedCapacity = (consumedCapacity: ConsumedCapacityDetail) => {
+        if (Array.isArray(consumedCapacity.ConsumedCapacity)) {
+            return consumedCapacity.ConsumedCapacity
+                .reduce((total, capacity) => total + (capacity?.CapacityUnits || 0), 0);
+        }
+        return consumedCapacity.ConsumedCapacity?.CapacityUnits || 0;
+    }
+
     const sumConsumedCapacity = () =>
         consumedCapacityRegister.reduce((total, value) =>
-            total + (value.ConsumedCapacity?.CapacityUnits || 0), 0);
+            total + getConsumedCapacity(value), 0);
 
     beforeAll(async () => {
         // Start LocalStack container with DynamoDB
@@ -34,7 +42,8 @@ describe('DynamoDbRepository Integration Tests', () => {
         });
 
         dynamoDBClient.middlewareStack
-            .add(consumedCapacityMiddleware({onConsumedCapacity: async (consumedCapacity) => consumedCapacityRegister.push(consumedCapacity)}));
+            .add(consumedCapacityMiddleware({onConsumedCapacity: async (consumedCapacity) =>
+                    consumedCapacityRegister.push(consumedCapacity)}));
 
         // Create the test table with a simple key
         await dynamoDBClient.send(
@@ -116,7 +125,7 @@ describe('DynamoDbRepository Integration Tests', () => {
         gsiRepository = new DynamoDbRepository(dynamoDBClient, gsiTableName, "userId", "itemId");
     });
 
-    afterEach(async () => {
+    beforeEach(async () => {
         consumedCapacityRegister.splice(0, consumedCapacityRegister.length);
     });
 
@@ -187,6 +196,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                 name: 'Updated Name',
                 email: 'original@example.com'
             });
+            expect(sumConsumedCapacity()).toEqual(3);
         });
     });
 
@@ -199,6 +209,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                     { id: `batch-item-${i}`, name: `Item ${i}`, age: i * 10 }
                 );
             }
+            consumedCapacityRegister.splice(0, consumedCapacityRegister.length);
         });
 
         it('should retrieve multiple items by keys', async () => {
@@ -219,6 +230,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                     expect.objectContaining({ id: 'batch-item-3', name: 'Item 3', age: 30 }),
                 ])
             );
+            expect(sumConsumedCapacity()).toEqual(1.5);
         });
 
         it('should handle empty keys array', async () => {
@@ -226,6 +238,7 @@ describe('DynamoDbRepository Integration Tests', () => {
 
             expect(results).toBeDefined();
             expect(results?.length).toBe(0);
+            expect(sumConsumedCapacity()).toEqual(0);
         });
 
         it('should handle non-existent keys gracefully', async () => {
@@ -246,6 +259,7 @@ describe('DynamoDbRepository Integration Tests', () => {
             const ids = existingItems?.map(item => item.id);
             expect(ids).toContain('batch-item-1');
             expect(ids).toContain('batch-item-2');
+            expect(sumConsumedCapacity()).toEqual(1);
         });
 
         it('should handle batch size over 100 items (pagination)', async () => {
@@ -270,6 +284,7 @@ describe('DynamoDbRepository Integration Tests', () => {
             expect(item50).toBeDefined();
             expect(item100).toBeDefined();
             expect(item150).toBeDefined();
+            expect(sumConsumedCapacity()).toEqual(300);
         }, 60000);
 
         it('should retrieve composite key items', async () => {
@@ -304,6 +319,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                     expect.objectContaining({ userId: 'user-batch-2', itemId: 'item-c', price: 300 }),
                 ])
             );
+            expect(sumConsumedCapacity()).toEqual(6);
         });
 
         it('should maintain order independence', async () => {
@@ -323,6 +339,7 @@ describe('DynamoDbRepository Integration Tests', () => {
             expect(ids).toContain('batch-item-1');
             expect(ids).toContain('batch-item-3');
             expect(ids).toContain('batch-item-5');
+            expect(sumConsumedCapacity()).toEqual(1.5);
         });
 
         it('should handle duplicate keys in input', async () => {
@@ -344,6 +361,7 @@ describe('DynamoDbRepository Integration Tests', () => {
 
             expect(item1Count).toBeGreaterThanOrEqual(1);
             expect(item2Count).toBeGreaterThanOrEqual(1);
+            expect(sumConsumedCapacity()).toEqual(1);
         });
 
         it('should retrieve all attributes for batched items', async () => {
@@ -363,6 +381,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                 age: 30,
                 status: 'active'
             });
+            expect(sumConsumedCapacity()).toEqual(2);
         });
     });
 
@@ -381,7 +400,9 @@ describe('DynamoDbRepository Integration Tests', () => {
                     name: 'Test Item',
                     age: 25
                 });
+                expect(sumConsumedCapacity()).toEqual(2);
             });
+
         });
 
         describe('with composite key (partition + sort)', () => {
@@ -399,6 +420,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                     { userId, itemId: 'item-3' },
                     { userId, itemId: 'item-3', name: 'Item Three', category: 'electronics', price: 150 }
                 );
+                consumedCapacityRegister.splice(0, consumedCapacityRegister.length);
             });
 
             it('should retrieve all items for a partition key', async () => {
@@ -418,7 +440,9 @@ describe('DynamoDbRepository Integration Tests', () => {
                 expect(results).toBeDefined();
                 expect(results?.length).toBe(2);
                 expect(results?.every(item => item.category === 'electronics')).toBe(true);
+                expect(sumConsumedCapacity()).toEqual(0.5);
             });
+
         });
 
         describe('with GSI (Global Secondary Index)', () => {
@@ -484,6 +508,7 @@ describe('DynamoDbRepository Integration Tests', () => {
 
                 // Wait for GSI to be consistent
                 await new Promise(resolve => setTimeout(resolve, 2000));
+                consumedCapacityRegister.splice(0, consumedCapacityRegister.length);
             });
 
             it('should query items using GSI and fetch full items via batchGetItems', async () => {
@@ -494,6 +519,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                 expect(results).toBeDefined();
                 // When using index, it queries GSI then uses batchGetItems to fetch full items
                 expect(Array.isArray(results)).toBe(true);
+                expect(sumConsumedCapacity()).toEqual(2);
             });
 
             it('should query all items with specific status using GSI', async () => {
@@ -509,6 +535,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                         expect(item.status).toBe('active');
                     });
                 }
+                expect(sumConsumedCapacity()).toEqual(2);
             });
 
             it('should combine GSI query with filter expressions', async () => {
@@ -527,6 +554,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                         expect(item.category).toBe('electronics');
                     });
                 }
+                expect(sumConsumedCapacity()).toEqual(1.5);
             });
 
             it('should return full item attributes when querying via GSI', async () => {
@@ -548,6 +576,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                         expect(item).toHaveProperty('createdAt');
                     }
                 }
+                expect(sumConsumedCapacity()).toEqual(2);
             });
 
             it('should handle GSI query with multiple items', async () => {
@@ -566,6 +595,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                         expect(item).toHaveProperty('itemId');
                     });
                 }
+                expect(sumConsumedCapacity()).toEqual(2);
             });
 
             it('should respect projection when querying GSI', async () => {
@@ -584,6 +614,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                         expect(item).toHaveProperty('status');
                     });
                 }
+                expect(sumConsumedCapacity()).toEqual(2);
             });
 
             it('should handle empty results from GSI query', async () => {
@@ -594,6 +625,7 @@ describe('DynamoDbRepository Integration Tests', () => {
 
                 expect(results).toBeDefined();
                 expect(results?.length).toBe(0);
+                expect(sumConsumedCapacity()).toEqual(0);
             });
         });
 
@@ -617,6 +649,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                 }
 
                 await new Promise(resolve => setTimeout(resolve, 2000));
+                consumedCapacityRegister.splice(0, consumedCapacityRegister.length);
             });
 
             it('should retrieve all items across multiple pages via GSI', async () => {
@@ -627,8 +660,10 @@ describe('DynamoDbRepository Integration Tests', () => {
 
                 expect(results).toBeDefined();
                 expect(Array.isArray(results)).toBe(true);
+                expect(sumConsumedCapacity()).toEqual(62);
                 // Should handle pagination internally via batchGetItems
             }, 60000);
+
         });
     });
 
@@ -665,6 +700,7 @@ describe('DynamoDbRepository Integration Tests', () => {
             for (const data of testData) {
                 await repository.putItem({ id: data.id }, data);
             }
+            consumedCapacityRegister.splice(0, consumedCapacityRegister.length);
         });
 
         describe('EQUALS operator', () => {
@@ -678,6 +714,7 @@ describe('DynamoDbRepository Integration Tests', () => {
 
                 expect(results).toBeDefined();
                 expect(results?.every(item => item.status === 'active')).toBe(true);
+                expect(sumConsumedCapacity()).toEqual(0.5);
             });
 
             it('should filter items with exact number match', async () => {
@@ -692,6 +729,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                 if (results && results.length > 0) {
                     expect(results[0].age).toBe(30);
                 }
+                expect(sumConsumedCapacity()).toEqual(0.5);
             });
 
             it('should return empty array when no match found', async () => {
@@ -704,6 +742,7 @@ describe('DynamoDbRepository Integration Tests', () => {
 
                 expect(results).toBeDefined();
                 expect(results?.length).toBe(0);
+                expect(sumConsumedCapacity()).toEqual(0.5);
             });
         });
 
@@ -720,6 +759,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                 if (results && results.length > 0) {
                     expect(results[0].status).not.toBe('inactive');
                 }
+                expect(sumConsumedCapacity()).toEqual(0.5);
             });
 
             it('should filter items not matching number value', async () => {
@@ -734,6 +774,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                 if (results && results.length > 0) {
                     expect(results[0].age).not.toBe(25);
                 }
+                expect(sumConsumedCapacity()).toEqual(0.5);
             });
         });
 
@@ -750,6 +791,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                 if (results && results.length > 0) {
                     expect(results.every(item => item.age && item.age > 30)).toBe(true);
                 }
+                expect(sumConsumedCapacity()).toEqual(0.5);
             });
 
             it('should filter items greater than decimal value', async () => {
@@ -764,6 +806,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                 if (results && results.length > 0) {
                     expect(results.every(item => item.score && item.score > 89.0)).toBe(true);
                 }
+                expect(sumConsumedCapacity()).toEqual(0.5);
             });
 
             it('should return empty array when no items are greater', async () => {
@@ -776,6 +819,7 @@ describe('DynamoDbRepository Integration Tests', () => {
 
                 expect(results).toBeDefined();
                 expect(results?.length).toBe(0);
+                expect(sumConsumedCapacity()).toEqual(0.5);
             });
         });
 
@@ -792,6 +836,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                 if (results && results.length > 0) {
                     expect(results.every(item => item.age && item.age >= 30)).toBe(true);
                 }
+                expect(sumConsumedCapacity()).toEqual(0.5);
             });
 
             it('should include items with exact value', async () => {
@@ -807,6 +852,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                     const exactMatch = results.find(item => item.score === 95.5);
                     expect(exactMatch).toBeDefined();
                 }
+                expect(sumConsumedCapacity()).toEqual(0.5);
             });
         });
 
@@ -823,6 +869,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                 if (results && results.length > 0) {
                     expect(results.every(item => item.age && item.age < 30)).toBe(true);
                 }
+                expect(sumConsumedCapacity()).toEqual(0.5);
             });
 
             it('should filter items less than decimal value', async () => {
@@ -837,6 +884,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                 if (results && results.length > 0) {
                     expect(results.every(item => item.score && item.score < 75.0)).toBe(true);
                 }
+                expect(sumConsumedCapacity()).toEqual(0.5);
             });
         });
 
@@ -853,6 +901,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                 if (results && results.length > 0) {
                     expect(results.every(item => item.age && item.age <= 25)).toBe(true);
                 }
+                expect(sumConsumedCapacity()).toEqual(0.5);
             });
 
             it('should include items with exact value', async () => {
@@ -868,6 +917,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                     const exactMatch = results.find(item => item.score === 90.0);
                     expect(exactMatch).toBeDefined();
                 }
+                expect(sumConsumedCapacity()).toEqual(0.5);
             });
         });
 
@@ -884,6 +934,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                 if (results && results.length > 0) {
                     expect(results.every(item => ['active', 'pending'].includes(item.status || ''))).toBe(true);
                 }
+                expect(sumConsumedCapacity()).toEqual(0.5);
             });
 
             it('should filter items with value in array of numbers', async () => {
@@ -898,6 +949,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                 if (results && results.length > 0) {
                     expect(results.every(item => [25, 30, 35].includes(item.age || 0))).toBe(true);
                 }
+                expect(sumConsumedCapacity()).toEqual(0.5);
             });
 
             it('should return empty array when value not in list', async () => {
@@ -910,6 +962,7 @@ describe('DynamoDbRepository Integration Tests', () => {
 
                 expect(results).toBeDefined();
                 expect(results?.length).toBe(0);
+                expect(sumConsumedCapacity()).toEqual(0.5);
             });
 
             it('should handle single value in array', async () => {
@@ -924,6 +977,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                 if (results && results.length > 0) {
                     expect(results[0].status).toBe('active');
                 }
+                expect(sumConsumedCapacity()).toEqual(0.5);
             });
         });
 
@@ -940,6 +994,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                 if (results && results.length > 0) {
                     expect(results.every(item => item.age && item.age >= 25 && item.age <= 35)).toBe(true);
                 }
+                expect(sumConsumedCapacity()).toEqual(0.5);
             });
 
             it('should filter items with decimal value between range', async () => {
@@ -954,6 +1009,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                 if (results && results.length > 0) {
                     expect(results.every(item => item.score && item.score >= 80.0 && item.score <= 90.0)).toBe(true);
                 }
+                expect(sumConsumedCapacity()).toEqual(0.5);
             });
 
             it('should include boundary values', async () => {
@@ -970,6 +1026,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                     const hasUpperBound = results.some(item => item.age === 40);
                     expect(hasLowerBound || hasUpperBound).toBe(true);
                 }
+                expect(sumConsumedCapacity()).toEqual(0.5);
             });
 
             it('should return empty array when no values in range', async () => {
@@ -982,6 +1039,7 @@ describe('DynamoDbRepository Integration Tests', () => {
 
                 expect(results).toBeDefined();
                 expect(results?.length).toBe(0);
+                expect(sumConsumedCapacity()).toEqual(0.5);
             });
 
             it('should filter items with string value between range (lexicographical)', async () => {
@@ -998,6 +1056,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                         item.name && item.name >= 'Alice' && item.name <= 'Diana'
                     )).toBe(true);
                 }
+                expect(sumConsumedCapacity()).toEqual(0.5);
             });
         });
 
@@ -1037,6 +1096,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                         item.score && item.score >= 80.0
                     )).toBe(true);
                 }
+                expect(sumConsumedCapacity()).toEqual(0.5);
             });
         });
 
@@ -1053,6 +1113,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                 if (results && results.length > 0) {
                     expect(results.every(item => item.status !== 'inactive')).toBe(true);
                 }
+                expect(sumConsumedCapacity()).toEqual(0.5);
             });
 
             it('should negate IN operator', async () => {
@@ -1069,6 +1130,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                         !['active', 'pending'].includes(item.status || '')
                     )).toBe(true);
                 }
+                expect(sumConsumedCapacity()).toEqual(0.5);
             });
 
             it('should negate BETWEEN operator', async () => {
@@ -1085,6 +1147,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                         item.age && (item.age < 25 || item.age > 35)
                     )).toBe(true);
                 }
+                expect(sumConsumedCapacity()).toEqual(0.5);
             });
         });
 
