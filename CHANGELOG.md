@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/eresearchqut/ddb-repository/compare/v1.2.0...v1.3.0) (2025-11-20)
+
+
+### Features
+
+* Add test for the tracking of the consumed capacity ([4a1b23c](https://github.com/eresearchqut/ddb-repository/commit/4a1b23cadadbbb02d78507ca9d34715219fc952c))
+
 # [1.2.0](https://github.com/eresearchqut/ddb-repository/compare/v1.1.0...v1.2.0) (2025-11-19)
 
 
