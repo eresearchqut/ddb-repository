@@ -13,8 +13,6 @@ import {
 import {marshall, unmarshall} from "@aws-sdk/util-dynamodb";
 import {replace, uniqWith, isEqual, pickBy} from "lodash";
 
-const expressionAttributeKey = (key: string) => replace(key, /-/g, "_");
-
 export enum FilterOperator {
     EQUALS = "=",
     NOT_EQUALS = "<>",
@@ -55,6 +53,7 @@ export interface Query extends Partial<FilterableQuery>, Partial<ProjectedQuery>
     [key: string]: unknown;
 }
 
+const expressionAttributeKey = (key: string) => replace(key, /-/g, "_");
 
 const mapInKeys = (filterExpression: FilterExpression) =>
     Array.isArray(filterExpression.value)
@@ -63,7 +62,7 @@ const mapInKeys = (filterExpression: FilterExpression) =>
         )
         : `:${filterExpression.attribute}`;
 
-export const mapFilterExpression = (filterExpression: FilterExpression) => {
+const mapFilterExpression = (filterExpression: FilterExpression) => {
     switch (filterExpression.operator) {
         case FilterOperator.IN:
             return (
@@ -83,7 +82,7 @@ export const mapFilterExpression = (filterExpression: FilterExpression) => {
     }
 };
 
-export const mapFilterExpressions = (
+const mapFilterExpressions = (
     filterExpressions: Array<FilterExpression>,
 ) =>
     filterExpressions
