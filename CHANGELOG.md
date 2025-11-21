@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/eresearchqut/ddb-repository/compare/v1.4.1...v1.5.0) (2025-11-21)
+
+
+### Features
+
+* Initialise the repository using options ([e3a2f46](https://github.com/eresearchqut/ddb-repository/commit/e3a2f46d3a8fb0ca467409369eef505d0451b6b0))
+
 ## [1.4.1](https://github.com/eresearchqut/ddb-repository/compare/v1.4.0...v1.4.1) (2025-11-21)
 
 
