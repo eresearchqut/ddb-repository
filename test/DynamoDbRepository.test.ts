@@ -120,9 +120,23 @@ describe('DynamoDbRepository Integration Tests', () => {
         }
 
         // Initialize repositories
-        repository = new DynamoDbRepository(dynamoDBClient, tableName, "id");
-        compositeRepository = new DynamoDbRepository(dynamoDBClient, compositeTableName, "userId", "itemId");
-        gsiRepository = new DynamoDbRepository(dynamoDBClient, gsiTableName, "userId", "itemId");
+        repository = new DynamoDbRepository({
+            client: dynamoDBClient,
+            tableName: tableName,
+            hashKey: "id"
+        });
+        compositeRepository = new DynamoDbRepository({
+            client: dynamoDBClient,
+            tableName: compositeTableName,
+            hashKey: "userId",
+            rangeKey: "itemId"
+        });
+        gsiRepository = new DynamoDbRepository({
+            client: dynamoDBClient,
+            tableName: gsiTableName,
+            hashKey: "userId",
+            rangeKey: "itemId"
+        });
     });
 
     beforeEach(async () => {

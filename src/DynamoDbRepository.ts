@@ -118,16 +118,27 @@ const paginate = <T>(array: Array<T>, pageSize: number) => {
     }, [] as Array<Array<T>>);
 }
 
+export interface DynamoDbRepositoryOptions {
+    client: DynamoDBClient;
+    tableName: string;
+    hashKey: string;
+    rangeKey?: string;
+    returnConsumedCapacity?: ReturnConsumedCapacity;
+}
+
 export class DynamoDbRepository<K, T> {
+    private readonly dynamoDBClient: DynamoDBClient;
+    private readonly tableName: string;
+    private readonly hashKey: string;
+    private readonly rangKey?: string;
+    private readonly returnConsumedCapacity: ReturnConsumedCapacity | undefined;
 
-    constructor(
-        private readonly dynamoDBClient: DynamoDBClient,
-        private readonly tableName: string,
-        private readonly hashKey: string,
-        private readonly rangKey?: string,
-        private readonly returnConsumedCapacity: ReturnConsumedCapacity | undefined = ReturnConsumedCapacity.TOTAL,
-    ) {
-
+    constructor(options: DynamoDbRepositoryOptions) {
+        this.dynamoDBClient = options.client;
+        this.tableName = options.tableName;
+        this.hashKey = options.hashKey;
+        this.rangKey = options.rangeKey;
+        this.returnConsumedCapacity = options.returnConsumedCapacity ?? ReturnConsumedCapacity.TOTAL;
     }
 
     getItem = async (key: K): Promise<T | undefined> => {
