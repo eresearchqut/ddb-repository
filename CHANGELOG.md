@@ -1,3 +1,12 @@
+## [1.5.1](https://github.com/eresearchqut/ddb-repository/compare/v1.5.0...v1.5.1) (2025-12-10)
+
+
+### Bug Fixes
+
+* Module type ([52a2a07](https://github.com/eresearchqut/ddb-repository/commit/52a2a07295bafcfa8b621fd59d085d7dfd567402))
+* package updates ([79d5672](https://github.com/eresearchqut/ddb-repository/commit/79d56725628a6ea0216b86a5c2d8f158fc008de6))
+* Updated installation instructions ([282e1fd](https://github.com/eresearchqut/ddb-repository/commit/282e1fd0d6ffe24a3caefa5e2c1e7067a348a3ce))
+
 # [1.5.0](https://github.com/eresearchqut/ddb-repository/compare/v1.4.1...v1.5.0) (2025-11-21)
 
 
