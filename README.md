@@ -17,7 +17,7 @@ A TypeScript library providing a generic repository pattern implementation for A
 
 ## Installation
 ```sh
-npm install ddb-repository
+npm install @eresearchqut/ddb-repository
 ```
 ## Prerequisites
 
