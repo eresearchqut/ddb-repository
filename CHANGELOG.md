@@ -1,3 +1,10 @@
+## [1.5.3](https://github.com/eresearchqut/ddb-repository/compare/v1.5.2...v1.5.3) (2025-12-10)
+
+
+### Bug Fixes
+
+* adding repository to package.json ([94961d2](https://github.com/eresearchqut/ddb-repository/commit/94961d22bd371742b4ed4309cfe118e95ea09958))
+
 ## [1.5.2](https://github.com/eresearchqut/ddb-repository/compare/v1.5.1...v1.5.2) (2025-12-10)
 
 
