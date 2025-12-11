@@ -1,3 +1,10 @@
+## [1.5.8](https://github.com/eresearchqut/ddb-repository/compare/v1.5.7...v1.5.8) (2025-12-11)
+
+
+### Bug Fixes
+
+* Publish to npm ([18388e0](https://github.com/eresearchqut/ddb-repository/commit/18388e0694cd7e14bdec699446bde15177de0b12))
+
 ## [1.5.7](https://github.com/eresearchqut/ddb-repository/compare/v1.5.6...v1.5.7) (2025-12-11)
 
 
