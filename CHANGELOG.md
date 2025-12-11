@@ -1,3 +1,10 @@
+## [1.5.6](https://github.com/eresearchqut/ddb-repository/compare/v1.5.5...v1.5.6) (2025-12-11)
+
+
+### Bug Fixes
+
+* Adding NPM Publish ([6112d68](https://github.com/eresearchqut/ddb-repository/commit/6112d680e693114315ebfe63b6f542760098c76d))
+
 ## [1.5.5](https://github.com/eresearchqut/ddb-repository/compare/v1.5.4...v1.5.5) (2025-12-11)
 
 
