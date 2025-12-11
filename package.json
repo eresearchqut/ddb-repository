@@ -5,7 +5,8 @@
   "type": "commonjs",
   "main": "dist/index.js",
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "registry": "https://npm.pkg.github.com"
   },
   "scripts": {
     "build": "tsc",
