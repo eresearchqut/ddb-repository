@@ -1,7 +1,7 @@
 {
   "name": "@eresearchqut/ddb-repository",
   "version": "1.5.4",
-  "description": "",
+  "description": "A TypeScript library providing a generic repository pattern implementation for AWS DynamoDB, simplifying CRUD operations and common database interactions.",
   "type": "commonjs",
   "main": "dist/index.js",
   "publishConfig": {
