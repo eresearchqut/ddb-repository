@@ -465,6 +465,36 @@ describe('DynamoDbRepository Integration Tests', () => {
                 expect(sumConsumedCapacity()).toEqual(0.5);
             });
 
+            it('should support limit by returning at least that many items, in ascending order by range key', async () => {
+                const results = await compositeRepository.getItems({ userId: 'user-456', limit: 2 });
+
+                expect(results).toBeDefined();
+                // DynamoDB paginator may fetch additional pages; ensure we have at least the limited amount
+                expect((results || []).length).toBeGreaterThanOrEqual(2);
+                const firstTwo = (results || []).slice(0, 2).map(r => r.itemId);
+                expect(firstTwo).toEqual(['item-1', 'item-2']);
+            });
+
+            it('should support descending scan direction (sortOrder = DESC)', async () => {
+                const results = await compositeRepository.getItems({ userId: 'user-456', sortOrder: 'DESC' });
+
+                expect(results).toBeDefined();
+                const ids = (results || []).map(r => r.itemId);
+                // When DESC, first should be the highest range key
+                expect(ids[0]).toBe('item-3');
+                // Overall order should be descending
+                expect(ids).toEqual(['item-3', 'item-2', 'item-1']);
+            });
+
+            it('should support limit together with descending scan direction', async () => {
+                const results = await compositeRepository.getItems({ userId: 'user-456', sortOrder: 'DESC', limit: 2 });
+
+                expect(results).toBeDefined();
+                expect((results || []).length).toBeGreaterThanOrEqual(2);
+                const firstTwo = (results || []).slice(0, 2).map(r => r.itemId);
+                expect(firstTwo).toEqual(['item-3', 'item-2']);
+            });
+
         });
 
         describe('with GSI (Global Secondary Index)', () => {

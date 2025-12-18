@@ -51,6 +51,8 @@ export interface IndexedQuery {
 
 export interface Query extends Partial<FilterableQuery>, Partial<ProjectedQuery>, Partial<IndexedQuery> {
     [key: string]: unknown;
+    sortOrder?: "ASC" | "DESC";
+    limit?: number
 }
 
 const expressionAttributeKey = (key: string) => replace(key, /-/g, "_");
@@ -240,7 +242,7 @@ export class DynamoDbRepository<K, T> {
     getItems = async (
         query: Query
     ): Promise<Array<T> | undefined> => {
-        const {index, filterExpressions, projectedAttributes, ...keys} = query;
+        const {index, filterExpressions, projectedAttributes, limit, sortOrder,...keys} = query;
         const KeyConditionExpression = Object.keys(keys)
             .map((key) => `#${expressionAttributeKey(key)} = :${expressionAttributeKey(key)}`).join(' AND ');
         const keyExpressionAttributeNames = Object.keys(keys)
@@ -288,6 +290,9 @@ export class DynamoDbRepository<K, T> {
                 Object.assign({}),
             )
             : {};
+
+        const Limit = limit;
+        const ScanIndexForward = sortOrder === "DESC" ? false : undefined;
         const queryCommandInput: QueryCommandInput = {
             TableName: this.tableName,
             ReturnConsumedCapacity: this.returnConsumedCapacity,
@@ -304,6 +309,8 @@ export class DynamoDbRepository<K, T> {
                 {...keyExpressionAttributeValues, ...filterAttributeValues},
                 {removeUndefinedValues: true},
             ),
+            Limit,
+            ScanIndexForward
         };
         const paginator = paginateQuery(
             {client: this.dynamoDBClient, pageSize: 100},
