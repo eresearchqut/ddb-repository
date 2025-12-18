@@ -1,3 +1,10 @@
+## [1.5.11](https://github.com/eresearchqut/ddb-repository/compare/v1.5.10...v1.5.11) (2025-12-18)
+
+
+### Bug Fixes
+
+* MJS and CJS exports ([4f4b3fa](https://github.com/eresearchqut/ddb-repository/commit/4f4b3fa049afcf2e5c9f19aff5568ef19c91b600))
+
 ## [1.5.10](https://github.com/eresearchqut/ddb-repository/compare/v1.5.9...v1.5.10) (2025-12-11)
 
 
