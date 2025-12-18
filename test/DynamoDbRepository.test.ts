@@ -444,6 +444,14 @@ describe('DynamoDbRepository Integration Tests', () => {
                 expect(results?.length).toBe(3);
             });
 
+            it('should return all range keys for a given hash key', async () => {
+                const results = await compositeRepository.getItems({ userId: 'user-456' });
+
+                expect(results).toBeDefined();
+                const rangeKeys = (results || []).map(r => r.itemId).sort();
+                expect(rangeKeys).toEqual(['item-1', 'item-2', 'item-3']);
+            });
+
             it('should filter results with operators', async () => {
                 const results = await compositeRepository.getItems({
                     userId: 'user-456',
