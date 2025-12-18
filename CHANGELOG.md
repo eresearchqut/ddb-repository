@@ -1,3 +1,10 @@
+## [1.5.10](https://github.com/eresearchqut/ddb-repository/compare/v1.5.9...v1.5.10) (2025-12-11)
+
+
+### Bug Fixes
+
+* Publish to github ([a4b98a8](https://github.com/eresearchqut/ddb-repository/commit/a4b98a858aa78250a9d2fcb54c01dd1d3dceaf69))
+
 ## [1.5.9](https://github.com/eresearchqut/ddb-repository/compare/v1.5.8...v1.5.9) (2025-12-11)
 
 
