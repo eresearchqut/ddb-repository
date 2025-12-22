@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/eresearchqut/ddb-repository/compare/v1.5.11...v1.6.0) (2025-12-18)
+
+
+### Features
+
+* Query with limit and sort order ([d224d61](https://github.com/eresearchqut/ddb-repository/commit/d224d6188bec1aa62977781a933b020fe5a59b4a))
+
 ## [1.5.11](https://github.com/eresearchqut/ddb-repository/compare/v1.5.10...v1.5.11) (2025-12-18)
 
 
