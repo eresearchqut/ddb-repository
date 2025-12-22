@@ -27,8 +27,8 @@
     "lint:fix": "eslint . --ext .ts --fix"
   },
   "devDependencies": {
-    "@aws-sdk/client-dynamodb": "^3.948.0",
-    "@aws-sdk/util-dynamodb": "^3.948.0",
+    "@aws-sdk/client-dynamodb": "^3.956.0",
+    "@aws-sdk/util-dynamodb": "^3.956.0",
     "@eslint/js": "^9.39.1",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
@@ -51,8 +51,8 @@
     "typescript-eslint": "^8.49.0"
   },
   "peerDependencies": {
-    "@aws-sdk/client-dynamodb": ">= 3.49.0",
-    "@aws-sdk/util-dynamodb": ">= 3.49.0",
+    "@aws-sdk/client-dynamodb": ">= 3.956.0",
+    "@aws-sdk/util-dynamodb": ">= 3.956.0",
     "lodash": "^4.17.20"
   },
   "repository": {
