@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/eresearchqut/ddb-repository/compare/v1.6.0...v1.7.0) (2025-12-22)
+
+
+### Features
+
+* Client version ([73c5a28](https://github.com/eresearchqut/ddb-repository/commit/73c5a28378afa52be4baf3a1cfb6e73c73f9a654))
+
 # [1.6.0](https://github.com/eresearchqut/ddb-repository/compare/v1.5.11...v1.6.0) (2025-12-18)
 
 
