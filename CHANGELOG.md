@@ -1,3 +1,10 @@
+## [1.7.1](https://github.com/eresearchqut/ddb-repository/compare/v1.7.0...v1.7.1) (2026-01-28)
+
+
+### Bug Fixes
+
+* Export DynamoDbRepositoryOptions interface ([94c5ecf](https://github.com/eresearchqut/ddb-repository/commit/94c5ecf2b75f40d615442b0a11cc2f4bff427947))
+
 # [1.7.0](https://github.com/eresearchqut/ddb-repository/compare/v1.6.0...v1.7.0) (2025-12-22)
 
 
