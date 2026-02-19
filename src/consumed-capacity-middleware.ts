@@ -4,7 +4,6 @@ import {
 } from "@aws-sdk/client-dynamodb";
 
 import {
-    HandlerExecutionContext,
     InitializeHandler,
     InitializeHandlerArguments,
     InitializeHandlerOutput,
@@ -22,13 +21,10 @@ export interface ConsumedCapacityMiddlewareConfig {
     onConsumedCapacity: (consumedCapacity: ConsumedCapacityDetail) => Promise<unknown>;
 }
 
-/* eslint-disable  @typescript-eslint/no-explicit-any  */
-/* eslint-disable  @typescript-eslint/no-unused-vars  */
 export const consumedCapacityMiddleware =
     (consumedCapacityMiddlewareConfig: ConsumedCapacityMiddlewareConfig) =>
         <Output extends MetadataBearer = MetadataBearer>(
             next: InitializeHandler<any, Output>,
-            context: HandlerExecutionContext
         ): InitializeHandler<any, Output> =>
             async (args: InitializeHandlerArguments<any>): Promise<InitializeHandlerOutput<Output>> => {
                 const {input} = args;
