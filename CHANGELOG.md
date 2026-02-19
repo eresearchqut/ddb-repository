@@ -1,3 +1,10 @@
+## [1.8.1](https://github.com/eresearchqut/ddb-repository/compare/v1.8.0...v1.8.1) (2026-02-19)
+
+
+### Bug Fixes
+
+* Reverting package type ([e769577](https://github.com/eresearchqut/ddb-repository/commit/e7695775878060a070143c3d254264c1e4f4b600))
+
 # [1.8.0](https://github.com/eresearchqut/ddb-repository/compare/v1.7.1...v1.8.0) (2026-02-19)
 
 
