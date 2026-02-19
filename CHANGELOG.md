@@ -1,3 +1,10 @@
+# [1.8.0](https://github.com/eresearchqut/ddb-repository/compare/v1.7.1...v1.8.0) (2026-02-19)
+
+
+### Features
+
+* Moving packaging from tsup -> tsdown, type cleanup ([1d9afd6](https://github.com/eresearchqut/ddb-repository/commit/1d9afd60bd11a5549e578f41d67e06c53839653f))
+
 ## [1.7.1](https://github.com/eresearchqut/ddb-repository/compare/v1.7.0...v1.7.1) (2026-01-28)
 
 
