@@ -1,10 +1,10 @@
 
 import { DynamoDBClient, CreateTableCommand, DescribeTableCommand } from "@aws-sdk/client-dynamodb";
-import { LocalstackContainer, StartedLocalStackContainer } from "@testcontainers/localstack";
+import { GenericContainer, StartedTestContainer } from "testcontainers";
 import {ConsumedCapacityDetail, consumedCapacityMiddleware, DynamoDbRepository, FilterOperator} from "../src";
 
 describe('DynamoDbRepository Integration Tests', () => {
-    let container: StartedLocalStackContainer;
+    let container: StartedTestContainer;
     let dynamoDBClient: DynamoDBClient;
     let repository: DynamoDbRepository<{ id: string }, { id: string; name: string; email?: string; age?: number; status?: string, score?: number }>;
     let compositeRepository: DynamoDbRepository<{ userId: string; itemId?: string }, { userId: string; itemId: string; name: string; category?: string; price?: number }>;
@@ -27,13 +27,13 @@ describe('DynamoDbRepository Integration Tests', () => {
             total + getConsumedCapacity(value), 0);
 
     beforeAll(async () => {
-        // Start LocalStack container with DynamoDB
-        container = await new LocalstackContainer("localstack/localstack:latest")
+        container = await new GenericContainer("amazon/dynamodb-local")
+            .withExposedPorts(8000)
             .start();
 
         // Create DynamoDB client pointing to the container
         dynamoDBClient = new DynamoDBClient({
-            endpoint: container.getConnectionUri(),
+            endpoint: `http://${container.getHost()}:${container.getMappedPort(8000)}`,
             region: "us-east-1",
             credentials: {
                 accessKeyId: "test",
@@ -205,7 +205,7 @@ describe('DynamoDbRepository Integration Tests', () => {
             await repository.deleteItem(key);
             const afterDelete = await repository.getItem(key);
             expect(afterDelete).toBeUndefined();
-            expect(sumConsumedCapacity()).toEqual(2);
+            expect(sumConsumedCapacity()).toEqual(3);
         });
 
         it('should return undefined when deleting a non-existent item', async () => {
