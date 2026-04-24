@@ -182,6 +182,18 @@ describe('DynamoDbRepository Integration Tests', () => {
             expect(result).toEqual(record);
             expect(sumConsumedCapacity()).toEqual(1.5);
         });
+
+        it('should overwrite an existing item', async () => {
+            const key = { id: 'overwrite-item' };
+            await repository.putItem(key, { id: 'overwrite-item', name: 'Original', email: 'original@example.com' });
+            consumedCapacityRegister.splice(0, consumedCapacityRegister.length);
+
+            const result = await repository.putItem(key, { id: 'overwrite-item', name: 'Replaced' });
+
+            expect(result).toEqual({ id: 'overwrite-item', name: 'Replaced' });
+            expect(result).not.toHaveProperty('email');
+            expect(sumConsumedCapacity()).toEqual(1.5);
+        });
     });
 
     describe('deleteItem', () => {
@@ -194,6 +206,12 @@ describe('DynamoDbRepository Integration Tests', () => {
             const afterDelete = await repository.getItem(key);
             expect(afterDelete).toBeUndefined();
             expect(sumConsumedCapacity()).toEqual(2);
+        });
+
+        it('should return undefined when deleting a non-existent item', async () => {
+            const result = await repository.deleteItem({ id: 'does-not-exist' });
+
+            expect(result).toBeUndefined();
         });
     });
 
@@ -211,6 +229,40 @@ describe('DynamoDbRepository Integration Tests', () => {
                 email: 'original@example.com'
             });
             expect(sumConsumedCapacity()).toEqual(3);
+        });
+
+        it('should remove attributes using the remove parameter', async () => {
+            const key = { id: 'update-remove' };
+            await repository.putItem(key, { id: 'update-remove', name: 'Test', email: 'test@example.com', age: 30 });
+            consumedCapacityRegister.splice(0, consumedCapacityRegister.length);
+
+            const result = await repository.updateItem(key, {}, ['email', 'age']);
+
+            expect(result).toBeDefined();
+            expect(result).not.toHaveProperty('email');
+            expect(result).not.toHaveProperty('age');
+            expect(result).toHaveProperty('name', 'Test');
+        });
+
+        it('should update some attributes and remove others in the same call', async () => {
+            const key = { id: 'update-mixed' };
+            await repository.putItem(key, { id: 'update-mixed', name: 'Original', email: 'old@example.com', age: 25 });
+            consumedCapacityRegister.splice(0, consumedCapacityRegister.length);
+
+            const result = await repository.updateItem(key, { name: 'Updated' }, ['email']);
+
+            expect(result).toBeDefined();
+            expect(result?.name).toBe('Updated');
+            expect(result).not.toHaveProperty('email');
+            expect(result?.age).toBe(25);
+        });
+
+        it('should update a non-existent item by creating it (upsert)', async () => {
+            const key = { id: 'update-nonexistent' };
+            const result = await repository.updateItem(key, { name: 'New Via Update' });
+
+            expect(result).toBeDefined();
+            expect(result?.name).toBe('New Via Update');
         });
     });
 
@@ -415,6 +467,24 @@ describe('DynamoDbRepository Integration Tests', () => {
                     age: 25
                 });
                 expect(sumConsumedCapacity()).toEqual(2);
+            });
+
+            it('should return only projected attributes', async () => {
+                const testId = 'query-projected';
+                await repository.putItem({ id: testId }, { id: testId, name: 'Projected Item', age: 42, email: 'proj@example.com' });
+                consumedCapacityRegister.splice(0, consumedCapacityRegister.length);
+
+                const results = await repository.getItems({
+                    id: testId,
+                    projectedAttributes: ['id', 'name']
+                });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBe(1);
+                expect(results?.[0]).toHaveProperty('id', testId);
+                expect(results?.[0]).toHaveProperty('name', 'Projected Item');
+                expect(results?.[0]).not.toHaveProperty('age');
+                expect(results?.[0]).not.toHaveProperty('email');
             });
 
         });
