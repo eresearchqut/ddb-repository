@@ -173,7 +173,8 @@ export class DynamoDbRepository<K, T> {
     deleteItem = async (key: K) => {
         return this.dynamoDBClient.send(new DeleteItemCommand({
             TableName: this.tableName,
-            Key: marshall(key),
+            Key: marshall(key, {removeUndefinedValues: true}),
+            ReturnConsumedCapacity: this.returnConsumedCapacity,
         })).then((result) => result.Attributes ?
             unmarshall(result.Attributes) : undefined);
     };
