@@ -21,12 +21,16 @@ export interface ConsumedCapacityMiddlewareConfig {
     onConsumedCapacity: (consumedCapacity: ConsumedCapacityDetail) => Promise<unknown>;
 }
 
+interface ConsumedCapacityInput {
+    ReturnConsumedCapacity?: ReturnConsumedCapacity;
+}
+
 export const consumedCapacityMiddleware =
     (consumedCapacityMiddlewareConfig: ConsumedCapacityMiddlewareConfig) =>
         <Output extends MetadataBearer = MetadataBearer>(
-            next: InitializeHandler<any, Output>,
-        ): InitializeHandler<any, Output> =>
-            async (args: InitializeHandlerArguments<any>): Promise<InitializeHandlerOutput<Output>> => {
+            next: InitializeHandler<ConsumedCapacityInput, Output>,
+        ): InitializeHandler<ConsumedCapacityInput, Output> =>
+            async (args: InitializeHandlerArguments<ConsumedCapacityInput>): Promise<InitializeHandlerOutput<Output>> => {
                 const {input} = args;
                 const {ReturnConsumedCapacity} = input;
                 const response = await next(args);
