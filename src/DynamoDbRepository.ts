@@ -104,7 +104,7 @@ const mapFilterExpressionValues = (
                 ...reduction,
                 [`:${expressionAttributeKey(filterExpression.attribute)}${index}`]: value,
             }),
-            Object.assign({}),
+            {},
         )
         : {
             [`:${expressionAttributeKey(filterExpression.attribute)}`]:
@@ -132,14 +132,14 @@ export class DynamoDbRepository<K, T> {
     private readonly dynamoDBClient: DynamoDBClient;
     private readonly tableName: string;
     private readonly hashKey: string;
-    private readonly rangKey?: string;
+    private readonly rangeKey?: string;
     private readonly returnConsumedCapacity: ReturnConsumedCapacity | undefined;
 
     constructor(options: DynamoDbRepositoryOptions) {
         this.dynamoDBClient = options.client;
         this.tableName = options.tableName;
         this.hashKey = options.hashKey;
-        this.rangKey = options.rangeKey;
+        this.rangeKey = options.rangeKey;
         this.returnConsumedCapacity = options.returnConsumedCapacity ?? ReturnConsumedCapacity.TOTAL;
     }
 
@@ -215,9 +215,7 @@ export class DynamoDbRepository<K, T> {
                         ...acc,
                         [`#${expressionAttributeKey(key)}`]: key,
                     }),
-                    Object.assign(
-                        removeAttributeNames,
-                    ),
+                    {...removeAttributeNames},
                 ) as Record<string, string>,
             ExpressionAttributeValues: hasUpdates ? marshall(
                 Object.entries(updates).reduce(
@@ -225,9 +223,7 @@ export class DynamoDbRepository<K, T> {
                         ...acc,
                         [`:${expressionAttributeKey(key)}`]: value,
                     }),
-                    Object.assign(
-                        {},
-                    ),
+                    {},
                 ),
                 {removeUndefinedValues: true},
             ) : undefined,
@@ -246,9 +242,9 @@ export class DynamoDbRepository<K, T> {
         const KeyConditionExpression = Object.keys(keys)
             .map((key) => `#${expressionAttributeKey(key)} = :${expressionAttributeKey(key)}`).join(' AND ');
         const keyExpressionAttributeNames = Object.keys(keys)
-            .reduce((acc, key) => ({...acc, [`#${expressionAttributeKey(key)}`]: key}), Object.assign({}));
+            .reduce((acc, key) => ({...acc, [`#${expressionAttributeKey(key)}`]: key}), {});
         const keyExpressionAttributeValues = Object.entries(keys)
-            .reduce((acc, [key, value]) => ({...acc, [`:${expressionAttributeKey(key)}`]: value}), Object.assign({}));
+            .reduce((acc, [key, value]) => ({...acc, [`:${expressionAttributeKey(key)}`]: value}), {});
 
         const ProjectionExpression = !index && projectedAttributes
             ? projectedAttributes.map((attribute) => `#${expressionAttributeKey(attribute)}`).join(',')
@@ -262,7 +258,7 @@ export class DynamoDbRepository<K, T> {
                 [`#${expressionAttributeKey(attribute)}`]:
                 attribute,
             }),
-            Object.assign({}),
+            {},
         ) : {}
         const hasFilterExpressions = Array.isArray(filterExpressions) && filterExpressions.length > 0;
         const FilterExpression = hasFilterExpressions
@@ -278,7 +274,7 @@ export class DynamoDbRepository<K, T> {
                     [`#${expressionAttributeKey(filterExpression.attribute)}`]:
                     filterExpression.attribute,
                 }),
-                Object.assign({}),
+                {},
             )
             : {};
         const filterAttributeValues = filterExpressions
@@ -287,7 +283,7 @@ export class DynamoDbRepository<K, T> {
                     ...reduction,
                     ...mapFilterExpressionValues(filterExpression),
                 }),
-                Object.assign({}),
+                {},
             )
             : {};
 
@@ -324,7 +320,7 @@ export class DynamoDbRepository<K, T> {
                     keys.push(
                         ...(page.Items.map((item) => unmarshall(item) as T)
                             .map((item: T) =>
-                                pickBy(item as object, (_, key) => (key === this.hashKey || key === this.rangKey)) as K)),
+                                pickBy(item as object, (_, key) => (key === this.hashKey || key === this.rangeKey)) as K)),
                     )
                 }
             }
@@ -363,7 +359,7 @@ export class DynamoDbRepository<K, T> {
                 [`#${expressionAttributeKey(attribute)}`]:
                 attribute,
             }),
-            Object.assign({}),
+            {},
         ) : undefined;
         return Promise.all((keyPages.map(async (keyPage) => {
             const batchRequest: BatchGetItemCommandInput = {
