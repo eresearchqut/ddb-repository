@@ -1,13 +1,26 @@
 {
-  "last_run": "2026-04-24T03:10:14Z",
-  "run_id": "24870169460",
+  "last_run": "2026-04-24T04:49:28Z",
+  "run_id": "24872752871",
   "comments_made": {},
   "prs_created": [
     {
       "branch": "repo-assist/improve-cleanup-object-assign-rangkey",
+      "pr_number": 2,
       "description": "refactor: replace Object.assign({}) with {} and fix rangKey typo",
       "status": "open",
       "created_at": "2026-04-24T03:10:14Z"
+    },
+    {
+      "branch": "repo-assist/fix-deleteitem-consumed-capacity-20260424",
+      "description": "fix: add ReturnConsumedCapacity and removeUndefinedValues to deleteItem",
+      "status": "open",
+      "created_at": "2026-04-24T04:49:28Z"
+    },
+    {
+      "branch": "repo-assist/test-missing-coverage-20260424",
+      "description": "test: add missing coverage for updateItem remove, putItem overwrite, deleteItem non-existent, and getItems projection",
+      "status": "open",
+      "created_at": "2026-04-24T04:49:28Z"
     }
   ],
   "issues_labelled": {},
@@ -16,8 +29,9 @@
     "labelling": 0
   },
   "monthly_activity_issue": {
+    "number": 3,
     "month": "2026-04",
-    "status": "created"
+    "status": "updated"
   },
-  "notes": "First run. Only one open issue (#1) which is an automated workflow failure with agentic-workflows label — no labelling needed. Created refactor PR for Object.assign cleanup and rangKey typo fix."
+  "notes": "3 open Repo Assist PRs. PR #2 (Object.assign/rangKey) still open. Two new PRs: fix for deleteItem missing ReturnConsumedCapacity, and tests for updateItem remove/putItem overwrite/deleteItem non-existent/getItems projection. Only 2 open issues: #3 monthly activity summary, #1 workflow failure (agentic-workflows, not actionable)."
 }
