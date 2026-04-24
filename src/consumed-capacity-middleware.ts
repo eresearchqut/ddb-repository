@@ -1,13 +1,14 @@
 import {
     ConsumedCapacity,
-    ReturnConsumedCapacity
+    ReturnConsumedCapacity,
+    ServiceInputTypes,
+    ServiceOutputTypes,
 } from "@aws-sdk/client-dynamodb";
 
 import {
     InitializeHandler,
     InitializeHandlerArguments,
     InitializeHandlerOutput,
-    MetadataBearer
 } from "@smithy/types";
 
 import {get} from "lodash";
@@ -21,21 +22,15 @@ export interface ConsumedCapacityMiddlewareConfig {
     onConsumedCapacity: (consumedCapacity: ConsumedCapacityDetail) => Promise<unknown>;
 }
 
-interface ConsumedCapacityInput {
-    ReturnConsumedCapacity?: ReturnConsumedCapacity;
-}
-
 export const consumedCapacityMiddleware =
     (consumedCapacityMiddlewareConfig: ConsumedCapacityMiddlewareConfig) =>
-        <Output extends MetadataBearer = MetadataBearer>(
-            next: InitializeHandler<ConsumedCapacityInput, Output>,
-        ): InitializeHandler<ConsumedCapacityInput, Output> =>
-            async (args: InitializeHandlerArguments<ConsumedCapacityInput>): Promise<InitializeHandlerOutput<Output>> => {
+        (next: InitializeHandler<ServiceInputTypes, ServiceOutputTypes>) =>
+            async (args: InitializeHandlerArguments<ServiceInputTypes>): Promise<InitializeHandlerOutput<ServiceOutputTypes>> => {
                 const {input} = args;
-                const {ReturnConsumedCapacity} = input;
+                const returnConsumedCapacity = get(input, "ReturnConsumedCapacity") as ReturnConsumedCapacity | undefined;
                 const response = await next(args);
                 const {output} = response;
                 const consumedCapacity = get(output, "ConsumedCapacity") as ConsumedCapacity | ConsumedCapacity[] | undefined;
-                await consumedCapacityMiddlewareConfig.onConsumedCapacity({ReturnConsumedCapacity, ConsumedCapacity: consumedCapacity});
+                await consumedCapacityMiddlewareConfig.onConsumedCapacity({ReturnConsumedCapacity: returnConsumedCapacity, ConsumedCapacity: consumedCapacity});
                 return response;
             };
