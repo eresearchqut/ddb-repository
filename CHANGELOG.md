@@ -1,3 +1,11 @@
+## [1.8.4](https://github.com/eresearchqut/ddb-repository/compare/v1.8.3...v1.8.4) (2026-04-24)
+
+
+### Bug Fixes
+
+* add ReturnConsumedCapacity and removeUndefinedValues to deleteItem ([20e9231](https://github.com/eresearchqut/ddb-repository/commit/20e9231daa8b75f62635cb3427c70c430b7fda4c))
+* resolve TypeScript type error in consumedCapacityMiddleware ([c509ebb](https://github.com/eresearchqut/ddb-repository/commit/c509ebbe11a00602dacbd6262ad85d740ef663bd))
+
 ## [1.8.3](https://github.com/eresearchqut/ddb-repository/compare/v1.8.2...v1.8.3) (2026-04-24)
 
 
