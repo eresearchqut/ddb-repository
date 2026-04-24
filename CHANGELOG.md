@@ -1,3 +1,10 @@
+## [1.8.3](https://github.com/eresearchqut/ddb-repository/compare/v1.8.2...v1.8.3) (2026-04-24)
+
+
+### Bug Fixes
+
+* replace explicit any types in consumedCapacityMiddleware ([5e50f96](https://github.com/eresearchqut/ddb-repository/commit/5e50f969bb3701eaa506b11d0e6bb754ecbe3e0d))
+
 ## [1.8.2](https://github.com/eresearchqut/ddb-repository/compare/v1.8.1...v1.8.2) (2026-02-19)
 
 
