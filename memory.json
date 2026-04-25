@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-04-25T01:05:23Z",
-  "run_id": "24918792164",
+  "last_run": "2026-04-25T12:56:37Z",
+  "run_id": "24931388368",
   "comments_made": {},
   "prs_created": [
     {
@@ -14,8 +14,22 @@
       "branch": "repo-assist/fix-batchgetitems-unprocessed-keys",
       "description": "fix: retry UnprocessedKeys in batchGetItems with exponential backoff",
       "status": "open",
-      "pr_number": null,
+      "pr_number": 8,
       "created_at": "2026-04-25T01:05:23Z"
+    },
+    {
+      "branch": "repo-assist/fix-mapinkeys-dash-attribute-20260425",
+      "description": "fix: apply expressionAttributeKey to IN filter value placeholders",
+      "status": "pending_creation",
+      "pr_number": null,
+      "created_at": "2026-04-25T12:56:37Z"
+    },
+    {
+      "branch": "repo-assist/eng-ci-npm-cache-20260425",
+      "description": "ci: add npm dependency caching to build and release workflows",
+      "status": "pending_creation",
+      "pr_number": null,
+      "created_at": "2026-04-25T12:56:37Z"
     }
   ],
   "prs_closed_or_merged": {
@@ -34,5 +48,5 @@
     "month": "2026-04",
     "status": "updated"
   },
-  "notes": "2 open Repo Assist PRs: PR #7 (marshall fix for updateItem+batchGetItems), new PR (batchGetItems UnprocessedKeys retry + safe optional chain + removeUndefinedValues). Note: new PR also covers the marshall fix from PR #7 for batchGetItems - maintainer may want to merge #7 first then close new PR's duplicate part, or merge new PR and close #7. Next run: check if PRs have numbers, update monthly activity with PR number. Cosmetic fixes (Object.assign, rangKey typo) declined by maintainer in PR #2 - do not re-propose."
+  "notes": "4 open Repo Assist PRs: #7 (marshall fix), #8 (batchGetItems UnprocessedKeys retry), pending PR (mapInKeys expressionAttributeKey fix for IN filter with dashes), pending CI npm cache PR. Next run: check pending PRs have numbers and update monthly activity. Do NOT re-propose: cosmetic Object.assign/{} (PR #2 declined). All deps up to date as of 2026-04-25."
 }
