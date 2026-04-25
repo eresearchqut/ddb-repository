@@ -60,9 +60,9 @@ const expressionAttributeKey = (key: string) => replace(key, /-/g, "_");
 const mapInKeys = (filterExpression: FilterExpression) =>
     Array.isArray(filterExpression.value)
         ? filterExpression.value.map(
-            (_, index) => `:${filterExpression.attribute}${index}`,
+            (_, index) => `:${expressionAttributeKey(filterExpression.attribute)}${index}`,
         )
-        : `:${filterExpression.attribute}`;
+        : `:${expressionAttributeKey(filterExpression.attribute)}`;
 
 const mapFilterExpression = (filterExpression: FilterExpression) => {
     switch (filterExpression.operator) {
