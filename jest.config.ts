@@ -5,10 +5,8 @@ const config: Config.InitialOptions = {
     testEnvironment: 'node',
     roots: ['<rootDir>/src', '<rootDir>/test'],
     testMatch: ['**/*.test.ts', '**/*.spec.ts'],
-    globals: {
-        'ts-jest': {
-            tsconfig: 'tsconfig.test.json',
-        },
+    transform: {
+        '^.+\\.tsx?$': ['ts-jest', { tsconfig: 'tsconfig.test.json' }],
     },
     collectCoverage: false, // Set to true by default if you want coverage on every run
     collectCoverageFrom: [

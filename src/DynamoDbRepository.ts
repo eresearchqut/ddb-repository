@@ -10,7 +10,7 @@ import {
     ReturnConsumedCapacity,
     UpdateItemCommand,
 } from "@aws-sdk/client-dynamodb";
-import {marshall, unmarshall} from "@aws-sdk/util-dynamodb";
+import {marshall, unmarshall, NativeAttributeValue} from "@aws-sdk/util-dynamodb";
 import {replace, uniqWith, isEqual, pickBy} from "lodash";
 
 export enum FilterOperator {
@@ -51,9 +51,15 @@ export interface IndexedQuery {
 
 export interface Query extends Partial<FilterableQuery>, Partial<ProjectedQuery>, Partial<IndexedQuery> {
     [key: string]: unknown;
+    filterExpressions?: Array<FilterExpression>;
+    projectedAttributes?: string[];
+    index?: string;
     sortOrder?: "ASC" | "DESC";
     limit?: number
 }
+
+const marshallKey = (key: unknown) =>
+    marshall(key as Record<string, NativeAttributeValue>, {removeUndefinedValues: true});
 
 const expressionAttributeKey = (key: string) => replace(key, /-/g, "_");
 
@@ -148,7 +154,7 @@ export class DynamoDbRepository<K, T> {
             .send(
                 new GetItemCommand({
                     TableName: this.tableName,
-                    Key: marshall(key, {removeUndefinedValues: true}),
+                    Key: marshallKey(key),
                     ReturnConsumedCapacity: this.returnConsumedCapacity,
                 }),
             )
@@ -158,7 +164,7 @@ export class DynamoDbRepository<K, T> {
     };
 
     putItem = async (key: K, record: T): Promise<T> => {
-        const Item = marshall({...record, ...key}, {removeUndefinedValues: true});
+        const Item = marshall({...record, ...key} as Record<string, NativeAttributeValue>, {removeUndefinedValues: true});
         return this.dynamoDBClient
             .send(
                 new PutItemCommand({
@@ -173,7 +179,7 @@ export class DynamoDbRepository<K, T> {
     deleteItem = async (key: K) => {
         return this.dynamoDBClient.send(new DeleteItemCommand({
             TableName: this.tableName,
-            Key: marshall(key, {removeUndefinedValues: true}),
+            Key: marshallKey(key),
             ReturnConsumedCapacity: this.returnConsumedCapacity,
         })).then((result) => result.Attributes ?
             unmarshall(result.Attributes) : undefined);
@@ -207,7 +213,7 @@ export class DynamoDbRepository<K, T> {
             : {};
         const updateItemCommandInput = {
             TableName: this.tableName,
-            Key: marshall(key, {removeUndefinedValues: true}),
+            Key: marshallKey(key),
             UpdateExpression: `${setAttributesExpression}${removeAttributesExpression}`,
             ExpressionAttributeNames: Object.entries(updates)
                 .filter(([, value]) => value !== undefined)
@@ -229,7 +235,7 @@ export class DynamoDbRepository<K, T> {
                     Object.assign(
                         {},
                     ),
-                ),
+                ) as Record<string, NativeAttributeValue>,
                 {removeUndefinedValues: true},
             ) : undefined,
             ReturnConsumedCapacity: this.returnConsumedCapacity,
@@ -267,10 +273,10 @@ export class DynamoDbRepository<K, T> {
         ) : {}
         const hasFilterExpressions = Array.isArray(filterExpressions) && filterExpressions.length > 0;
         const FilterExpression = hasFilterExpressions
-            ? mapFilterExpressions(filterExpressions)
+            ? mapFilterExpressions(filterExpressions!)
             : undefined;
         const filterAttributeNames: Record<string, string> = hasFilterExpressions
-            ? filterExpressions.reduce(
+            ? filterExpressions!.reduce(
                 (
                     reduction: Record<string, string>,
                     filterExpression: FilterExpression,
@@ -307,7 +313,7 @@ export class DynamoDbRepository<K, T> {
                 ...projectionAttributeNames
             },
             ExpressionAttributeValues: marshall(
-                {...keyExpressionAttributeValues, ...filterAttributeValues},
+                {...keyExpressionAttributeValues, ...filterAttributeValues} as Record<string, NativeAttributeValue>,
                 {removeUndefinedValues: true},
             ),
             Limit,
@@ -370,7 +376,7 @@ export class DynamoDbRepository<K, T> {
             const batchRequest: BatchGetItemCommandInput = {
                 RequestItems: {
                     [this.tableName]: {
-                        Keys: keyPage.map((key) => (marshall(key, {removeUndefinedValues: true}))),
+                        Keys: keyPage.map((key) => marshallKey(key)),
                         ProjectionExpression,
                         ExpressionAttributeNames,
                     }
