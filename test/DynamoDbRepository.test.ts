@@ -1,5 +1,6 @@
 
-import { DynamoDBClient, CreateTableCommand, DescribeTableCommand } from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient, CreateTableCommand, DescribeTableCommand, PutItemCommand } from "@aws-sdk/client-dynamodb";
+import { marshall } from "@aws-sdk/util-dynamodb";
 import { GenericContainer, StartedTestContainer } from "testcontainers";
 import {ConsumedCapacityDetail, consumedCapacityMiddleware, DynamoDbRepository, FilterOperator} from "../src";
 
@@ -263,6 +264,21 @@ describe('DynamoDbRepository Integration Tests', () => {
 
             expect(result).toBeDefined();
             expect(result?.name).toBe('New Via Update');
+        });
+
+        it('should correctly remove a hyphenated attribute name', async () => {
+            const key = { id: 'update-hyphen-remove' };
+            await dynamoDBClient.send(new PutItemCommand({
+                TableName: tableName,
+                Item: marshall({ id: 'update-hyphen-remove', name: 'Test', 'my-attr': 'value' }, { removeUndefinedValues: true }),
+            }));
+            consumedCapacityRegister.splice(0, consumedCapacityRegister.length);
+
+            const result = await repository.updateItem(key, {}, ['my-attr']);
+
+            expect(result).toBeDefined();
+            expect(result).not.toHaveProperty('my-attr');
+            expect(result).toHaveProperty('name', 'Test');
         });
     });
 

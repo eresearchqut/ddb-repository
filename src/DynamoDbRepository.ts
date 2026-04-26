@@ -197,12 +197,12 @@ export class DynamoDbRepository<K, T> {
             ? ` REMOVE ${remove.map((key) => `#${expressionAttributeKey(key)}`).join(", ")}`
             : "";
         const removeAttributeNames = remove
-            ? remove.map(expressionAttributeKey).reduce(
+            ? remove.reduce(
                 (acc, key) => ({
                     ...acc,
                     [`#${expressionAttributeKey(key)}`]: key,
                 }),
-                {},
+                {} as Record<string, string>,
             )
             : {};
         const updateItemCommandInput = {
