@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-04-26T01:13:38Z",
-  "run_id": "24944963764",
+  "last_run": "2026-04-26T12:56:36Z",
+  "run_id": "24957144620",
   "comments_made": {},
   "prs_created": [
     {
@@ -28,7 +28,7 @@
       "branch": "repo-assist/fix-remove-attr-name-double-escape-20260426",
       "description": "fix: correct ExpressionAttributeNames for hyphenated attributes in updateItem remove",
       "status": "open",
-      "pr_number": null,
+      "pr_number": 11,
       "created_at": "2026-04-26T01:13:38Z"
     }
   ],
@@ -48,5 +48,5 @@
     "month": "2026-04",
     "status": "updated"
   },
-  "notes": "Open Repo Assist PRs: #7 (marshall fix), #8 (batchGetItems UnprocessedKeys retry), #9 (mapInKeys expressionAttributeKey fix), plus new PR this run (removeAttributeNames double-escape fix). Issue #10: CI caching blocked by protected file permission - maintainer must apply manually. Issue #1: auth-failure, expired May 1. Do NOT re-propose: cosmetic Object.assign/{} (PR #2 declined). All deps up to date as of 2026-04-25. Bugs fixed this run: removeAttributeNames applied expressionAttributeKey twice causing REMOVE on hyphenated attrs to silently target wrong attribute."
+  "notes": "Open Repo Assist PRs: #7 (marshall fix), #8 (batchGetItems UnprocessedKeys retry), #9 (mapInKeys expressionAttributeKey fix), #11 (removeAttributeNames double-escape fix). Issues #10 and #12: CI caching and Dependabot config PRs blocked by GitHub Actions .github/ permission — maintainer must apply manually. Issue #1: auth-failure, expires May 1. Do NOT re-propose: cosmetic Object.assign/{} (PR #2 declined). All deps up to date as of 2026-04-26. Task 2: No user/maintainer issues to comment on (all open issues are Repo Assist's own)."
 }
