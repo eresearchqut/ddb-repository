@@ -1,3 +1,10 @@
+## [1.8.6](https://github.com/eresearchqut/ddb-repository/compare/v1.8.5...v1.8.6) (2026-04-26)
+
+
+### Bug Fixes
+
+* correct TypeScript module resolution for bundler project ([4c4d1e1](https://github.com/eresearchqut/ddb-repository/commit/4c4d1e10079c605f0bba22b50330fa5d9464f127))
+
 ## [1.8.5](https://github.com/eresearchqut/ddb-repository/compare/v1.8.4...v1.8.5) (2026-04-26)
 
 
