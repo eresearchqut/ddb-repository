@@ -207,7 +207,7 @@ export class DynamoDbRepository<K, T> {
             : {};
         const updateItemCommandInput = {
             TableName: this.tableName,
-            Key: marshall(key),
+            Key: marshall(key, {removeUndefinedValues: true}),
             UpdateExpression: `${setAttributesExpression}${removeAttributesExpression}`,
             ExpressionAttributeNames: Object.entries(updates)
                 .filter(([, value]) => value !== undefined)
