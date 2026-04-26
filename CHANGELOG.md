@@ -1,3 +1,13 @@
+## [1.8.5](https://github.com/eresearchqut/ddb-repository/compare/v1.8.4...v1.8.5) (2026-04-26)
+
+
+### Bug Fixes
+
+* add removeUndefinedValues to marshall calls in updateItem and batchGetItems ([4f401e9](https://github.com/eresearchqut/ddb-repository/commit/4f401e9dd186b60a3db81e1bbc9ff5fd6e1ead8d))
+* apply expressionAttributeKey to IN filter value placeholders ([4ba199c](https://github.com/eresearchqut/ddb-repository/commit/4ba199c4e28c2de07932a3c7496ac1706a8d4083))
+* correct ExpressionAttributeNames for hyphenated attributes in updateItem remove ([04c88f0](https://github.com/eresearchqut/ddb-repository/commit/04c88f02211b57519dc2d81c1645f4942aa71104)), closes [#my_attr](https://github.com/eresearchqut/ddb-repository/issues/my_attr)
+* retry UnprocessedKeys in batchGetItems with exponential backoff ([23f98ed](https://github.com/eresearchqut/ddb-repository/commit/23f98ed29281835951e8c2c6c92853710fba075d))
+
 ## [1.8.4](https://github.com/eresearchqut/ddb-repository/compare/v1.8.3...v1.8.4) (2026-04-24)
 
 
