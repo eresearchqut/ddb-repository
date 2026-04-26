@@ -370,15 +370,28 @@ export class DynamoDbRepository<K, T> {
             const batchRequest: BatchGetItemCommandInput = {
                 RequestItems: {
                     [this.tableName]: {
-                        Keys: keyPage.map((key) => (marshall(key))),
+                        Keys: keyPage.map((key) => (marshall(key, {removeUndefinedValues: true}))),
                         ProjectionExpression,
                         ExpressionAttributeNames,
                     }
                 },
                 ReturnConsumedCapacity: this.returnConsumedCapacity,
             }
-            return this.dynamoDBClient.send(new BatchGetItemCommand(batchRequest)).then(result =>
-                result.Responses?.[this.tableName].map((item) => unmarshall(item) as T));
+            const items: T[] = [];
+            let result = await this.dynamoDBClient.send(new BatchGetItemCommand(batchRequest));
+            items.push(...(result.Responses?.[this.tableName]?.map((item) => unmarshall(item) as T) ?? []));
+
+            let delay = 100;
+            while (result.UnprocessedKeys && Object.keys(result.UnprocessedKeys).length > 0) {
+                await new Promise(resolve => setTimeout(resolve, delay));
+                delay = Math.min(delay * 2, 3200);
+                result = await this.dynamoDBClient.send(new BatchGetItemCommand({
+                    RequestItems: result.UnprocessedKeys,
+                    ReturnConsumedCapacity: this.returnConsumedCapacity,
+                }));
+                items.push(...(result.Responses?.[this.tableName]?.map((item) => unmarshall(item) as T) ?? []));
+            }
+            return items;
         })))
             .then((itemSets) => itemSets.flat());
 
