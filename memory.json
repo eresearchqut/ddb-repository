@@ -1,42 +1,17 @@
 {
-  "last_run": "2026-04-26T12:56:36Z",
-  "run_id": "24957144620",
+  "last_run": "2026-04-27T01:13:52Z",
+  "run_id": "24971935717",
   "comments_made": {},
-  "prs_created": [
-    {
-      "branch": "repo-assist/fix-marshall-missing-options-20260424",
-      "description": "fix: add removeUndefinedValues to marshall calls in updateItem and batchGetItems",
-      "status": "open",
-      "pr_number": 7,
-      "created_at": "2026-04-24T12:57:56Z"
-    },
-    {
-      "branch": "repo-assist/fix-batchgetitems-unprocessed-keys",
-      "description": "fix: retry UnprocessedKeys in batchGetItems with exponential backoff",
-      "status": "open",
-      "pr_number": 8,
-      "created_at": "2026-04-25T01:05:23Z"
-    },
-    {
-      "branch": "repo-assist/fix-mapinkeys-dash-attribute-20260425",
-      "description": "fix: apply expressionAttributeKey to IN filter value placeholders",
-      "status": "open",
-      "pr_number": 9,
-      "created_at": "2026-04-25T12:56:37Z"
-    },
-    {
-      "branch": "repo-assist/fix-remove-attr-name-double-escape-20260426",
-      "description": "fix: correct ExpressionAttributeNames for hyphenated attributes in updateItem remove",
-      "status": "open",
-      "pr_number": 11,
-      "created_at": "2026-04-26T01:13:38Z"
-    }
-  ],
+  "prs_created": [],
   "prs_closed_or_merged": {
     "2": {"title": "refactor: replace Object.assign({}) with {} and fix rangKey typo", "outcome": "closed_without_merge"},
     "4": {"title": "fix: add ReturnConsumedCapacity and removeUndefinedValues to deleteItem", "outcome": "merged"},
     "5": {"title": "test: add missing coverage for updateItem, putItem, deleteItem, getItems", "outcome": "merged"},
-    "6": {"title": "fix: resolve TypeScript type error in consumedCapacityMiddleware", "outcome": "merged"}
+    "6": {"title": "fix: resolve TypeScript type error in consumedCapacityMiddleware", "outcome": "merged"},
+    "7": {"title": "fix: add removeUndefinedValues to marshall calls in updateItem and batchGetItems", "outcome": "merged"},
+    "8": {"title": "fix: retry UnprocessedKeys in batchGetItems with exponential backoff", "outcome": "merged"},
+    "9": {"title": "fix: apply expressionAttributeKey to IN filter value placeholders", "outcome": "merged"},
+    "11": {"title": "fix: correct ExpressionAttributeNames for hyphenated attributes in updateItem remove", "outcome": "merged"}
   },
   "issues_labelled": {},
   "backlog_cursor": {
@@ -48,5 +23,5 @@
     "month": "2026-04",
     "status": "updated"
   },
-  "notes": "Open Repo Assist PRs: #7 (marshall fix), #8 (batchGetItems UnprocessedKeys retry), #9 (mapInKeys expressionAttributeKey fix), #11 (removeAttributeNames double-escape fix). Issues #10 and #12: CI caching and Dependabot config PRs blocked by GitHub Actions .github/ permission — maintainer must apply manually. Issue #1: auth-failure, expires May 1. Do NOT re-propose: cosmetic Object.assign/{} (PR #2 declined). All deps up to date as of 2026-04-26. Task 2: No user/maintainer issues to comment on (all open issues are Repo Assist's own)."
+  "notes": "All 4 open Repo Assist PRs (#7, #8, #9, #11) were merged on 2026-04-26 by maintainer. No open PRs remain. Issues #10 and #12/#13: CI caching and Dependabot config PRs blocked by GitHub Actions .github/ permission — maintainer must apply manually. Issue #1: auth-failure, expires May 1. Do NOT re-propose: cosmetic Object.assign/{} (PR #2 declined). All deps up to date as of 2026-04-26. Task 5: BEGINS_WITH and CONTAINS operators prepared — patch saved at /tmp/gh-aw/aw-repo-assist-improve-begins-with-contains-operators.patch but PR push failed (tool issue). Should retry PR creation next run or have maintainer apply patch. Task 2: No user/maintainer issues to comment on (all open issues are Repo Assist's own)."
 }
