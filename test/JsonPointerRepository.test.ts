@@ -282,6 +282,59 @@ describe("JsonPointerRepository Integration Tests", () => {
         });
     });
 
+    // ─── validation ──────────────────────────────────────────────────────────
+
+    describe("validation", () => {
+        it("throws TypeError for an unsupported leaf type (function)", async () => {
+            const doc = { fn: () => "oops" } as unknown as TestDocument;
+            await expect(repository.putDocument("invalid-type", doc)).rejects.toThrow(TypeError);
+        });
+
+        it("throws TypeError for an unsupported leaf type (bigint)", async () => {
+            const doc = { n: BigInt(42) } as unknown as TestDocument;
+            await expect(repository.putDocument("invalid-bigint", doc)).rejects.toThrow(TypeError);
+        });
+
+        it("throws TypeError when storing an empty document", async () => {
+            await expect(repository.putDocument("empty-doc", {} as TestDocument)).rejects.toThrow(
+                "Cannot store a document with no leaf values",
+            );
+        });
+
+        it("throws TypeError when storing a document with only empty containers", async () => {
+            const doc = { nested: {} } as TestDocument;
+            await expect(repository.putDocument("empty-nested", doc)).rejects.toThrow(
+                "Cannot store a document with no leaf values",
+            );
+        });
+
+        it("throws TypeError for getAttribute with a pointer not starting with '/'", async () => {
+            await expect(repository.getAttribute("any-doc", "name")).rejects.toThrow(
+                'Invalid JSON Pointer "name"',
+            );
+        });
+
+        it("throws TypeError for putAttribute with a pointer not starting with '/'", async () => {
+            await expect(repository.putAttribute("any-doc", "name", "value")).rejects.toThrow(
+                'Invalid JSON Pointer "name"',
+            );
+        });
+
+        it("throws TypeError for deleteAttribute with a pointer not starting with '/'", async () => {
+            await expect(repository.deleteAttribute("any-doc", "name")).rejects.toThrow(
+                'Invalid JSON Pointer "name"',
+            );
+        });
+
+        it("throws TypeError on getDocument when conflicting pointers are present", async () => {
+            await repository.putAttribute("conflict-doc", "/a", "leaf");
+            await repository.putAttribute("conflict-doc", "/a/b", "nested");
+            await expect(repository.getDocument("conflict-doc")).rejects.toThrow(
+                "Conflicting pointers",
+            );
+        });
+    });
+
     // ─── custom key names ────────────────────────────────────────────────────
 
     describe("custom key names", () => {

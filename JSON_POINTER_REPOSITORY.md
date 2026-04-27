@@ -2,7 +2,9 @@
 
 ## Overview
 
-A specialisation of `DynamoDbRepository` that stores JSON documents as individual attribute-per-item rows, addressed by JSON Pointer (RFC 6901). Each DynamoDB item represents a single leaf value of a JSON document:
+A specialisation of `DynamoDbRepository` that stores JSON documents as individual attribute-per-item rows, addressed by JSON Pointer (RFC 6901). Each DynamoDB item represents a single leaf value of a JSON document.
+
+Only **JSON objects** are supported as the root document (the class is typed `T extends Record<string, unknown>`). Documents must contain at least one leaf value; empty objects and empty arrays are not supported.
 
 | Attribute | Role | Example |
 |-----------|------|---------|
@@ -23,24 +25,22 @@ A full document is reconstructed by fetching all items sharing the same `id` and
 
 ## Class Design
 
+`JsonPointerRepository<T>` uses **composition** — it wraps an internal `DynamoDbRepository` instance rather than extending it.
+
 ```ts
-class JsonPointerRepository<T> extends DynamoDbRepository<JsonPointerKey, JsonPointerItem>
+class JsonPointerRepository<T extends Record<string, unknown>>
 ```
 
+`JsonPointerRepositoryOptions` is a standalone interface (not an extension of `DynamoDbRepositoryOptions`):
+
 ```ts
-interface JsonPointerKey {
-    id: string;
-    pointer: string;
-}
-
-interface JsonPointerItem extends JsonPointerKey {
-    value: unknown;
-}
-
-interface JsonPointerRepositoryOptions extends DynamoDbRepositoryOptions {
+interface JsonPointerRepositoryOptions {
+    client: DynamoDBClient;
+    tableName: string;
     idKey?: string;       // default: "id"
     pointerKey?: string;  // default: "pointer"
     valueKey?: string;    // default: "value"
+    returnConsumedCapacity?: ReturnConsumedCapacity;
 }
 ```
 
@@ -57,8 +57,8 @@ Reads all items for `id` and reconstructs the JSON document from pointer/value p
 ### `getAttribute<V>(id: string, pointer: string): Promise<V | undefined>`
 Reads the single item at `(id, pointer)` and returns its value.
 
-### `putAttribute<V>(id: string, pointer: string, value: V): Promise<void>`
-Writes a single pointer/value item. Creates or replaces.
+### `putAttribute(id: string, pointer: string, value: JsonPointerValue): Promise<void>`
+Writes a single pointer/value item. Creates or replaces. `pointer` must start with `"/"`.
 
 ### `deleteAttribute(id: string, pointer: string): Promise<void>`
 Deletes the item at `(id, pointer)`.
