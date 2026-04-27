@@ -1,3 +1,15 @@
+# [1.9.0](https://github.com/eresearchqut/ddb-repository/compare/v1.8.6...v1.9.0) (2026-04-27)
+
+
+### Bug Fixes
+
+* address Copilot review feedback on JsonPointerRepository ([3d8c64a](https://github.com/eresearchqut/ddb-repository/commit/3d8c64a286ffccb0712321f965128f3d9a85d80d))
+
+
+### Features
+
+* implement `JsonPointerRepository` with DynamoDB support and integration tests ([48247b2](https://github.com/eresearchqut/ddb-repository/commit/48247b20b45211b945b3202800f838ca30e3c8e5))
+
 ## [1.8.6](https://github.com/eresearchqut/ddb-repository/compare/v1.8.5...v1.8.6) (2026-04-26)
 
 
