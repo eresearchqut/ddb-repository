@@ -1,8 +1,11 @@
 {
-  "last_run": "2026-04-27T01:13:52Z",
-  "run_id": "24971935717",
+  "last_run": "2026-04-27T13:08:49Z",
+  "run_id": "24996831847",
   "comments_made": {},
-  "prs_created": [],
+  "prs_created": [
+    {"branch": "repo-assist/fix-updateitem-empty-remove", "title": "fix: treat empty remove array as no-op in updateItem", "status": "created_this_run"},
+    {"branch": "repo-assist/perf-getitems-limit-early-termination", "title": "perf: stop paginating getItems once limit is reached", "status": "created_this_run"}
+  ],
   "prs_closed_or_merged": {
     "2": {"title": "refactor: replace Object.assign({}) with {} and fix rangKey typo", "outcome": "closed_without_merge"},
     "4": {"title": "fix: add ReturnConsumedCapacity and removeUndefinedValues to deleteItem", "outcome": "merged"},
@@ -11,8 +14,14 @@
     "7": {"title": "fix: add removeUndefinedValues to marshall calls in updateItem and batchGetItems", "outcome": "merged"},
     "8": {"title": "fix: retry UnprocessedKeys in batchGetItems with exponential backoff", "outcome": "merged"},
     "9": {"title": "fix: apply expressionAttributeKey to IN filter value placeholders", "outcome": "merged"},
-    "11": {"title": "fix: correct ExpressionAttributeNames for hyphenated attributes in updateItem remove", "outcome": "merged"}
+    "11": {"title": "fix: correct ExpressionAttributeNames for hyphenated attributes in updateItem remove", "outcome": "merged"},
+    "15": {"title": "feat: JsonPointerRepository — store JSON documents as per-pointer DynamoDB items", "outcome": "merged_by_maintainer"}
   },
+  "open_repo_assist_prs": [
+    {"number": 14, "title": "feat: add BEGINS_WITH and CONTAINS filter operators", "branch": "repo-assist/improve-begins-with-contains-operators-7d0364b1cd05a28a"},
+    {"branch": "repo-assist/fix-updateitem-empty-remove", "title": "fix: treat empty remove array as no-op in updateItem"},
+    {"branch": "repo-assist/perf-getitems-limit-early-termination", "title": "perf: stop paginating getItems once limit is reached"}
+  ],
   "issues_labelled": {},
   "backlog_cursor": {
     "issues": 0,
@@ -23,5 +32,5 @@
     "month": "2026-04",
     "status": "updated"
   },
-  "notes": "All 4 open Repo Assist PRs (#7, #8, #9, #11) were merged on 2026-04-26 by maintainer. No open PRs remain. Issues #10 and #12/#13: CI caching and Dependabot config PRs blocked by GitHub Actions .github/ permission — maintainer must apply manually. Issue #1: auth-failure, expires May 1. Do NOT re-propose: cosmetic Object.assign/{} (PR #2 declined). All deps up to date as of 2026-04-26. Task 5: BEGINS_WITH and CONTAINS operators prepared — patch saved at /tmp/gh-aw/aw-repo-assist-improve-begins-with-contains-operators.patch but PR push failed (tool issue). Should retry PR creation next run or have maintainer apply patch. Task 2: No user/maintainer issues to comment on (all open issues are Repo Assist's own)."
+  "notes": "PR #15 (JsonPointerRepository) merged by ryan-bennett 2026-04-27. New PRs created this run: fix-updateitem-empty-remove (empty remove[] caused invalid DynamoDB expression) and perf-getitems-limit-early-termination (limit wasn't enforced in pagination). Both branch off old main SHA before PR #15 — may need rebase. Do NOT re-propose: cosmetic Object.assign/{} (PR #2 declined). Issues #10 and #12/#13: CI caching and Dependabot config PRs blocked by GitHub Actions .github/ permission. Issue #1: auth-failure, expires May 1. PR #14 open: BEGINS_WITH/CONTAINS operators. All deps up to date as of 2026-04-26."
 }
