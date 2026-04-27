@@ -1,5 +1,5 @@
 
-import { DynamoDBClient, CreateTableCommand, DescribeTableCommand, PutItemCommand } from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient, CreateTableCommand, DescribeTableCommand, PutItemCommand, type DynamoDBClientConfig } from "@aws-sdk/client-dynamodb";
 import { marshall } from "@aws-sdk/util-dynamodb";
 import { GenericContainer, StartedTestContainer } from "testcontainers";
 import {ConsumedCapacityDetail, consumedCapacityMiddleware, DynamoDbRepository, FilterOperator} from "../src";
@@ -33,14 +33,12 @@ describe('DynamoDbRepository Integration Tests', () => {
             .start();
 
         // Create DynamoDB client pointing to the container
-        dynamoDBClient = new DynamoDBClient({
+        const clientConfig: DynamoDBClientConfig = {
             endpoint: `http://${container.getHost()}:${container.getMappedPort(8000)}`,
             region: "us-east-1",
-            credentials: {
-                accessKeyId: "test",
-                secretAccessKey: "test",
-            },
-        });
+            credentials: async () => ({ accessKeyId: "test", secretAccessKey: "test" }),
+        };
+        dynamoDBClient = new (DynamoDBClient as unknown as new (config: DynamoDBClientConfig) => DynamoDBClient)(clientConfig);
 
         dynamoDBClient.middlewareStack
             .add(consumedCapacityMiddleware({onConsumedCapacity: async (consumedCapacity) =>
