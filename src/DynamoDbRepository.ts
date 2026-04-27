@@ -22,6 +22,8 @@ export enum FilterOperator {
     LESS_THAN_OR_EQUALS = "<=",
     IN = "IN",
     BETWEEN = "BETWEEN",
+    BEGINS_WITH = "begins_with",
+    CONTAINS = "contains",
 }
 
 export interface FilterExpression {
@@ -81,6 +83,12 @@ const mapFilterExpression = (filterExpression: FilterExpression) => {
             return (
                 `#${expressionAttributeKey(filterExpression.attribute)} ${filterExpression.operator} ` +
                 `:${expressionAttributeKey(filterExpression.attribute)}0 AND :${expressionAttributeKey(filterExpression.attribute)}1`
+            );
+        case FilterOperator.BEGINS_WITH:
+        case FilterOperator.CONTAINS:
+            return (
+                `${filterExpression.operator}(#${expressionAttributeKey(filterExpression.attribute)}, ` +
+                `:${expressionAttributeKey(filterExpression.attribute)})`
             );
         default:
             return (
