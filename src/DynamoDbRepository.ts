@@ -199,10 +199,10 @@ export class DynamoDbRepository<K, T> {
                     `#${expressionAttributeKey(key)} = :${expressionAttributeKey(key)}`,
             )
             .join(", ")}` : '';
-        const removeAttributesExpression = remove
+        const removeAttributesExpression = remove?.length
             ? ` REMOVE ${remove.map((key) => `#${expressionAttributeKey(key)}`).join(", ")}`
             : "";
-        const removeAttributeNames = remove
+        const removeAttributeNames = remove?.length
             ? remove.reduce(
                 (acc, key) => ({
                     ...acc,
