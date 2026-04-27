@@ -1,3 +1,10 @@
+## [1.9.1](https://github.com/eresearchqut/ddb-repository/compare/v1.9.0...v1.9.1) (2026-04-27)
+
+
+### Performance Improvements
+
+* stop paginating getItems once limit is reached ([c0d9ef8](https://github.com/eresearchqut/ddb-repository/commit/c0d9ef8c8180ac6c89172e383982d4d47b35e488))
+
 # [1.9.0](https://github.com/eresearchqut/ddb-repository/compare/v1.8.6...v1.9.0) (2026-04-27)
 
 
