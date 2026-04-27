@@ -325,17 +325,19 @@ export class DynamoDbRepository<K, T> {
         );
 
         if (index) {
-            const keys: Array<K> = [];
+            const collectedKeys: Array<K> = [];
             for await (const page of paginator) {
                 if (page.Items) {
-                    keys.push(
+                    collectedKeys.push(
                         ...(page.Items.map((item) => unmarshall(item) as T)
                             .map((item: T) =>
                                 pickBy(item as object, (_, key) => (key === this.hashKey || key === this.rangKey)) as K)),
                     )
                 }
+                if (limit && collectedKeys.length >= limit) break;
             }
-            const items = await this.batchGetItems(keys, query as ProjectedQuery);
+            const keysBatch = limit ? collectedKeys.slice(0, limit) : collectedKeys;
+            const items = await this.batchGetItems(keysBatch, query as ProjectedQuery);
             return items as Array<T>;
         }
 
@@ -346,8 +348,9 @@ export class DynamoDbRepository<K, T> {
                     ...(page.Items?.map((item) => unmarshall(item) as T) || []),
                 )
             }
+            if (limit && items.length >= limit) break;
         }
-        return items;
+        return limit ? items.slice(0, limit) : items;
     };
 
 
