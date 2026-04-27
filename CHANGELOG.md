@@ -1,3 +1,10 @@
+## [1.9.2](https://github.com/eresearchqut/ddb-repository/compare/v1.9.1...v1.9.2) (2026-04-27)
+
+
+### Bug Fixes
+
+* treat empty remove array as no-op in updateItem ([964de84](https://github.com/eresearchqut/ddb-repository/commit/964de844642b383f2e14cb8604c5b56bb998b44d))
+
 ## [1.9.1](https://github.com/eresearchqut/ddb-repository/compare/v1.9.0...v1.9.1) (2026-04-27)
 
 
