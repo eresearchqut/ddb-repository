@@ -278,6 +278,17 @@ describe('DynamoDbRepository Integration Tests', () => {
             expect(result).not.toHaveProperty('my-attr');
             expect(result).toHaveProperty('name', 'Test');
         });
+
+        it('should not error when remove is an empty array', async () => {
+            const key = { id: 'update-empty-remove' };
+            await repository.putItem(key, { id: 'update-empty-remove', name: 'Original' });
+            consumedCapacityRegister.splice(0, consumedCapacityRegister.length);
+
+            const result = await repository.updateItem(key, { name: 'Updated' }, []);
+
+            expect(result).toBeDefined();
+            expect(result).toHaveProperty('name', 'Updated');
+        });
     });
 
     describe('batchGetItems', () => {
