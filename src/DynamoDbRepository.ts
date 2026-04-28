@@ -6,6 +6,7 @@ import {
     GetItemCommand,
     paginateQuery,
     PutItemCommand,
+    QueryCommand,
     QueryCommandInput,
     ReturnConsumedCapacity,
     UpdateItemCommand,
@@ -132,6 +133,11 @@ export interface DynamoDbRepositoryOptions {
     hashKey: string;
     rangeKey?: string;
     returnConsumedCapacity?: ReturnConsumedCapacity;
+}
+
+export interface PageResult<T> {
+    items: Array<T>;
+    cursor?: string;
 }
 
 export class DynamoDbRepository<K, T> {
@@ -351,6 +357,97 @@ export class DynamoDbRepository<K, T> {
             if (limit && items.length >= limit) break;
         }
         return limit ? items.slice(0, limit) : items;
+    };
+
+
+    getItemsPage = async (
+        query: Query & { cursor?: string }
+    ): Promise<PageResult<T>> => {
+        const {index, filterExpressions, projectedAttributes, limit, sortOrder, cursor, ...keys} = query;
+        const KeyConditionExpression = Object.keys(keys)
+            .map((key) => `#${expressionAttributeKey(key)} = :${expressionAttributeKey(key)}`).join(' AND ');
+        const keyExpressionAttributeNames = Object.keys(keys)
+            .reduce((acc, key) => ({...acc, [`#${expressionAttributeKey(key)}`]: key}), Object.assign({}));
+        const keyExpressionAttributeValues = Object.entries(keys)
+            .reduce((acc, [key, value]) => ({...acc, [`:${expressionAttributeKey(key)}`]: value}), Object.assign({}));
+
+        const ProjectionExpression = !index && projectedAttributes
+            ? projectedAttributes.map((attribute) => `#${expressionAttributeKey(attribute)}`).join(',')
+            : undefined;
+        const projectionAttributeNames: Record<string, string> = !index && projectedAttributes ? projectedAttributes.reduce(
+            (reduction: Record<string, string>, attribute: string) => ({
+                ...reduction,
+                [`#${expressionAttributeKey(attribute)}`]: attribute,
+            }),
+            Object.assign({}),
+        ) : {};
+        const hasFilterExpressions = Array.isArray(filterExpressions) && filterExpressions.length > 0;
+        const FilterExpression = hasFilterExpressions
+            ? mapFilterExpressions(filterExpressions!)
+            : undefined;
+        const filterAttributeNames: Record<string, string> = hasFilterExpressions
+            ? filterExpressions!.reduce(
+                (reduction: Record<string, string>, filterExpression: FilterExpression) => ({
+                    ...reduction,
+                    [`#${expressionAttributeKey(filterExpression.attribute)}`]: filterExpression.attribute,
+                }),
+                Object.assign({}),
+            )
+            : {};
+        const filterAttributeValues = filterExpressions
+            ? filterExpressions.reduce(
+                (reduction, filterExpression) => ({
+                    ...reduction,
+                    ...mapFilterExpressionValues(filterExpression),
+                }),
+                Object.assign({}),
+            )
+            : {};
+
+        const ExclusiveStartKey = cursor
+            ? JSON.parse(Buffer.from(cursor, 'base64').toString('utf-8')) as Record<string, unknown>
+            : undefined;
+
+        const queryCommandInput: QueryCommandInput = {
+            TableName: this.tableName,
+            ReturnConsumedCapacity: this.returnConsumedCapacity,
+            IndexName: index,
+            KeyConditionExpression,
+            FilterExpression,
+            ProjectionExpression,
+            ExpressionAttributeNames: {
+                ...keyExpressionAttributeNames,
+                ...filterAttributeNames,
+                ...projectionAttributeNames
+            },
+            ExpressionAttributeValues: marshall(
+                {...keyExpressionAttributeValues, ...filterAttributeValues} as Record<string, NativeAttributeValue>,
+                {removeUndefinedValues: true},
+            ),
+            Limit: limit,
+            ScanIndexForward: sortOrder === "DESC" ? false : undefined,
+            ExclusiveStartKey: ExclusiveStartKey
+                ? marshall(ExclusiveStartKey as Record<string, NativeAttributeValue>, {removeUndefinedValues: true})
+                : undefined,
+        };
+
+        const result = await this.dynamoDBClient.send(new QueryCommand(queryCommandInput));
+        const nextCursor = result.LastEvaluatedKey
+            ? Buffer.from(JSON.stringify(unmarshall(result.LastEvaluatedKey))).toString('base64')
+            : undefined;
+
+        if (index) {
+            const collectedKeys = (result.Items ?? [])
+                .map((item) => unmarshall(item) as T)
+                .map((item: T) =>
+                    pickBy(item as object, (_, key) => (key === this.hashKey || key === this.rangKey)) as K
+                );
+            const items = await this.batchGetItems(collectedKeys, query as ProjectedQuery);
+            return {items: items.filter((item): item is T => item !== undefined), cursor: nextCursor};
+        }
+
+        const items = (result.Items ?? []).map((item) => unmarshall(item) as T);
+        return {items, cursor: nextCursor};
     };
 
 
