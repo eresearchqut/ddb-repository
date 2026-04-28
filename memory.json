@@ -1,9 +1,10 @@
 {
-  "last_run": "2026-04-28T01:15:51Z",
-  "run_id": "25028452441",
+  "last_run": "2026-04-28T13:12:17Z",
+  "run_id": "25054775402",
   "comments_made": {},
   "prs_created": [
-    {"branch": "repo-assist/docs-update-readme-api", "title": "docs: rewrite README to document current API", "status": "created_this_run"}
+    {"branch": "repo-assist/test-hyphenated-attr-filter-expressions", "title": "test: add coverage for hyphenated attribute names in filter expressions and updateItem SET", "status": "created_this_run"},
+    {"branch": "repo-assist/feat-get-items-page-cursor-pagination", "title": "feat: add getItemsPage for cursor-based pagination", "status": "created_this_run"}
   ],
   "prs_closed_or_merged": {
     "2": {"title": "refactor: replace Object.assign({}) with {} and fix rangKey typo", "outcome": "closed_without_merge"},
@@ -19,8 +20,10 @@
     "17": {"title": "perf: stop paginating getItems once limit is reached", "outcome": "merged"}
   },
   "open_repo_assist_prs": [
-    {"number": 14, "title": "feat: add BEGINS_WITH and CONTAINS filter operators", "branch": "repo-assist/improve-begins-with-contains-operators-7d0364b1cd05a28a", "note": "rebased onto v1.9.2 on 2026-04-28"},
-    {"branch": "repo-assist/docs-update-readme-api", "title": "docs: rewrite README to document current API"}
+    {"number": 14, "title": "feat: add BEGINS_WITH and CONTAINS filter operators", "branch": "repo-assist/improve-begins-with-contains-operators-7d0364b1cd05a28a"},
+    {"number": 19, "title": "docs: rewrite README to document current API", "branch": "repo-assist/docs-update-readme-api-42bff8489672e6cb"},
+    {"branch": "repo-assist/test-hyphenated-attr-filter-expressions", "title": "test: add coverage for hyphenated attribute names in filter expressions and updateItem SET"},
+    {"branch": "repo-assist/feat-get-items-page-cursor-pagination", "title": "feat: add getItemsPage for cursor-based pagination"}
   ],
   "issues_labelled": {},
   "backlog_cursor": {
@@ -32,5 +35,5 @@
     "month": "2026-04",
     "status": "updated"
   },
-  "notes": "Current main is v1.9.2. PRs #16 (fix empty remove) and #17 (getItems limit) merged. PR #14 (BEGINS_WITH/CONTAINS) rebased onto v1.9.2 on 2026-04-28 — clean rebase, no conflicts. New PR created: docs rewrite README (branch repo-assist/docs-update-readme-api). Task 2 had no user issues to comment on (all open issues are Repo Assist system issues). Do NOT re-propose: cosmetic Object.assign/{} (PR #2 declined). Issues #10 and #12/#13: CI caching and Dependabot config PRs blocked by GitHub Actions .github/ permission. Issue #1: auth-failure, expires May 1. Future: consider cursor-based pagination (ExclusiveStartKey) for getItems."
+  "notes": "Current main is v1.9.2. Do NOT re-propose: cosmetic Object.assign/{} (PR #2 declined). Issues #10 and #12/#13: CI caching and Dependabot config PRs blocked by GitHub Actions .github/ permission. Issue #1: auth-failure, expires May 1. PR #14 (BEGINS_WITH/CONTAINS) rebased onto v1.9.2 on 2026-04-28. PR #19: docs README rewrite. New PRs this run: test (hyphenated attr filter expressions) and feat (getItemsPage cursor pagination). getItemsPage implemented: uses single QueryCommand, returns PageResult<T> with base64-encoded ExclusiveStartKey cursor, works for direct and GSI queries."
 }
