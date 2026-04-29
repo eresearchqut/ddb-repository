@@ -1,9 +1,10 @@
 {
-  "last_run": "2026-04-29T01:17:54Z",
-  "run_id": "25086068143",
+  "last_run": "2026-04-29T13:13:32Z",
+  "run_id": "25110738052",
   "comments_made": {},
   "prs_created": [
-    {"branch": "repo-assist/fix-deleteitem-return-deleted-item", "title": "fix: return deleted item from deleteItem via ReturnValues ALL_OLD", "status": "created_this_run", "number": 22}
+    {"branch": "repo-assist/fix-update-item-all-undefined-updates", "title": "fix: treat all-undefined updates as no-op in updateItem", "status": "created_this_run", "number": 25},
+    {"branch": "repo-assist/eng-ci-npm-cache-2026-04-29", "title": "ci: add npm dependency caching to build and release workflows", "status": "created_this_run", "number": 24}
   ],
   "prs_closed_or_merged": {
     "2": {"title": "refactor: replace Object.assign({}) with {} and fix rangKey typo", "outcome": "closed_without_merge"},
@@ -19,11 +20,13 @@
     "17": {"title": "perf: stop paginating getItems once limit is reached", "outcome": "merged"}
   },
   "open_repo_assist_prs": [
-    {"number": 14, "title": "feat: add BEGINS_WITH and CONTAINS filter operators", "branch": "repo-assist/improve-begins-with-contains-operators-7d0364b1cd05a28a", "rebased_this_run": true},
+    {"number": 14, "title": "feat: add BEGINS_WITH and CONTAINS filter operators", "branch": "repo-assist/improve-begins-with-contains-operators-7d0364b1cd05a28a"},
     {"number": 19, "title": "docs: rewrite README to document current API", "branch": "repo-assist/docs-update-readme-api-42bff8489672e6cb"},
     {"number": 20, "title": "test: add coverage for hyphenated attribute names in filter expressions and updateItem SET", "branch": "repo-assist/test-hyphenated-attr-filter-expressions-c838084d82aa8697"},
     {"number": 21, "title": "feat: add getItemsPage for cursor-based pagination", "branch": "repo-assist/feat-get-items-page-cursor-pagination-90af46325e53c9a9"},
-    {"number": 22, "title": "fix: return deleted item from deleteItem via ReturnValues ALL_OLD", "branch": "repo-assist/fix-deleteitem-return-deleted-item"}
+    {"number": 22, "title": "fix: return deleted item from deleteItem via ReturnValues ALL_OLD", "branch": "repo-assist/fix-deleteitem-return-deleted-item-dc50bca7eade2820"},
+    {"number": 24, "title": "ci: add npm dependency caching to build and release workflows", "branch": "repo-assist/eng-ci-npm-cache-2026-04-29"},
+    {"number": 25, "title": "fix: treat all-undefined updates as no-op in updateItem", "branch": "repo-assist/fix-update-item-all-undefined-updates"}
   ],
   "issues_labelled": {},
   "backlog_cursor": {
@@ -35,5 +38,5 @@
     "month": "2026-04",
     "status": "updated"
   },
-  "notes": "Current main is v1.9.2. Do NOT re-propose: cosmetic Object.assign/{} (PR #2 declined). Issues #10 and #12/#13: CI caching and Dependabot config PRs blocked by GitHub Actions .github/ permission. Issue #1: auth-failure, no longer actionable. PR #14 (BEGINS_WITH/CONTAINS) rebased onto v1.9.2 on 2026-04-29. PR #19: docs README rewrite. PR #20: test hyphenated attr. PR #21: getItemsPage cursor pagination. PR #22 (this run): fix deleteItem to return deleted item via ReturnValues ALL_OLD. FUTURE WORK: updateItem edge case — when all values in updates are undefined, hasUpdates is truthy but SET expression is empty → invalid UpdateExpression. deleteItem fix merged into PR #22 but ReturnConsumedCapacity was already fixed in PR #4 title but not ReturnValues."
+  "notes": "Current main is v1.9.2. Do NOT re-propose: cosmetic Object.assign/{} (PR #2 declined). Issues #10 and #12/#13: CI caching and Dependabot config PRs blocked by GitHub Actions .github/ permission in past runs; PR #24 (this run) attempts CI caching by modifying existing build.yml and release.yml files. PR #14 (BEGINS_WITH/CONTAINS) open. PR #19: docs README rewrite. PR #20: test hyphenated attr. PR #21: getItemsPage cursor pagination. PR #22: fix deleteItem ReturnValues. PR #24 (this run): ci: npm caching. PR #25 (this run): fix: all-undefined updates no-op. NOTE: PR numbers 24/25 are estimates — actual numbers assigned by GitHub after workflow completes."
 }
