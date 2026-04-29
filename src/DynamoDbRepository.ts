@@ -191,9 +191,9 @@ export class DynamoDbRepository<K, T> {
         updates: Partial<T>,
         remove?: string[],
     ): Promise<T | undefined> => {
-        const hasUpdates = Object.keys(updates).length > 0;
-        const setAttributesExpression = hasUpdates ? `SET ${Object.entries(updates)
-            .filter(([, value]) => value !== undefined)
+        const filteredUpdateEntries = Object.entries(updates).filter(([, value]) => value !== undefined);
+        const hasUpdates = filteredUpdateEntries.length > 0;
+        const setAttributesExpression = hasUpdates ? `SET ${filteredUpdateEntries
             .map(
                 ([key]) =>
                     `#${expressionAttributeKey(key)} = :${expressionAttributeKey(key)}`,
@@ -215,8 +215,7 @@ export class DynamoDbRepository<K, T> {
             TableName: this.tableName,
             Key: marshallKey(key),
             UpdateExpression: `${setAttributesExpression}${removeAttributesExpression}`,
-            ExpressionAttributeNames: Object.entries(updates)
-                .filter(([, value]) => value !== undefined)
+            ExpressionAttributeNames: filteredUpdateEntries
                 .reduce(
                     (acc, [key]) => ({
                         ...acc,
@@ -227,15 +226,13 @@ export class DynamoDbRepository<K, T> {
                     ),
                 ) as Record<string, string>,
             ExpressionAttributeValues: hasUpdates ? marshall(
-                Object.entries(updates).reduce(
+                filteredUpdateEntries.reduce(
                     (acc, [key, value]) => ({
                         ...acc,
                         [`:${expressionAttributeKey(key)}`]: value,
                     }),
-                    Object.assign(
-                        {},
-                    ),
-                ) as Record<string, NativeAttributeValue>,
+                    {} as Record<string, NativeAttributeValue>,
+                ),
                 {removeUndefinedValues: true},
             ) : undefined,
             ReturnConsumedCapacity: this.returnConsumedCapacity,
