@@ -1,0 +1,43 @@
+{
+  "last_run": "2026-04-30T13:10:07Z",
+  "run_id": "25167132309",
+  "comments_made": {},
+  "prs_created": [
+    {"branch": "repo-assist/eng-deps-patch-2026-04-30", "title": "chore: bump patch-level devDependencies to latest within ranges", "status": "created_this_run", "number": "TBD"}
+  ],
+  "prs_closed_or_merged": {
+    "2": {"title": "refactor: replace Object.assign({}) with {} and fix rangKey typo", "outcome": "closed_without_merge"},
+    "4": {"title": "fix: add ReturnConsumedCapacity and removeUndefinedValues to deleteItem", "outcome": "merged"},
+    "5": {"title": "test: add missing coverage for updateItem, putItem, deleteItem, getItems", "outcome": "merged"},
+    "6": {"title": "fix: resolve TypeScript type error in consumedCapacityMiddleware", "outcome": "merged"},
+    "7": {"title": "fix: add removeUndefinedValues to marshall calls in updateItem and batchGetItems", "outcome": "merged"},
+    "8": {"title": "fix: retry UnprocessedKeys in batchGetItems with exponential backoff", "outcome": "merged"},
+    "9": {"title": "fix: apply expressionAttributeKey to IN filter value placeholders", "outcome": "merged"},
+    "11": {"title": "fix: correct ExpressionAttributeNames for hyphenated attributes in updateItem remove", "outcome": "merged"},
+    "15": {"title": "feat: JsonPointerRepository — store JSON documents as per-pointer DynamoDB items", "outcome": "merged_by_maintainer"},
+    "16": {"title": "fix: treat empty remove array as no-op in updateItem", "outcome": "merged"},
+    "17": {"title": "perf: stop paginating getItems once limit is reached", "outcome": "merged"}
+  },
+  "open_repo_assist_prs": [
+    {"number": 14, "title": "feat: add BEGINS_WITH and CONTAINS filter operators", "branch": "repo-assist/improve-begins-with-contains-operators-7d0364b1cd05a28a"},
+    {"number": 19, "title": "docs: rewrite README to document current API", "branch": "repo-assist/docs-update-readme-api-42bff8489672e6cb"},
+    {"number": 20, "title": "test: add coverage for hyphenated attribute names in filter expressions and updateItem SET", "branch": "repo-assist/test-hyphenated-attr-filter-expressions-c838084d82aa8697"},
+    {"number": 21, "title": "feat: add getItemsPage for cursor-based pagination", "branch": "repo-assist/feat-get-items-page-cursor-pagination-90af46325e53c9a9"},
+    {"number": 22, "title": "fix: return deleted item from deleteItem via ReturnValues ALL_OLD", "branch": "repo-assist/fix-deleteitem-return-deleted-item-dc50bca7eade2820"},
+    {"number": 25, "title": "fix: treat all-undefined updates as no-op in updateItem", "branch": "repo-assist/fix-update-item-all-undefined-updates-79e4b7b1f4c27d82"},
+    {"number": 26, "title": "ci: wire up eslint-plugin-jest for test files", "branch": "repo-assist/eng-eslint-jest-plugin-2026-04-30-e1a6e0ab80f50764"},
+    {"number": 27, "title": "test: add coverage for batchGetItems projection and explicit ASC sort order", "branch": "repo-assist/test-batch-get-projection-sort-asc-5bedb750a2fd931c"},
+    {"number": "TBD", "title": "chore: bump patch-level devDependencies to latest within ranges", "branch": "repo-assist/eng-deps-patch-2026-04-30"}
+  ],
+  "issues_labelled": {},
+  "backlog_cursor": {
+    "issues": 0,
+    "labelling": 0
+  },
+  "monthly_activity_issue": {
+    "number": 3,
+    "month": "2026-04",
+    "status": "updated"
+  },
+  "notes": "Current main is v1.9.2. Do NOT re-propose: cosmetic Object.assign/{} (PR #2 declined). Issues #10 and #12/#13: CI caching and Dependabot config PRs blocked by GitHub Actions .github/ permission — do not attempt to modify .github/workflows/ files. PR #14 (BEGINS_WITH/CONTAINS) open - merges cleanly with main. PR #19: docs README rewrite. PR #20: test hyphenated attr. PR #21: getItemsPage cursor pagination. PR #22: fix deleteItem ReturnValues. PR #25: fix all-undefined updates no-op. PR #26: eslint-jest plugin. PR #27: test batchGetItems projection + ASC sort. New this run: dep update PR (TBD number). 37 existing jest/no-conditional-expect warnings surfaced by PR #26 — future run can address these incrementally. Task 6 check (2026-04-30): all 8 PRs have no CI failures and no merge conflicts."
+}
