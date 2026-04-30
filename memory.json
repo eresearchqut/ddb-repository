@@ -1,10 +1,10 @@
 {
-  "last_run": "2026-04-29T13:13:32Z",
-  "run_id": "25110738052",
+  "last_run": "2026-04-30T01:17:41Z",
+  "run_id": "25142290618",
   "comments_made": {},
   "prs_created": [
-    {"branch": "repo-assist/fix-update-item-all-undefined-updates", "title": "fix: treat all-undefined updates as no-op in updateItem", "status": "created_this_run", "number": 25},
-    {"branch": "repo-assist/eng-ci-npm-cache-2026-04-29", "title": "ci: add npm dependency caching to build and release workflows", "status": "created_this_run", "number": 24}
+    {"branch": "repo-assist/eng-eslint-jest-plugin-2026-04-30", "title": "ci: wire up eslint-plugin-jest for test files", "status": "created_this_run", "number": "TBD"},
+    {"branch": "repo-assist/test-batch-get-projection-sort-asc", "title": "test: add coverage for batchGetItems projection and explicit ASC sort order", "status": "created_this_run", "number": "TBD"}
   ],
   "prs_closed_or_merged": {
     "2": {"title": "refactor: replace Object.assign({}) with {} and fix rangKey typo", "outcome": "closed_without_merge"},
@@ -25,8 +25,9 @@
     {"number": 20, "title": "test: add coverage for hyphenated attribute names in filter expressions and updateItem SET", "branch": "repo-assist/test-hyphenated-attr-filter-expressions-c838084d82aa8697"},
     {"number": 21, "title": "feat: add getItemsPage for cursor-based pagination", "branch": "repo-assist/feat-get-items-page-cursor-pagination-90af46325e53c9a9"},
     {"number": 22, "title": "fix: return deleted item from deleteItem via ReturnValues ALL_OLD", "branch": "repo-assist/fix-deleteitem-return-deleted-item-dc50bca7eade2820"},
-    {"number": 24, "title": "ci: add npm dependency caching to build and release workflows", "branch": "repo-assist/eng-ci-npm-cache-2026-04-29"},
-    {"number": 25, "title": "fix: treat all-undefined updates as no-op in updateItem", "branch": "repo-assist/fix-update-item-all-undefined-updates"}
+    {"number": 25, "title": "fix: treat all-undefined updates as no-op in updateItem", "branch": "repo-assist/fix-update-item-all-undefined-updates"},
+    {"number": "TBD", "title": "ci: wire up eslint-plugin-jest for test files", "branch": "repo-assist/eng-eslint-jest-plugin-2026-04-30"},
+    {"number": "TBD", "title": "test: add coverage for batchGetItems projection and explicit ASC sort order", "branch": "repo-assist/test-batch-get-projection-sort-asc"}
   ],
   "issues_labelled": {},
   "backlog_cursor": {
@@ -38,5 +39,5 @@
     "month": "2026-04",
     "status": "updated"
   },
-  "notes": "Current main is v1.9.2. Do NOT re-propose: cosmetic Object.assign/{} (PR #2 declined). Issues #10 and #12/#13: CI caching and Dependabot config PRs blocked by GitHub Actions .github/ permission in past runs; PR #24 (this run) attempts CI caching by modifying existing build.yml and release.yml files. PR #14 (BEGINS_WITH/CONTAINS) open. PR #19: docs README rewrite. PR #20: test hyphenated attr. PR #21: getItemsPage cursor pagination. PR #22: fix deleteItem ReturnValues. PR #24 (this run): ci: npm caching. PR #25 (this run): fix: all-undefined updates no-op. NOTE: PR numbers 24/25 are estimates — actual numbers assigned by GitHub after workflow completes."
+  "notes": "Current main is v1.9.2. Do NOT re-propose: cosmetic Object.assign/{} (PR #2 declined). Issues #10 and #12/#13: CI caching and Dependabot config PRs blocked by GitHub Actions .github/ permission — do not attempt to modify .github/workflows/ files. PR #14 (BEGINS_WITH/CONTAINS) open. PR #19: docs README rewrite. PR #20: test hyphenated attr. PR #21: getItemsPage cursor pagination. PR #22: fix deleteItem ReturnValues. PR #25: fix all-undefined updates no-op. Two new PRs this run: eslint-jest plugin and test coverage for batchGetItems projection + ASC sort. Issue #24 is a GH issue (not PR) with patch instructions for CI caching. 37 existing jest/no-conditional-expect warnings surfaced by new eslint config — future run can address these incrementally."
 }
