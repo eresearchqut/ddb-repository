@@ -167,7 +167,7 @@ describe('DynamoDbRepository Integration Tests', () => {
             const result = await repository.getItem(key);
 
             expect(result).toEqual(record);
-            expect(sumConsumedCapacity()).toEqual(2);
+            expect(sumConsumedCapacity()).toEqual(1.5);
         });
     });
 
@@ -179,7 +179,7 @@ describe('DynamoDbRepository Integration Tests', () => {
             const result = await repository.putItem(key, record);
 
             expect(result).toEqual(record);
-            expect(sumConsumedCapacity()).toEqual(1.5);
+            expect(sumConsumedCapacity()).toEqual(1);
         });
 
         it('should overwrite an existing item', async () => {
@@ -191,7 +191,7 @@ describe('DynamoDbRepository Integration Tests', () => {
 
             expect(result).toEqual({ id: 'overwrite-item', name: 'Replaced' });
             expect(result).not.toHaveProperty('email');
-            expect(sumConsumedCapacity()).toEqual(1.5);
+            expect(sumConsumedCapacity()).toEqual(1);
         });
     });
 
@@ -204,7 +204,7 @@ describe('DynamoDbRepository Integration Tests', () => {
             await repository.deleteItem(key);
             const afterDelete = await repository.getItem(key);
             expect(afterDelete).toBeUndefined();
-            expect(sumConsumedCapacity()).toEqual(3);
+            expect(sumConsumedCapacity()).toEqual(2.5);
         });
 
         it('should return undefined when deleting a non-existent item', async () => {
@@ -227,7 +227,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                 name: 'Updated Name',
                 email: 'original@example.com'
             });
-            expect(sumConsumedCapacity()).toEqual(3);
+            expect(sumConsumedCapacity()).toEqual(2.5);
         });
 
         it('should remove attributes using the remove parameter', async () => {
@@ -375,7 +375,7 @@ describe('DynamoDbRepository Integration Tests', () => {
             expect(item50).toBeDefined();
             expect(item100).toBeDefined();
             expect(item150).toBeDefined();
-            expect(sumConsumedCapacity()).toEqual(300);
+            expect(sumConsumedCapacity()).toEqual(225);
         }, 60000);
 
         it('should retrieve composite key items', async () => {
@@ -472,7 +472,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                 age: 30,
                 status: 'active'
             });
-            expect(sumConsumedCapacity()).toEqual(2);
+            expect(sumConsumedCapacity()).toEqual(1.5);
         });
     });
 
@@ -491,7 +491,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                     name: 'Test Item',
                     age: 25
                 });
-                expect(sumConsumedCapacity()).toEqual(2);
+                expect(sumConsumedCapacity()).toEqual(1.5);
             });
 
             it('should return only projected attributes', async () => {

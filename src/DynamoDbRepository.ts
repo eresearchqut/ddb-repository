@@ -173,7 +173,7 @@ export class DynamoDbRepository<K, T> {
                     Item,
                 }),
             )
-            .then(() => this.getItem(key) as Promise<T>);
+            .then(() => unmarshall(Item) as T);
     };
 
     deleteItem = async (key: K) => {
