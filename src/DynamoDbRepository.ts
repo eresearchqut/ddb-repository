@@ -241,8 +241,8 @@ export class DynamoDbRepository<K, T> {
             ReturnConsumedCapacity: this.returnConsumedCapacity,
         };
         return this.dynamoDBClient
-            .send(new UpdateItemCommand(updateItemCommandInput))
-            .then(() => this.getItem(key));
+            .send(new UpdateItemCommand({...updateItemCommandInput, ReturnValues: 'ALL_NEW'}))
+            .then((result) => result.Attributes ? unmarshall(result.Attributes) as T : undefined);
     };
 
 

@@ -227,7 +227,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                 name: 'Updated Name',
                 email: 'original@example.com'
             });
-            expect(sumConsumedCapacity()).toEqual(3);
+            expect(sumConsumedCapacity()).toEqual(2.5);
         });
 
         it('should remove attributes using the remove parameter', async () => {
