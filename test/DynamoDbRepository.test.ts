@@ -675,12 +675,10 @@ describe('DynamoDbRepository Integration Tests', () => {
                 });
 
                 expect(results).toBeDefined();
-                if (results && results.length > 0) {
-                    // All returned items should have the queried status
-                    results.forEach(item => {
-                        expect(item.status).toBe('active');
-                    });
-                }
+                expect(results!.length).toBeGreaterThan(0);
+                results!.forEach(item => {
+                    expect(item.status).toBe('active');
+                });
                 expect(sumConsumedCapacity()).toEqual(2);
             });
 
@@ -694,12 +692,11 @@ describe('DynamoDbRepository Integration Tests', () => {
                 });
 
                 expect(results).toBeDefined();
-                if (results && results.length > 0) {
-                    results.forEach(item => {
-                        expect(item.status).toBe('active');
-                        expect(item.category).toBe('electronics');
-                    });
-                }
+                expect(results!.length).toBeGreaterThan(0);
+                results!.forEach(item => {
+                    expect(item.status).toBe('active');
+                    expect(item.category).toBe('electronics');
+                });
                 expect(sumConsumedCapacity()).toEqual(1.5);
             });
 
@@ -710,18 +707,15 @@ describe('DynamoDbRepository Integration Tests', () => {
                 });
 
                 expect(results).toBeDefined();
-                if (results && results.length > 0) {
-                    const item = results.find(r => r.itemId === 'gsi-item-2');
-                    if (item) {
-                        // Should have all attributes from main table
-                        expect(item).toHaveProperty('userId');
-                        expect(item).toHaveProperty('itemId');
-                        expect(item).toHaveProperty('name');
-                        expect(item).toHaveProperty('category');
-                        expect(item).toHaveProperty('status');
-                        expect(item).toHaveProperty('createdAt');
-                    }
-                }
+                expect(results!.length).toBeGreaterThan(0);
+                const item = results!.find(r => r.itemId === 'gsi-item-2');
+                expect(item).toBeDefined();
+                expect(item!).toHaveProperty('userId');
+                expect(item!).toHaveProperty('itemId');
+                expect(item!).toHaveProperty('name');
+                expect(item!).toHaveProperty('category');
+                expect(item!).toHaveProperty('status');
+                expect(item!).toHaveProperty('createdAt');
                 expect(sumConsumedCapacity()).toEqual(2);
             });
 
@@ -733,14 +727,11 @@ describe('DynamoDbRepository Integration Tests', () => {
 
                 expect(results).toBeDefined();
                 expect(Array.isArray(results)).toBe(true);
-
-                // Should use batchGetItems internally to fetch full items
-                if (results && results.length > 0) {
-                    results.forEach(item => {
-                        expect(item).toHaveProperty('userId');
-                        expect(item).toHaveProperty('itemId');
-                    });
-                }
+                expect(results!.length).toBeGreaterThan(0);
+                results!.forEach(item => {
+                    expect(item).toHaveProperty('userId');
+                    expect(item).toHaveProperty('itemId');
+                });
                 expect(sumConsumedCapacity()).toEqual(2);
             });
 
@@ -752,14 +743,13 @@ describe('DynamoDbRepository Integration Tests', () => {
                 });
 
                 expect(results).toBeDefined();
-                if (results && results.length > 0) {
-                    // Note: Since we use batchGetItems after GSI query,
-                    // we get full items from main table
-                    results.forEach(item => {
-                        expect(item).toHaveProperty('name');
-                        expect(item).toHaveProperty('status');
-                    });
-                }
+                expect(results!.length).toBeGreaterThan(0);
+                // Note: Since we use batchGetItems after GSI query,
+                // we get full items from main table
+                results!.forEach(item => {
+                    expect(item).toHaveProperty('name');
+                    expect(item).toHaveProperty('status');
+                });
                 expect(sumConsumedCapacity()).toEqual(2);
             });
 
@@ -871,10 +861,8 @@ describe('DynamoDbRepository Integration Tests', () => {
                     ]
                 });
 
-                expect(results).toBeDefined();
-                if (results && results.length > 0) {
-                    expect(results[0].age).toBe(30);
-                }
+                expect(results).toHaveLength(1);
+                expect(results![0].age).toBe(30);
                 expect(sumConsumedCapacity()).toEqual(0.5);
             });
 
@@ -901,10 +889,8 @@ describe('DynamoDbRepository Integration Tests', () => {
                     ]
                 });
 
-                expect(results).toBeDefined();
-                if (results && results.length > 0) {
-                    expect(results[0].status).not.toBe('inactive');
-                }
+                expect(results).toHaveLength(1);
+                expect(results![0].status).not.toBe('inactive');
                 expect(sumConsumedCapacity()).toEqual(0.5);
             });
 
@@ -916,10 +902,8 @@ describe('DynamoDbRepository Integration Tests', () => {
                     ]
                 });
 
-                expect(results).toBeDefined();
-                if (results && results.length > 0) {
-                    expect(results[0].age).not.toBe(25);
-                }
+                expect(results).toHaveLength(1);
+                expect(results![0].age).not.toBe(25);
                 expect(sumConsumedCapacity()).toEqual(0.5);
             });
         });
@@ -933,10 +917,8 @@ describe('DynamoDbRepository Integration Tests', () => {
                     ]
                 });
 
-                expect(results).toBeDefined();
-                if (results && results.length > 0) {
-                    expect(results.every(item => item.age && item.age > 30)).toBe(true);
-                }
+                expect(results).toHaveLength(1);
+                expect(results!.every(item => item.age! > 30)).toBe(true);
                 expect(sumConsumedCapacity()).toEqual(0.5);
             });
 
@@ -948,10 +930,8 @@ describe('DynamoDbRepository Integration Tests', () => {
                     ]
                 });
 
-                expect(results).toBeDefined();
-                if (results && results.length > 0) {
-                    expect(results.every(item => item.score && item.score > 89.0)).toBe(true);
-                }
+                expect(results).toHaveLength(1);
+                expect(results!.every(item => item.score! > 89.0)).toBe(true);
                 expect(sumConsumedCapacity()).toEqual(0.5);
             });
 
@@ -978,10 +958,8 @@ describe('DynamoDbRepository Integration Tests', () => {
                     ]
                 });
 
-                expect(results).toBeDefined();
-                if (results && results.length > 0) {
-                    expect(results.every(item => item.age && item.age >= 30)).toBe(true);
-                }
+                expect(results).toHaveLength(1);
+                expect(results!.every(item => item.age! >= 30)).toBe(true);
                 expect(sumConsumedCapacity()).toEqual(0.5);
             });
 
@@ -993,11 +971,8 @@ describe('DynamoDbRepository Integration Tests', () => {
                     ]
                 });
 
-                expect(results).toBeDefined();
-                if (results && results.length > 0) {
-                    const exactMatch = results.find(item => item.score === 95.5);
-                    expect(exactMatch).toBeDefined();
-                }
+                expect(results).toHaveLength(1);
+                expect(results![0].score).toBe(95.5);
                 expect(sumConsumedCapacity()).toEqual(0.5);
             });
         });
@@ -1011,10 +986,8 @@ describe('DynamoDbRepository Integration Tests', () => {
                     ]
                 });
 
-                expect(results).toBeDefined();
-                if (results && results.length > 0) {
-                    expect(results.every(item => item.age && item.age < 30)).toBe(true);
-                }
+                expect(results).toHaveLength(1);
+                expect(results!.every(item => item.age! < 30)).toBe(true);
                 expect(sumConsumedCapacity()).toEqual(0.5);
             });
 
@@ -1026,10 +999,8 @@ describe('DynamoDbRepository Integration Tests', () => {
                     ]
                 });
 
-                expect(results).toBeDefined();
-                if (results && results.length > 0) {
-                    expect(results.every(item => item.score && item.score < 75.0)).toBe(true);
-                }
+                expect(results).toHaveLength(1);
+                expect(results!.every(item => item.score! < 75.0)).toBe(true);
                 expect(sumConsumedCapacity()).toEqual(0.5);
             });
         });
@@ -1043,10 +1014,8 @@ describe('DynamoDbRepository Integration Tests', () => {
                     ]
                 });
 
-                expect(results).toBeDefined();
-                if (results && results.length > 0) {
-                    expect(results.every(item => item.age && item.age <= 25)).toBe(true);
-                }
+                expect(results).toHaveLength(1);
+                expect(results!.every(item => item.age! <= 25)).toBe(true);
                 expect(sumConsumedCapacity()).toEqual(0.5);
             });
 
@@ -1058,11 +1027,8 @@ describe('DynamoDbRepository Integration Tests', () => {
                     ]
                 });
 
-                expect(results).toBeDefined();
-                if (results && results.length > 0) {
-                    const exactMatch = results.find(item => item.score === 90.0);
-                    expect(exactMatch).toBeDefined();
-                }
+                expect(results).toHaveLength(1);
+                expect(results![0].score).toBe(90.0);
                 expect(sumConsumedCapacity()).toEqual(0.5);
             });
         });
@@ -1076,10 +1042,8 @@ describe('DynamoDbRepository Integration Tests', () => {
                     ]
                 });
 
-                expect(results).toBeDefined();
-                if (results && results.length > 0) {
-                    expect(results.every(item => ['active', 'pending'].includes(item.status || ''))).toBe(true);
-                }
+                expect(results).toHaveLength(1);
+                expect(results!.every(item => ['active', 'pending'].includes(item.status || ''))).toBe(true);
                 expect(sumConsumedCapacity()).toEqual(0.5);
             });
 
@@ -1091,10 +1055,8 @@ describe('DynamoDbRepository Integration Tests', () => {
                     ]
                 });
 
-                expect(results).toBeDefined();
-                if (results && results.length > 0) {
-                    expect(results.every(item => [25, 30, 35].includes(item.age || 0))).toBe(true);
-                }
+                expect(results).toHaveLength(1);
+                expect(results!.every(item => [25, 30, 35].includes(item.age!))).toBe(true);
                 expect(sumConsumedCapacity()).toEqual(0.5);
             });
 
@@ -1119,10 +1081,8 @@ describe('DynamoDbRepository Integration Tests', () => {
                     ]
                 });
 
-                expect(results).toBeDefined();
-                if (results && results.length > 0) {
-                    expect(results[0].status).toBe('active');
-                }
+                expect(results).toHaveLength(1);
+                expect(results![0].status).toBe('active');
                 expect(sumConsumedCapacity()).toEqual(0.5);
             });
         });
@@ -1136,10 +1096,8 @@ describe('DynamoDbRepository Integration Tests', () => {
                     ]
                 });
 
-                expect(results).toBeDefined();
-                if (results && results.length > 0) {
-                    expect(results.every(item => item.age && item.age >= 25 && item.age <= 35)).toBe(true);
-                }
+                expect(results).toHaveLength(1);
+                expect(results!.every(item => item.age! >= 25 && item.age! <= 35)).toBe(true);
                 expect(sumConsumedCapacity()).toEqual(0.5);
             });
 
@@ -1151,10 +1109,8 @@ describe('DynamoDbRepository Integration Tests', () => {
                     ]
                 });
 
-                expect(results).toBeDefined();
-                if (results && results.length > 0) {
-                    expect(results.every(item => item.score && item.score >= 80.0 && item.score <= 90.0)).toBe(true);
-                }
+                expect(results).toHaveLength(1);
+                expect(results!.every(item => item.score! >= 80.0 && item.score! <= 90.0)).toBe(true);
                 expect(sumConsumedCapacity()).toEqual(0.5);
             });
 
@@ -1166,12 +1122,8 @@ describe('DynamoDbRepository Integration Tests', () => {
                     ]
                 });
 
-                expect(results).toBeDefined();
-                if (results && results.length > 0) {
-                    const hasLowerBound = results.some(item => item.age === 30);
-                    const hasUpperBound = results.some(item => item.age === 40);
-                    expect(hasLowerBound || hasUpperBound).toBe(true);
-                }
+                expect(results).toHaveLength(1);
+                expect(results!.some(item => item.age === 30)).toBe(true);
                 expect(sumConsumedCapacity()).toEqual(0.5);
             });
 
@@ -1196,12 +1148,8 @@ describe('DynamoDbRepository Integration Tests', () => {
                     ]
                 });
 
-                expect(results).toBeDefined();
-                if (results && results.length > 0) {
-                    expect(results.every(item => 
-                        item.name && item.name >= 'Alice' && item.name <= 'Diana'
-                    )).toBe(true);
-                }
+                expect(results).toHaveLength(1);
+                expect(results!.every(item => item.name! >= 'Alice' && item.name! <= 'Diana')).toBe(true);
                 expect(sumConsumedCapacity()).toEqual(0.5);
             });
         });
@@ -1216,12 +1164,8 @@ describe('DynamoDbRepository Integration Tests', () => {
                     ]
                 });
 
-                expect(results).toBeDefined();
-                if (results && results.length > 0) {
-                    expect(results.every(item => 
-                        item.status === 'active' && item.age && item.age >= 25
-                    )).toBe(true);
-                }
+                expect(results).toHaveLength(1);
+                expect(results!.every(item => item.status === 'active' && item.age! >= 25)).toBe(true);
             });
 
             it('should apply complex filtering with mixed operators', async () => {
@@ -1234,14 +1178,12 @@ describe('DynamoDbRepository Integration Tests', () => {
                     ]
                 });
 
-                expect(results).toBeDefined();
-                if (results && results.length > 0) {
-                    expect(results.every(item => 
-                        ['active', 'pending'].includes(item.status || '') &&
-                        item.age && item.age >= 20 && item.age <= 35 &&
-                        item.score && item.score >= 80.0
-                    )).toBe(true);
-                }
+                expect(results).toHaveLength(1);
+                expect(results!.every(item =>
+                    ['active', 'pending'].includes(item.status || '') &&
+                    item.age! >= 20 && item.age! <= 35 &&
+                    item.score! >= 80.0
+                )).toBe(true);
                 expect(sumConsumedCapacity()).toEqual(0.5);
             });
         });
@@ -1255,10 +1197,8 @@ describe('DynamoDbRepository Integration Tests', () => {
                     ]
                 });
 
-                expect(results).toBeDefined();
-                if (results && results.length > 0) {
-                    expect(results.every(item => item.status !== 'inactive')).toBe(true);
-                }
+                expect(results).toHaveLength(1);
+                expect(results!.every(item => item.status !== 'inactive')).toBe(true);
                 expect(sumConsumedCapacity()).toEqual(0.5);
             });
 
@@ -1270,12 +1210,8 @@ describe('DynamoDbRepository Integration Tests', () => {
                     ]
                 });
 
-                expect(results).toBeDefined();
-                if (results && results.length > 0) {
-                    expect(results.every(item => 
-                        !['active', 'pending'].includes(item.status || '')
-                    )).toBe(true);
-                }
+                expect(results).toHaveLength(1);
+                expect(results!.every(item => !['active', 'pending'].includes(item.status || ''))).toBe(true);
                 expect(sumConsumedCapacity()).toEqual(0.5);
             });
 
@@ -1287,12 +1223,8 @@ describe('DynamoDbRepository Integration Tests', () => {
                     ]
                 });
 
-                expect(results).toBeDefined();
-                if (results && results.length > 0) {
-                    expect(results.every(item => 
-                        item.age && (item.age < 25 || item.age > 35)
-                    )).toBe(true);
-                }
+                expect(results).toHaveLength(1);
+                expect(results!.every(item => item.age! < 25 || item.age! > 35)).toBe(true);
                 expect(sumConsumedCapacity()).toEqual(0.5);
             });
         });
@@ -1338,10 +1270,8 @@ describe('DynamoDbRepository Integration Tests', () => {
                     ]
                 });
 
-                expect(results).toBeDefined();
-                if (results && results.length > 0) {
-                    expect(results[0].score).toBe(0);
-                }
+                expect(results).toHaveLength(1);
+                expect(results![0].score).toBe(0);
             });
         });
     });
