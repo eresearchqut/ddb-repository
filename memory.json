@@ -1,13 +1,9 @@
 {
-  "last_run": "2026-05-02T12:56:59Z",
-  "run_id": "25252384911",
+  "last_run": "2026-05-03T01:20:05Z",
+  "run_id": "25266506227",
   "comments_made": {},
-  "prs_created": [
-    {"branch": "repo-assist/test-json-pointer-cross-method-2026-05-02", "title": "test: add cross-method consistency tests for JsonPointerRepository", "status": "created_this_run", "number": 34}
-  ],
-  "prs_updated": [
-    {"number": 14, "action": "rebased onto main", "new_tip": "f95de18"}
-  ],
+  "prs_created": [],
+  "prs_updated": [],
   "prs_closed_or_merged": {
     "2": {"title": "refactor: replace Object.assign({}) with {} and fix rangKey typo", "outcome": "closed_without_merge"},
     "4": {"title": "fix: add ReturnConsumedCapacity and removeUndefinedValues to deleteItem", "outcome": "merged"},
@@ -22,7 +18,7 @@
     "17": {"title": "perf: stop paginating getItems once limit is reached", "outcome": "merged"}
   },
   "open_repo_assist_prs": [
-    {"number": 14, "title": "feat: add BEGINS_WITH and CONTAINS filter operators", "branch": "repo-assist/improve-begins-with-contains-operators-7d0364b1cd05a28a", "note": "rebased onto main this run"},
+    {"number": 14, "title": "feat: add BEGINS_WITH and CONTAINS filter operators", "branch": "repo-assist/improve-begins-with-contains-operators-7d0364b1cd05a28a", "note": "mergeable_state: clean; do NOT attempt to rebase — causes protected files issues (#18, #23, #35)"},
     {"number": 19, "title": "docs: rewrite README to document current API", "branch": "repo-assist/docs-update-readme-api-42bff8489672e6cb"},
     {"number": 20, "title": "test: add coverage for hyphenated attribute names in filter expressions and updateItem SET", "branch": "repo-assist/test-hyphenated-attr-filter-expressions-c838084d82aa8697"},
     {"number": 21, "title": "feat: add getItemsPage for cursor-based pagination", "branch": "repo-assist/feat-get-items-page-cursor-pagination-90af46325e53c9a9"},
@@ -44,7 +40,7 @@
   "monthly_activity_issue": {
     "number": 30,
     "month": "2026-05",
-    "status": "updated"
+    "status": "current — no new entries this run (no new PRs/comments created)"
   },
-  "notes": "Current main is v1.9.2. Do NOT re-propose: cosmetic Object.assign/{} (PR #2 declined). Issues #10 and #12/#13: CI caching and Dependabot config PRs blocked by GitHub Actions .github/ permission. PR #14 rebased onto main this run. PR #26 wires up eslint-plugin-jest — once merged, PR #33 (fix conditional-expects) eliminates all warnings. Issue #28: deps bump via protected files — branch repo-assist/eng-deps-patch-2026-04-30-301db07a2b5bd2ef exists; maintainer can create PR from link in issue. All 13 open Repo Assist PRs are on current main. No user-filed issues with substantive content — all open issues are system-generated or created by Repo Assist. 13 open PRs total; maintainer should consider merging some to reduce PR queue."
+  "notes": "Current main is v1.9.2. Do NOT re-propose: cosmetic Object.assign/{} (PR #2 declined). Issues #10 and #12/#13: CI caching and Dependabot config PRs blocked by GitHub Actions .github/ permission. Do NOT attempt to rebase PR #14 — previous attempts caused protected files issues (#18, #23, #35). All 13 open Repo Assist PRs are on current main and mergeable_state: clean. No user-filed issues exist — all 10 open issues are system-generated or Repo Assist issues. Maintainer has 13 open PRs to review before more should be added. Issue #28: deps bump via protected files — branch repo-assist/eng-deps-patch-2026-04-30-301db07a2b5bd2ef exists; maintainer can create PR from link in issue. Run 2026-05-03: investigated code thoroughly — no new bugs/improvements found beyond existing 13 PRs. Hold off creating more PRs until some are merged."
 }
