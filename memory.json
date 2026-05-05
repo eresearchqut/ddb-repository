@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-05-04T13:10:38Z",
-  "run_id": "25320832672",
+  "last_run": "2026-05-05T01:11:11Z",
+  "run_id": "25352440675",
   "comments_made": {
     "pr_26": {"timestamp": "2026-05-04T01:17:30Z", "note": "noted PR #26 superseded by PR #33"}
   },
@@ -20,7 +20,7 @@
     "17": {"title": "perf: stop paginating getItems once limit is reached", "outcome": "merged"}
   },
   "open_repo_assist_prs": [
-    {"number": 14, "title": "feat: add BEGINS_WITH and CONTAINS filter operators", "branch": "repo-assist/improve-begins-with-contains-operators-7d0364b1cd05a28a", "note": "11 commits behind main; do NOT attempt to rebase — causes protected files issues (#18, #23, #35)"},
+    {"number": 14, "title": "feat: add BEGINS_WITH and CONTAINS filter operators", "branch": "repo-assist/improve-begins-with-contains-operators-7d0364b1cd05a28a", "note": "11+ commits behind main; do NOT attempt to rebase — causes protected files issues (#18, #23, #35)"},
     {"number": 19, "title": "docs: rewrite README to document current API", "branch": "repo-assist/docs-update-readme-api-42bff8489672e6cb"},
     {"number": 20, "title": "test: add coverage for hyphenated attribute names in filter expressions and updateItem SET", "branch": "repo-assist/test-hyphenated-attr-filter-expressions-c838084d82aa8697"},
     {"number": 21, "title": "feat: add getItemsPage for cursor-based pagination", "branch": "repo-assist/feat-get-items-page-cursor-pagination-90af46325e53c9a9"},
@@ -32,10 +32,8 @@
     {"number": 31, "title": "test: add coverage for putItem undefined stripping, projection+filter combo, stronger GSI projection assertions", "branch": "repo-assist/test-getitems-projection-filter-putitem-undefs-2026-05-01-9683cfffd414ec78"},
     {"number": 32, "title": "perf: eliminate redundant GetItem call in putItem by unmarshalling the item in memory", "branch": "repo-assist/perf-putitem-avoid-extra-getitem-2026-05-01-9bdedba15bdc0c6c"},
     {"number": 33, "title": "test: remove conditional-expect anti-patterns from filter and GSI tests", "branch": "repo-assist/test-fix-conditional-expects-2026-05-02-137131572c590188", "note": "Supersedes PR #26 (includes same eslint.config.mjs change + fixes warnings)"},
-    {"number": 34, "title": "test: add cross-method consistency tests for JsonPointerRepository", "branch": "repo-assist/test-json-pointer-cross-method-2026-05-02-de6beb1ee55b4772"}
-  ],
-  "open_issues_filed": [
-    {"number": "37 (pending)", "title": "bug: sortOrder has no effect when using getItems with a GSI (index parameter)", "note": "Filed this run — issue number TBD (check after run). Fix: re-sort items after batchGetItems to match GSI key order."}
+    {"number": 34, "title": "test: add cross-method consistency tests for JsonPointerRepository", "branch": "repo-assist/test-json-pointer-cross-method-2026-05-02-de6beb1ee55b4772"},
+    {"number": 38, "title": "fix: preserve GSI query order after batchGetItems in getItems", "branch": "repo-assist/fix-gsi-sort-order-2026-05-05", "note": "Fixes issue #37 — sortOrder ignored for GSI queries. Closes #37."}
   ],
   "issues_labelled": {},
   "backlog_cursor": {
@@ -47,5 +45,5 @@
     "month": "2026-05",
     "status": "updated"
   },
-  "notes": "Current main is v1.9.2. Do NOT re-propose: cosmetic Object.assign/{} (PR #2 declined). Issues #10 and #12/#13: CI caching and Dependabot config PRs blocked by GitHub Actions .github/ permission. Do NOT attempt to rebase PR #14 — previous attempts caused protected files issues (#18, #23, #35). PR #14 is now 11 commits behind main. All other 12 open Repo Assist PRs are up-to-date with main. No user-filed issues — all open issues are system-generated or Repo Assist issues. All deps are current (npm outdated returns {}). Main perf improvements covered by PRs #29 and #32. No new engineering improvements available without .github/ access. Hold off creating more PRs until some are merged (13 open). PR #26 is superseded by PR #33 — commented on PR #26 to notify maintainer. NEW BUG: sortOrder has no effect for GSI (index) queries — batchGetItems discards sort order; fix: re-sort results to match original GSI key order; filed as issue #37 (TBD number)."
+  "notes": "Current main is v1.9.2. Do NOT re-propose: cosmetic Object.assign/{} (PR #2 declined). Issues #10 and #12/#13: CI caching and Dependabot config PRs blocked by GitHub Actions .github/ permission. Do NOT attempt to rebase PR #14 — previous attempts caused protected files issues (#18, #23, #35). PR #14 is now 11+ commits behind main. All other 13 open Repo Assist PRs are up-to-date with main. No user-filed issues — all open issues are system-generated or Repo Assist issues. All deps are current (npm outdated returns {}). Main perf improvements covered by PRs #29 and #32. No new engineering improvements available without .github/ access. Hold off creating more PRs until some are merged (14 open). PR #26 is superseded by PR #33 — commented on PR #26 to notify maintainer. Issue #37 FIXED by PR #38 — fix: preserve GSI query order after batchGetItems."
 }
