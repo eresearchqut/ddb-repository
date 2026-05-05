@@ -1,8 +1,9 @@
 {
-  "last_run": "2026-05-05T01:11:11Z",
-  "run_id": "25352440675",
+  "last_run": "2026-05-05T13:00:36Z",
+  "run_id": "25377810394",
   "comments_made": {
-    "pr_26": {"timestamp": "2026-05-04T01:17:30Z", "note": "noted PR #26 superseded by PR #33"}
+    "pr_26": {"timestamp": "2026-05-04T01:17:30Z", "note": "noted PR #26 superseded by PR #33"},
+    "issue_37": {"timestamp": "2026-05-05T13:00:36Z", "note": "linked to PR #38 fixing the GSI sortOrder bug"}
   },
   "prs_created": [],
   "prs_updated": [],
@@ -45,5 +46,5 @@
     "month": "2026-05",
     "status": "updated"
   },
-  "notes": "Current main is v1.9.2. Do NOT re-propose: cosmetic Object.assign/{} (PR #2 declined). Issues #10 and #12/#13: CI caching and Dependabot config PRs blocked by GitHub Actions .github/ permission. Do NOT attempt to rebase PR #14 — previous attempts caused protected files issues (#18, #23, #35). PR #14 is now 11+ commits behind main. All other 13 open Repo Assist PRs are up-to-date with main. No user-filed issues — all open issues are system-generated or Repo Assist issues. All deps are current (npm outdated returns {}). Main perf improvements covered by PRs #29 and #32. No new engineering improvements available without .github/ access. Hold off creating more PRs until some are merged (14 open). PR #26 is superseded by PR #33 — commented on PR #26 to notify maintainer. Issue #37 FIXED by PR #38 — fix: preserve GSI query order after batchGetItems."
+  "notes": "Current main is v1.9.2. Do NOT re-propose: cosmetic Object.assign/{} (PR #2 declined). Issues #10 and #12/#13: CI caching and Dependabot config PRs blocked by GitHub Actions .github/ permission. Do NOT attempt to rebase PR #14 — previous attempts caused protected files issues (#18, #23, #35). PR #14 is now 11+ commits behind main. All other 13 open Repo Assist PRs are up-to-date with main. No user-filed issues — all open issues are system-generated or Repo Assist issues. All deps are current (npm outdated returns {}). Main perf improvements covered by PRs #29 and #32. No new engineering improvements available without .github/ access. Hold off creating more PRs until some are merged (14 open). PR #26 is superseded by PR #33 — commented on PR #26 to notify maintainer. Issue #37 FIXED by PR #38 — fix: preserve GSI query order after batchGetItems. Commented on issue #37 linking to PR #38."
 }
