@@ -1,6 +1,7 @@
 import {
     BatchGetItemCommand,
     BatchGetItemCommandInput,
+    BatchWriteItemCommand,
     DeleteItemCommand,
     DynamoDBClient,
     GetItemCommand,
@@ -9,6 +10,7 @@ import {
     QueryCommandInput,
     ReturnConsumedCapacity,
     UpdateItemCommand,
+    WriteRequest,
 } from "@aws-sdk/client-dynamodb";
 import {marshall, unmarshall, NativeAttributeValue} from "@aws-sdk/util-dynamodb";
 import {replace, uniqWith, isEqual, pickBy} from "lodash";
@@ -353,6 +355,46 @@ export class DynamoDbRepository<K, T> {
         return limit ? items.slice(0, limit) : items;
     };
 
+
+    batchWriteItems = async (
+        puts: { key: K; item: T }[],
+        deletes: K[],
+    ): Promise<void> => {
+        const requests: WriteRequest[] = [
+            ...puts.map(({ key, item }) => ({
+                PutRequest: {
+                    Item: marshall(
+                        { ...item, ...key } as Record<string, NativeAttributeValue>,
+                        { removeUndefinedValues: true },
+                    ),
+                },
+            })),
+            ...deletes.map((key) => ({
+                DeleteRequest: { Key: marshallKey(key) },
+            })),
+        ];
+
+        const batches = paginate(requests, 25);
+        await Promise.all(
+            batches.map(async (batch) => {
+                let requestItems: Record<string, WriteRequest[]> = { [this.tableName]: batch };
+                let delay = 100;
+                while (Object.keys(requestItems).length > 0) {
+                    const result = await this.dynamoDBClient.send(
+                        new BatchWriteItemCommand({
+                            RequestItems: requestItems,
+                            ReturnConsumedCapacity: this.returnConsumedCapacity,
+                        }),
+                    );
+                    const unprocessed = result.UnprocessedItems;
+                    if (!unprocessed || Object.keys(unprocessed).length === 0) break;
+                    requestItems = unprocessed as Record<string, WriteRequest[]>;
+                    await new Promise((resolve) => setTimeout(resolve, delay));
+                    delay = Math.min(delay * 2, 3200);
+                }
+            }),
+        );
+    };
 
     batchGetItems = async (
         keys: K[], projectedQuery?: ProjectedQuery
