@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-05-16T12:57:31Z",
-  "run_id": "25962489033",
+  "last_run": "2026-05-17T01:23:52Z",
+  "run_id": "25977896902",
   "comments_made": {
     "pr_26": {"timestamp": "2026-05-04T01:17:30Z", "note": "noted PR #26 superseded by PR #33"},
     "issue_37": {"timestamp": "2026-05-05T13:00:36Z", "note": "linked to PR #38 fixing the GSI sortOrder bug"}
@@ -34,8 +34,8 @@
     {"number": 32, "title": "perf: eliminate redundant GetItem call in putItem by unmarshalling the item in memory", "branch": "repo-assist/perf-putitem-avoid-extra-getitem-2026-05-01-9bdedba15bdc0c6c"},
     {"number": 33, "title": "test: remove conditional-expect anti-patterns from filter and GSI tests", "branch": "repo-assist/test-fix-conditional-expects-2026-05-02-137131572c590188", "note": "Supersedes PR #26 (includes same eslint.config.mjs change + fixes warnings)"},
     {"number": 34, "title": "test: add cross-method consistency tests for JsonPointerRepository", "branch": "repo-assist/test-json-pointer-cross-method-2026-05-02-de6beb1ee55b4772"},
-    {"number": 38, "title": "fix: preserve GSI query order after batchGetItems in getItems", "branch": "repo-assist/fix-gsi-sort-order-2026-05-05-24a57e8fd624d9b6", "note": "Fixes issue #37 — sortOrder ignored for GSI queries. mergeable_state: clean as of 2026-05-16."},
-    {"number": 39, "title": "perf: use BatchWriteItem in JsonPointerRepository for putDocument and deleteDocument", "branch": "repo-assist/perf-batch-write-json-pointer-2026-05-08-c46b49b616131864", "note": "Reduces putDocument from 2N+K+1 to 1+ceil((N+K)/25) calls. mergeable_state: not checked this run but was clean 2026-05-15."}
+    {"number": 38, "title": "fix: preserve GSI query order after batchGetItems in getItems", "branch": "repo-assist/fix-gsi-sort-order-2026-05-05-24a57e8fd624d9b6", "note": "Fixes issue #37 — sortOrder ignored for GSI queries. mergeable_state: clean as of 2026-05-17."},
+    {"number": 39, "title": "perf: use BatchWriteItem in JsonPointerRepository for putDocument and deleteDocument", "branch": "repo-assist/perf-batch-write-json-pointer-2026-05-08-c46b49b616131864", "note": "Reduces putDocument from 2N+K+1 to 1+ceil((N+K)/25) calls. mergeable_state: clean as of 2026-05-17."}
   ],
   "issues_labelled": {},
   "backlog_cursor": {
@@ -53,5 +53,5 @@
     "gsi_key_projection": "PERF OPPORTUNITY: GSI queries in getItems fetch ALL item attributes just to extract hash/range keys. Add key-only ProjectionExpression to the GSI query to reduce network traffic. FilterExpression still works (evaluated server-side before projection). Implement once PR backlog clears.",
     "missing_features_noted": "DynamoDbRepository lacks: scan, transactWrite/transactGet. JsonPointerRepository lacks: patchDocument (batch pointer updates). These are potential future features to implement after backlog clears."
   },
-  "notes": "Current main is v1.9.2 (2682f6a3). Do NOT re-propose: cosmetic Object.assign/{} (PR #2 declined). Issues #10 and #12/#13: CI caching and Dependabot config PRs blocked by GitHub Actions .github/ permission. Do NOT attempt to rebase PR #14 — previous attempts caused protected files issues (#18, #23, #35). PR #14 is now 11 commits behind main but mergeable_state is clean. All other 14 open Repo Assist PRs are up-to-date with main (confirmed 2026-05-16: no conflicts with 2682f6a3). No user-filed issues — all open issues are system-generated or Repo Assist issues. npm outdated returns empty (confirmed 2026-05-13: no outdated deps). 15 open Repo Assist PRs — hold off creating more until backlog clears. PR #26 is superseded by PR #33. Issue #37 FIXED by PR #38. PR #39 is the BatchWriteItem optimization for JsonPointerRepository. Runs 2026-05-10 through 2026-05-16 12:57: Tasks selected, no new PRs (15 open); main unchanged at v1.9.2; all PR branches (excluding #14) verified conflict-free with main."
+  "notes": "Current main is v1.9.2 (2682f6a3). Do NOT re-propose: cosmetic Object.assign/{} (PR #2 declined). Issues #10 and #12/#13: CI caching and Dependabot config PRs blocked by GitHub Actions .github/ permission. Do NOT attempt to rebase PR #14 — previous attempts caused protected files issues (#18, #23, #35). PR #14 is now 11 commits behind main but mergeable_state is clean. All other 14 open Repo Assist PRs are 0 commits behind main (confirmed 2026-05-17: no conflicts with 2682f6a3). No user-filed issues — all open issues are system-generated or Repo Assist issues. npm outdated returns empty (confirmed 2026-05-13: no outdated deps). 15 open Repo Assist PRs — hold off creating more until backlog clears. PR #26 is superseded by PR #33. Issue #37 FIXED by PR #38. PR #39 is the BatchWriteItem optimization for JsonPointerRepository. Runs 2026-05-10 through 2026-05-17: Tasks selected, no new PRs (15 open); main unchanged at v1.9.2; all PR branches (excluding #14) verified conflict-free with main."
 }
