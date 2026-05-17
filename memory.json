@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-05-17T01:23:52Z",
-  "run_id": "25977896902",
+  "last_run": "2026-05-17T12:57:21Z",
+  "run_id": "25991468946",
   "comments_made": {
     "pr_26": {"timestamp": "2026-05-04T01:17:30Z", "note": "noted PR #26 superseded by PR #33"},
     "issue_37": {"timestamp": "2026-05-05T13:00:36Z", "note": "linked to PR #38 fixing the GSI sortOrder bug"}
@@ -50,8 +50,8 @@
   "future_work": {
     "pr_merge_order": "PRs #25 and #29 both touch updateItem — merge in order: #25 (no-op) first, then #29 (ReturnValues ALL_NEW). PRs #33 supersedes #26 — merge #33, close #26.",
     "type_improvement": "batchGetItems return type is Array<T | undefined> but implementation never returns undefined — could narrow to Array<T>; deferred until PR backlog clears",
-    "gsi_key_projection": "PERF OPPORTUNITY: GSI queries in getItems fetch ALL item attributes just to extract hash/range keys. Add key-only ProjectionExpression to the GSI query to reduce network traffic. FilterExpression still works (evaluated server-side before projection). Implement once PR backlog clears.",
+    "gsi_key_projection": "PERF OPPORTUNITY: GSI queries in getItems fetch ALL item attributes just to extract hash/range keys. Add key-only ProjectionExpression to the GSI query to reduce network traffic. Implement once PR backlog clears.",
     "missing_features_noted": "DynamoDbRepository lacks: scan, transactWrite/transactGet. JsonPointerRepository lacks: patchDocument (batch pointer updates). These are potential future features to implement after backlog clears."
   },
-  "notes": "Current main is v1.9.2 (2682f6a3). Do NOT re-propose: cosmetic Object.assign/{} (PR #2 declined). Issues #10 and #12/#13: CI caching and Dependabot config PRs blocked by GitHub Actions .github/ permission. Do NOT attempt to rebase PR #14 — previous attempts caused protected files issues (#18, #23, #35). PR #14 is now 11 commits behind main but mergeable_state is clean. All other 14 open Repo Assist PRs are 0 commits behind main (confirmed 2026-05-17: no conflicts with 2682f6a3). No user-filed issues — all open issues are system-generated or Repo Assist issues. npm outdated returns empty (confirmed 2026-05-13: no outdated deps). 15 open Repo Assist PRs — hold off creating more until backlog clears. PR #26 is superseded by PR #33. Issue #37 FIXED by PR #38. PR #39 is the BatchWriteItem optimization for JsonPointerRepository. Runs 2026-05-10 through 2026-05-17: Tasks selected, no new PRs (15 open); main unchanged at v1.9.2; all PR branches (excluding #14) verified conflict-free with main."
+  "notes": "Current main is v1.9.2 (2682f6a3). Do NOT re-propose: cosmetic Object.assign/{} (PR #2 declined). Issues #10 and #12/#13: CI caching and Dependabot config PRs blocked by GitHub Actions .github/ permission. Do NOT attempt to rebase PR #14 — previous attempts caused protected files issues (#18, #23, #35). PR #14 is now 11 commits behind main but mergeable_state is clean. All other 14 open Repo Assist PRs are 0 commits behind main (confirmed 2026-05-17: no conflicts with 2682f6a3). No user-filed issues — all open issues are system-generated or Repo Assist issues. npm outdated returns empty (confirmed 2026-05-17: no outdated deps). 15 open Repo Assist PRs — hold off creating more until backlog clears. PR #26 is superseded by PR #33. Issue #37 FIXED by PR #38. PR #39 is the BatchWriteItem optimization for JsonPointerRepository. Runs 2026-05-10 through 2026-05-17: Tasks selected, no new PRs (15 open); main unchanged at v1.9.2; all PR branches (excluding #14) verified conflict-free with main."
 }
