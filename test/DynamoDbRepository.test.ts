@@ -226,6 +226,16 @@ describe('DynamoDbRepository Integration Tests', () => {
             expect(sumConsumedCapacity()).toEqual(2.5);
         });
 
+        it('should return the deleted item', async () => {
+            const key = { id: 'delete-test-return' };
+            const record = { id: 'delete-test-return', name: 'Return Me' };
+
+            await repository.putItem(key, record);
+            const deleted = await repository.deleteItem(key);
+
+            expect(deleted).toEqual(record);
+        });
+
         it('should return undefined when deleting a non-existent item', async () => {
             const result = await repository.deleteItem({ id: 'does-not-exist' });
 

@@ -8,6 +8,7 @@ import {
     PutItemCommand,
     QueryCommandInput,
     ReturnConsumedCapacity,
+    ReturnValue,
     UpdateItemCommand,
 } from "@aws-sdk/client-dynamodb";
 import {marshall, unmarshall, NativeAttributeValue} from "@aws-sdk/util-dynamodb";
@@ -176,13 +177,14 @@ export class DynamoDbRepository<K, T> {
             .then(() => unmarshall(Item) as T);
     };
 
-    deleteItem = async (key: K) => {
+    deleteItem = async (key: K): Promise<T | undefined> => {
         return this.dynamoDBClient.send(new DeleteItemCommand({
             TableName: this.tableName,
             Key: marshallKey(key),
+            ReturnValues: ReturnValue.ALL_OLD,
             ReturnConsumedCapacity: this.returnConsumedCapacity,
         })).then((result) => result.Attributes ?
-            unmarshall(result.Attributes) : undefined);
+            unmarshall(result.Attributes) as T : undefined);
     };
 
 
