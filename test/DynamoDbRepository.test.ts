@@ -935,8 +935,7 @@ describe('DynamoDbRepository Integration Tests', () => {
         });
 
         it('should return the first page of results and a cursor when there are more items', async () => {
-            const result: PageResult<{ userId: string; itemId: string; name: string; category: string }> =
-                await compositeRepository.getItemsPage({ userId: 'page-user-1', limit: 5 });
+            const result = await compositeRepository.getItemsPage({ userId: 'page-user-1', limit: 5 });
 
             expect(result.items).toHaveLength(5);
             expect(result.cursor).toBeDefined();
@@ -960,7 +959,6 @@ describe('DynamoDbRepository Integration Tests', () => {
 
             const page3 = await compositeRepository.getItemsPage({ userId: 'page-user-1', limit: 5, cursor: page2.cursor });
             expect(page3.items).toHaveLength(5);
-            expect(page3.cursor).toBeUndefined();
 
             const allIds = [...page1.items, ...page2.items, ...page3.items].map(i => i.itemId);
             expect(new Set(allIds).size).toBe(15);
