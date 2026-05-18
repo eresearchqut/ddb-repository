@@ -1,3 +1,10 @@
+## [1.10.1](https://github.com/eresearchqut/ddb-repository/compare/v1.10.0...v1.10.1) (2026-05-18)
+
+
+### Bug Fixes
+
+* standardize enum casing for consistency in DynamoDbRepository ([bfb7948](https://github.com/eresearchqut/ddb-repository/commit/bfb7948458b99b1004ff5c66a75fe2bef7ca35ab))
+
 # [1.10.0](https://github.com/eresearchqut/ddb-repository/compare/v1.9.9...v1.10.0) (2026-05-18)
 
 
