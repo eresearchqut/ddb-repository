@@ -1,3 +1,10 @@
+# [1.10.0](https://github.com/eresearchqut/ddb-repository/compare/v1.9.9...v1.10.0) (2026-05-18)
+
+
+### Features
+
+* add BEGINS_WITH and CONTAINS filter operators ([cc4c0e1](https://github.com/eresearchqut/ddb-repository/commit/cc4c0e1cb81db9fe6fc1fcb1c0888b8443fb2f5f)), closes [#attr](https://github.com/eresearchqut/ddb-repository/issues/attr) [#attr](https://github.com/eresearchqut/ddb-repository/issues/attr)
+
 ## [1.9.9](https://github.com/eresearchqut/ddb-repository/compare/v1.9.8...v1.9.9) (2026-05-18)
 
 
