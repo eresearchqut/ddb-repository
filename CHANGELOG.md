@@ -1,3 +1,10 @@
+## [1.13.1](https://github.com/eresearchqut/ddb-repository/compare/v1.13.0...v1.13.1) (2026-05-18)
+
+
+### Bug Fixes
+
+* use NPM_TOKEN secret for npm publishing in release workflow ([132085f](https://github.com/eresearchqut/ddb-repository/commit/132085f2131da0ba6473c8cff8f5c5ba41228301))
+
 # [1.13.0](https://github.com/eresearchqut/ddb-repository/compare/v1.12.1...v1.13.0) (2026-05-18)
 
 
