@@ -1,3 +1,38 @@
+## [1.9.7](https://github.com/eresearchqut/ddb-repository/compare/v1.9.6...v1.9.7) (2026-05-18)
+
+
+### Bug Fixes
+
+* treat all-undefined updates as no-op in updateItem ([4b4c561](https://github.com/eresearchqut/ddb-repository/commit/4b4c5614610835358d4ff6bd7a758108d6ee3f69))
+
+## [1.9.6](https://github.com/eresearchqut/ddb-repository/compare/v1.9.5...v1.9.6) (2026-05-18)
+
+
+### Bug Fixes
+
+* return deleted item from deleteItem via ReturnValues ALL_OLD ([a9a48ce](https://github.com/eresearchqut/ddb-repository/commit/a9a48ce7cbf1ad8ae1c0bc86177c7db44933e687))
+
+## [1.9.5](https://github.com/eresearchqut/ddb-repository/compare/v1.9.4...v1.9.5) (2026-05-18)
+
+
+### Performance Improvements
+
+* use ReturnValues ALL_NEW in updateItem to eliminate extra GetItem call ([6e2d37b](https://github.com/eresearchqut/ddb-repository/commit/6e2d37bc851beefc43c2202fbf2baf91b329896a))
+
+## [1.9.4](https://github.com/eresearchqut/ddb-repository/compare/v1.9.3...v1.9.4) (2026-05-18)
+
+
+### Performance Improvements
+
+* eliminate redundant GetItem call in putItem by unmarshalling the item directly ([b8218db](https://github.com/eresearchqut/ddb-repository/commit/b8218dbef0641fe4d7cc507a7baa16f3ce279a43))
+
+## [1.9.3](https://github.com/eresearchqut/ddb-repository/compare/v1.9.2...v1.9.3) (2026-05-18)
+
+
+### Bug Fixes
+
+* preserve GSI query order after batchGetItems in getItems ([f8e07c8](https://github.com/eresearchqut/ddb-repository/commit/f8e07c8981d113d8aa991a8e41b63dad7204bb2d)), closes [#37](https://github.com/eresearchqut/ddb-repository/issues/37)
+
 ## [1.9.2](https://github.com/eresearchqut/ddb-repository/compare/v1.9.1...v1.9.2) (2026-04-27)
 
 

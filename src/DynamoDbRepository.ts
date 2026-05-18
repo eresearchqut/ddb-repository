@@ -8,6 +8,7 @@ import {
     PutItemCommand,
     QueryCommandInput,
     ReturnConsumedCapacity,
+    ReturnValue,
     UpdateItemCommand,
 } from "@aws-sdk/client-dynamodb";
 import {marshall, unmarshall, NativeAttributeValue} from "@aws-sdk/util-dynamodb";
@@ -173,16 +174,17 @@ export class DynamoDbRepository<K, T> {
                     Item,
                 }),
             )
-            .then(() => this.getItem(key) as Promise<T>);
+            .then(() => unmarshall(Item) as T);
     };
 
-    deleteItem = async (key: K) => {
+    deleteItem = async (key: K): Promise<T | undefined> => {
         return this.dynamoDBClient.send(new DeleteItemCommand({
             TableName: this.tableName,
             Key: marshallKey(key),
+            ReturnValues: ReturnValue.ALL_OLD,
             ReturnConsumedCapacity: this.returnConsumedCapacity,
         })).then((result) => result.Attributes ?
-            unmarshall(result.Attributes) : undefined);
+            unmarshall(result.Attributes) as T : undefined);
     };
 
 
@@ -191,9 +193,9 @@ export class DynamoDbRepository<K, T> {
         updates: Partial<T>,
         remove?: string[],
     ): Promise<T | undefined> => {
-        const hasUpdates = Object.keys(updates).length > 0;
-        const setAttributesExpression = hasUpdates ? `SET ${Object.entries(updates)
-            .filter(([, value]) => value !== undefined)
+        const filteredUpdateEntries = Object.entries(updates).filter(([, value]) => value !== undefined);
+        const hasUpdates = filteredUpdateEntries.length > 0;
+        const setAttributesExpression = hasUpdates ? `SET ${filteredUpdateEntries
             .map(
                 ([key]) =>
                     `#${expressionAttributeKey(key)} = :${expressionAttributeKey(key)}`,
@@ -215,8 +217,7 @@ export class DynamoDbRepository<K, T> {
             TableName: this.tableName,
             Key: marshallKey(key),
             UpdateExpression: `${setAttributesExpression}${removeAttributesExpression}`,
-            ExpressionAttributeNames: Object.entries(updates)
-                .filter(([, value]) => value !== undefined)
+            ExpressionAttributeNames: filteredUpdateEntries
                 .reduce(
                     (acc, [key]) => ({
                         ...acc,
@@ -227,22 +228,20 @@ export class DynamoDbRepository<K, T> {
                     ),
                 ) as Record<string, string>,
             ExpressionAttributeValues: hasUpdates ? marshall(
-                Object.entries(updates).reduce(
+                filteredUpdateEntries.reduce(
                     (acc, [key, value]) => ({
                         ...acc,
                         [`:${expressionAttributeKey(key)}`]: value,
                     }),
-                    Object.assign(
-                        {},
-                    ),
-                ) as Record<string, NativeAttributeValue>,
+                    {} as Record<string, NativeAttributeValue>,
+                ),
                 {removeUndefinedValues: true},
             ) : undefined,
             ReturnConsumedCapacity: this.returnConsumedCapacity,
         };
         return this.dynamoDBClient
-            .send(new UpdateItemCommand(updateItemCommandInput))
-            .then(() => this.getItem(key));
+            .send(new UpdateItemCommand({...updateItemCommandInput, ReturnValues: 'ALL_NEW'}))
+            .then((result) => result.Attributes ? unmarshall(result.Attributes) as T : undefined);
     };
 
 
@@ -338,7 +337,17 @@ export class DynamoDbRepository<K, T> {
             }
             const keysBatch = limit ? collectedKeys.slice(0, limit) : collectedKeys;
             const items = await this.batchGetItems(keysBatch, query as ProjectedQuery);
-            return items as Array<T>;
+            const orderedItems = keysBatch.flatMap((key) => {
+                const k = key as Record<string, unknown>;
+                const match = (items as Array<T | undefined>).find((item) => {
+                    if (!item) return false;
+                    const t = item as Record<string, unknown>;
+                    return t[this.hashKey] === k[this.hashKey] &&
+                        (!this.rangKey || t[this.rangKey] === k[this.rangKey]);
+                });
+                return match ? [match] : [];
+            });
+            return orderedItems as Array<T>;
         }
 
         const items: Array<T> = [];
