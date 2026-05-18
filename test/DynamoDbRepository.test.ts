@@ -308,6 +308,18 @@ describe('DynamoDbRepository Integration Tests', () => {
             expect(result).toHaveProperty('name', 'Test');
         });
 
+        it('should correctly set a hyphenated attribute name', async () => {
+            const key = { id: 'update-hyphen-set' };
+            await repository.putItem(key, { id: 'update-hyphen-set', name: 'Original' });
+            consumedCapacityRegister.splice(0, consumedCapacityRegister.length);
+
+            const result = await repository.updateItem(key, { 'my-attr': 'newValue' } as never);
+
+            expect(result).toBeDefined();
+            expect(result).toHaveProperty('my-attr', 'newValue');
+            expect(result).toHaveProperty('name', 'Original');
+        });
+
         it('should not error when remove is an empty array', async () => {
             const key = { id: 'update-empty-remove' };
             await repository.putItem(key, { id: 'update-empty-remove', name: 'Original' });
@@ -1377,6 +1389,69 @@ describe('DynamoDbRepository Integration Tests', () => {
 
                 expect(results).toHaveLength(1);
                 expect(results![0].score).toBe(0);
+            });
+        });
+
+        describe('hyphenated attribute names in filter expressions', () => {
+            it('should filter items using EQUALS on a hyphenated attribute name', async () => {
+                await dynamoDBClient.send(new PutItemCommand({
+                    TableName: tableName,
+                    Item: marshall({ id: 'filter-hyphen-1', name: 'Hyphen Test', 'my-status': 'active' }, { removeUndefinedValues: true }),
+                }));
+                await dynamoDBClient.send(new PutItemCommand({
+                    TableName: tableName,
+                    Item: marshall({ id: 'filter-hyphen-1', name: 'Hyphen Test B', 'my-status': 'inactive' }, { removeUndefinedValues: true }),
+                }));
+                consumedCapacityRegister.splice(0, consumedCapacityRegister.length);
+
+                const results = await repository.getItems({
+                    id: 'filter-hyphen-1',
+                    filterExpressions: [
+                        { attribute: 'my-status', value: 'active', operator: FilterOperator.EQUALS }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBe(1);
+                expect((results?.[0] as Record<string, unknown>)['my-status']).toBe('active');
+            });
+
+            it('should filter items using IN operator on a hyphenated attribute name', async () => {
+                await dynamoDBClient.send(new PutItemCommand({
+                    TableName: tableName,
+                    Item: marshall({ id: 'filter-hyphen-2', name: 'Hyphen In Test', 'my-type': 'premium' }, { removeUndefinedValues: true }),
+                }));
+                consumedCapacityRegister.splice(0, consumedCapacityRegister.length);
+
+                const results = await repository.getItems({
+                    id: 'filter-hyphen-2',
+                    filterExpressions: [
+                        { attribute: 'my-type', value: ['premium', 'vip'], operator: FilterOperator.IN }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBe(1);
+                expect((results?.[0] as Record<string, unknown>)['my-type']).toBe('premium');
+            });
+
+            it('should negate a filter on a hyphenated attribute name', async () => {
+                await dynamoDBClient.send(new PutItemCommand({
+                    TableName: tableName,
+                    Item: marshall({ id: 'filter-hyphen-3', name: 'Hyphen Negate', 'my-flag': 'yes' }, { removeUndefinedValues: true }),
+                }));
+                consumedCapacityRegister.splice(0, consumedCapacityRegister.length);
+
+                const results = await repository.getItems({
+                    id: 'filter-hyphen-3',
+                    filterExpressions: [
+                        { attribute: 'my-flag', value: 'no', operator: FilterOperator.EQUALS, negate: true }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBe(1);
+                expect((results?.[0] as Record<string, unknown>)['my-flag']).toBe('yes');
             });
         });
     });
