@@ -1,3 +1,17 @@
+## [1.9.4](https://github.com/eresearchqut/ddb-repository/compare/v1.9.3...v1.9.4) (2026-05-18)
+
+
+### Performance Improvements
+
+* eliminate redundant GetItem call in putItem by unmarshalling the item directly ([b8218db](https://github.com/eresearchqut/ddb-repository/commit/b8218dbef0641fe4d7cc507a7baa16f3ce279a43))
+
+## [1.9.3](https://github.com/eresearchqut/ddb-repository/compare/v1.9.2...v1.9.3) (2026-05-18)
+
+
+### Bug Fixes
+
+* preserve GSI query order after batchGetItems in getItems ([f8e07c8](https://github.com/eresearchqut/ddb-repository/commit/f8e07c8981d113d8aa991a8e41b63dad7204bb2d)), closes [#37](https://github.com/eresearchqut/ddb-repository/issues/37)
+
 ## [1.9.2](https://github.com/eresearchqut/ddb-repository/compare/v1.9.1...v1.9.2) (2026-04-27)
 
 

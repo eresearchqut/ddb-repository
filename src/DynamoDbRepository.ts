@@ -173,7 +173,7 @@ export class DynamoDbRepository<K, T> {
                     Item,
                 }),
             )
-            .then(() => this.getItem(key) as Promise<T>);
+            .then(() => unmarshall(Item) as T);
     };
 
     deleteItem = async (key: K) => {
@@ -338,7 +338,17 @@ export class DynamoDbRepository<K, T> {
             }
             const keysBatch = limit ? collectedKeys.slice(0, limit) : collectedKeys;
             const items = await this.batchGetItems(keysBatch, query as ProjectedQuery);
-            return items as Array<T>;
+            const orderedItems = keysBatch.flatMap((key) => {
+                const k = key as Record<string, unknown>;
+                const match = (items as Array<T | undefined>).find((item) => {
+                    if (!item) return false;
+                    const t = item as Record<string, unknown>;
+                    return t[this.hashKey] === k[this.hashKey] &&
+                        (!this.rangKey || t[this.rangKey] === k[this.rangKey]);
+                });
+                return match ? [match] : [];
+            });
+            return orderedItems as Array<T>;
         }
 
         const items: Array<T> = [];

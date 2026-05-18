@@ -335,6 +335,42 @@ describe("JsonPointerRepository Integration Tests", () => {
         });
     });
 
+    // ─── cross-method consistency ────────────────────────────────────────────
+
+    describe("cross-method consistency", () => {
+        it("getDocument reflects an attribute added via putAttribute", async () => {
+            await repository.putDocument("cross-1", { a: "original" });
+            await repository.putAttribute("cross-1", "/b", "added");
+            expect(await repository.getDocument("cross-1")).toEqual({ a: "original", b: "added" });
+        });
+
+        it("getDocument reflects an attribute updated via putAttribute", async () => {
+            await repository.putDocument("cross-2", { x: "before" });
+            await repository.putAttribute("cross-2", "/x", "after");
+            expect(await repository.getDocument("cross-2")).toEqual({ x: "after" });
+        });
+
+        it("getDocument reflects an attribute removed via deleteAttribute", async () => {
+            await repository.putDocument("cross-3", { keep: "yes", drop: "no" });
+            await repository.deleteAttribute("cross-3", "/drop");
+            expect(await repository.getDocument("cross-3")).toEqual({ keep: "yes" });
+        });
+
+        it("second putDocument cleans up attributes added via putAttribute", async () => {
+            await repository.putDocument("cross-4", { a: 1 });
+            await repository.putAttribute("cross-4", "/b", 2);
+            await repository.putDocument("cross-4", { a: 10 });
+            expect(await repository.getDocument("cross-4")).toEqual({ a: 10 });
+        });
+
+        it("putDocument after deleteDocument stores fresh document with no stale pointers", async () => {
+            await repository.putDocument("cross-5", { x: 1, y: 2 });
+            await repository.deleteDocument("cross-5");
+            await repository.putDocument("cross-5", { z: 3 });
+            expect(await repository.getDocument("cross-5")).toEqual({ z: 3 });
+        });
+    });
+
     // ─── custom key names ────────────────────────────────────────────────────
 
     describe("custom key names", () => {
