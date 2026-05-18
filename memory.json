@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-05-18T01:25:40Z",
-  "run_id": "26008586474",
+  "last_run": "2026-05-18T13:55:44Z",
+  "run_id": "26037927325",
   "comments_made": {
     "pr_26": {"timestamp": "2026-05-04T01:17:30Z", "note": "noted PR #26 superseded by PR #33"},
     "issue_37": {"timestamp": "2026-05-05T13:00:36Z", "note": "linked to PR #38 fixing the GSI sortOrder bug"}
@@ -16,27 +16,28 @@
     "8": {"title": "fix: retry UnprocessedKeys in batchGetItems with exponential backoff", "outcome": "merged"},
     "9": {"title": "fix: apply expressionAttributeKey to IN filter value placeholders", "outcome": "merged"},
     "11": {"title": "fix: correct ExpressionAttributeNames for hyphenated attributes in updateItem remove", "outcome": "merged"},
+    "14": {"title": "feat: add BEGINS_WITH and CONTAINS filter operators", "outcome": "merged"},
     "15": {"title": "feat: JsonPointerRepository", "outcome": "merged_by_maintainer"},
     "16": {"title": "fix: treat empty remove array as no-op in updateItem", "outcome": "merged"},
-    "17": {"title": "perf: stop paginating getItems once limit is reached", "outcome": "merged"}
+    "17": {"title": "perf: stop paginating getItems once limit is reached", "outcome": "merged"},
+    "19": {"title": "docs: rewrite README to document current API", "outcome": "merged"},
+    "20": {"title": "test: add coverage for hyphenated attribute names in filter expressions and updateItem SET", "outcome": "merged"},
+    "21": {"title": "feat: add getItemsPage for cursor-based pagination", "outcome": "merged"},
+    "22": {"title": "fix: return deleted item from deleteItem via ReturnValues ALL_OLD", "outcome": "merged"},
+    "25": {"title": "fix: treat all-undefined updates as no-op in updateItem", "outcome": "merged"},
+    "26": {"title": "ci: wire up eslint-plugin-jest for test files", "outcome": "merged"},
+    "27": {"title": "test: add coverage for batchGetItems projection and explicit ASC sort order", "outcome": "merged"},
+    "29": {"title": "perf: use ReturnValues ALL_NEW in updateItem to eliminate extra GetItem call", "outcome": "merged"},
+    "31": {"title": "test: add coverage for putItem undefined stripping, projection+filter combo, stronger GSI projection assertions", "outcome": "merged"},
+    "32": {"title": "perf: eliminate redundant GetItem call in putItem by unmarshalling the item in memory", "outcome": "merged"},
+    "33": {"title": "test: remove conditional-expect anti-patterns from filter and GSI tests", "outcome": "merged"},
+    "34": {"title": "test: add cross-method consistency tests for JsonPointerRepository", "outcome": "merged"},
+    "38": {"title": "fix: preserve GSI query order after batchGetItems in getItems", "outcome": "merged"},
+    "39": {"title": "perf: use BatchWriteItem in JsonPointerRepository for putDocument and deleteDocument", "outcome": "merged_or_superseded_by_maintainer"},
+    "40": {"title": "perf: add key-only ProjectionExpression to GSI query in getItems", "outcome": "merged"}
   },
   "open_repo_assist_prs": [
-    {"number": 14, "title": "feat: add BEGINS_WITH and CONTAINS filter operators", "branch": "repo-assist/improve-begins-with-contains-operators-7d0364b1cd05a28a", "note": "11 commits behind main; do NOT attempt to rebase — causes protected files issues (#18, #23, #35). mergeable_state: clean"},
-    {"number": 19, "title": "docs: rewrite README to document current API", "branch": "repo-assist/docs-update-readme-api-42bff8489672e6cb"},
-    {"number": 20, "title": "test: add coverage for hyphenated attribute names in filter expressions and updateItem SET", "branch": "repo-assist/test-hyphenated-attr-filter-expressions-c838084d82aa8697"},
-    {"number": 21, "title": "feat: add getItemsPage for cursor-based pagination", "branch": "repo-assist/feat-get-items-page-cursor-pagination-90af46325e53c9a9"},
-    {"number": 22, "title": "fix: return deleted item from deleteItem via ReturnValues ALL_OLD", "branch": "repo-assist/fix-deleteitem-return-deleted-item-dc50bca7eade2820"},
-    {"number": 25, "title": "fix: treat all-undefined updates as no-op in updateItem", "branch": "repo-assist/fix-update-item-all-undefined-updates-79e4b7b1f4c27d82"},
-    {"number": 26, "title": "ci: wire up eslint-plugin-jest for test files", "branch": "repo-assist/eng-eslint-jest-plugin-2026-04-30-e1a6e0ab80f50764", "note": "SUPERSEDED by PR #33 — commented on PR to notify maintainer"},
-    {"number": 27, "title": "test: add coverage for batchGetItems projection and explicit ASC sort order", "branch": "repo-assist/test-batch-get-projection-sort-asc-5bedb750a2fd931c"},
-    {"number": 29, "title": "perf: use ReturnValues ALL_NEW in updateItem to eliminate extra GetItem call", "branch": "repo-assist/perf-updateitem-return-values-all-new-6cc27f235d657170"},
-    {"number": 31, "title": "test: add coverage for putItem undefined stripping, projection+filter combo, stronger GSI projection assertions", "branch": "repo-assist/test-getitems-projection-filter-putitem-undefs-2026-05-01-9683cfffd414ec78"},
-    {"number": 32, "title": "perf: eliminate redundant GetItem call in putItem by unmarshalling the item in memory", "branch": "repo-assist/perf-putitem-avoid-extra-getitem-2026-05-01-9bdedba15bdc0c6c"},
-    {"number": 33, "title": "test: remove conditional-expect anti-patterns from filter and GSI tests", "branch": "repo-assist/test-fix-conditional-expects-2026-05-02-137131572c590188", "note": "Supersedes PR #26 (includes same eslint.config.mjs change + fixes warnings)"},
-    {"number": 34, "title": "test: add cross-method consistency tests for JsonPointerRepository", "branch": "repo-assist/test-json-pointer-cross-method-2026-05-02-de6beb1ee55b4772"},
-    {"number": 38, "title": "fix: preserve GSI query order after batchGetItems in getItems", "branch": "repo-assist/fix-gsi-sort-order-2026-05-05-24a57e8fd624d9b6", "note": "Fixes issue #37 — sortOrder ignored for GSI queries. mergeable_state: clean as of 2026-05-17."},
-    {"number": 39, "title": "perf: use BatchWriteItem in JsonPointerRepository for putDocument and deleteDocument", "branch": "repo-assist/perf-batch-write-json-pointer-2026-05-08-c46b49b616131864", "note": "Reduces putDocument from 2N+K+1 to 1+ceil((N+K)/25) calls. mergeable_state: clean as of 2026-05-17."},
-    {"number": 40, "title": "perf: add key-only ProjectionExpression to GSI query in getItems", "branch": "repo-assist/perf-gsi-key-only-projection-2026-05-18", "note": "GSI queries now only fetch primary key attributes instead of all item attributes. Created 2026-05-18."}
+    {"number": "TBD", "title": "feat: add patchDocument to JsonPointerRepository", "branch": "repo-assist/feat-json-pointer-patch-document-2026-05-18", "note": "Created 2026-05-18. Adds patchDocument() for partial document updates without full replacement. Uses batchWriteItems."}
   ],
   "issues_labelled": {},
   "backlog_cursor": {
@@ -49,9 +50,9 @@
     "status": "updated"
   },
   "future_work": {
-    "pr_merge_order": "PRs #25 and #29 both touch updateItem — merge in order: #25 (no-op) first, then #29 (ReturnValues ALL_NEW). PRs #33 supersedes #26 — merge #33, close #26. PRs #38 and #40 both touch GSI path in getItems — apply #38 first, then #40.",
-    "type_improvement": "batchGetItems return type is Array<T | undefined> but implementation never returns undefined — could narrow to Array<T>; deferred until PR backlog clears",
-    "missing_features_noted": "DynamoDbRepository lacks: scan, transactWrite/transactGet. JsonPointerRepository lacks: patchDocument (batch pointer updates). These are potential future features to implement after backlog clears."
+    "type_improvement": "batchGetItems return type is Array<T | undefined> but implementation never returns undefined — could narrow to Array<T>; deferred as low priority",
+    "missing_features_noted": "DynamoDbRepository: scan, transactWrite/transactGet still missing. JsonPointerRepository: patchDocument now done. Next: listDocumentIds (needs GSI) or scan.",
+    "maintainer_note": "Maintainer merged all 16 open Repo Assist PRs between 2026-05-08 and 2026-05-18. Maintainer also added batchWriteItems directly and fixed standardize enum casing. Current main is v1.12.1."
   },
-  "notes": "Current main is v1.9.2 (2682f6a3). Do NOT re-propose: cosmetic Object.assign/{} (PR #2 declined). Issues #10 and #12/#13: CI caching and Dependabot config PRs blocked by GitHub Actions .github/ permission. Do NOT attempt to rebase PR #14 — previous attempts caused protected files issues (#18, #23, #35). PR #14 is now 11 commits behind main but mergeable_state is clean. All other open Repo Assist PRs are 0 commits behind main (confirmed 2026-05-17: no conflicts with 2682f6a3). No user-filed issues — all open issues are system-generated or Repo Assist issues. npm outdated returns empty (confirmed 2026-05-17: no outdated deps). 16 open Repo Assist PRs after creating #40. PR #26 is superseded by PR #33. Issue #37 FIXED by PR #38. PR #39 is the BatchWriteItem optimization for JsonPointerRepository. PR #40 is the GSI key-only projection optimization (created 2026-05-18)."
+  "notes": "MAJOR UPDATE 2026-05-18: All 16 previously open Repo Assist PRs have been merged by maintainer. Repository advanced from v1.9.2 to v1.12.1. Maintainer added batchWriteItems themselves (feat: add batchWriteItems with recursive retry and fix filter function casing). getItemsPage now in. All 11 open issues are system-generated. No user-filed issues. PR #41 (TBD): feat: patchDocument for JsonPointerRepository. Also fixed pre-existing lint error in DynamoDbRepository.test.ts (unused PageResult import). npm outdated check still clean as of v1.9.2 — needs recheck."
 }
