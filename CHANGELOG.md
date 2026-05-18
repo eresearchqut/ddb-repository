@@ -1,3 +1,10 @@
+## [1.9.3](https://github.com/eresearchqut/ddb-repository/compare/v1.9.2...v1.9.3) (2026-05-18)
+
+
+### Bug Fixes
+
+* preserve GSI query order after batchGetItems in getItems ([f8e07c8](https://github.com/eresearchqut/ddb-repository/commit/f8e07c8981d113d8aa991a8e41b63dad7204bb2d)), closes [#37](https://github.com/eresearchqut/ddb-repository/issues/37)
+
 ## [1.9.2](https://github.com/eresearchqut/ddb-repository/compare/v1.9.1...v1.9.2) (2026-04-27)
 
 
