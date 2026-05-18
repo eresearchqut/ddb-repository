@@ -256,7 +256,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                 name: 'Updated Name',
                 email: 'original@example.com'
             });
-            expect(sumConsumedCapacity()).toEqual(2.5);
+            expect(sumConsumedCapacity()).toEqual(2);
         });
 
         it('should remove attributes using the remove parameter', async () => {
@@ -462,7 +462,7 @@ describe('DynamoDbRepository Integration Tests', () => {
                     expect.objectContaining({ userId: 'user-batch-2', itemId: 'item-c', price: 300 }),
                 ])
             );
-            expect(sumConsumedCapacity()).toEqual(6);
+            expect(sumConsumedCapacity()).toEqual(4.5);
         });
 
         it('should maintain order independence', async () => {
@@ -833,22 +833,14 @@ describe('DynamoDbRepository Integration Tests', () => {
                 });
 
                 expect(results).toBeDefined();
-                if (results && results.length > 0) {
-                    results.forEach(item => {
-                        expect(item).toHaveProperty('name');
-                        expect(item).toHaveProperty('status');
-                        expect(item).not.toHaveProperty('userId');
-                        expect(item).not.toHaveProperty('itemId');
-                        expect(item).not.toHaveProperty('category');
-                        expect(item).not.toHaveProperty('createdAt');
-                    });
-                }
                 expect(results!.length).toBeGreaterThan(0);
-                // Note: Since we use batchGetItems after GSI query,
-                // we get full items from main table
                 results!.forEach(item => {
                     expect(item).toHaveProperty('name');
                     expect(item).toHaveProperty('status');
+                    expect(item).not.toHaveProperty('userId');
+                    expect(item).not.toHaveProperty('itemId');
+                    expect(item).not.toHaveProperty('category');
+                    expect(item).not.toHaveProperty('createdAt');
                 });
                 expect(sumConsumedCapacity()).toEqual(2);
             });
@@ -1408,10 +1400,6 @@ describe('DynamoDbRepository Integration Tests', () => {
                 await dynamoDBClient.send(new PutItemCommand({
                     TableName: tableName,
                     Item: marshall({ id: 'filter-hyphen-1', name: 'Hyphen Test', 'my-status': 'active' }, { removeUndefinedValues: true }),
-                }));
-                await dynamoDBClient.send(new PutItemCommand({
-                    TableName: tableName,
-                    Item: marshall({ id: 'filter-hyphen-1', name: 'Hyphen Test B', 'my-status': 'inactive' }, { removeUndefinedValues: true }),
                 }));
                 consumedCapacityRegister.splice(0, consumedCapacityRegister.length);
 

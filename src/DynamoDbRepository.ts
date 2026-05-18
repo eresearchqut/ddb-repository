@@ -195,6 +195,9 @@ export class DynamoDbRepository<K, T> {
     ): Promise<T | undefined> => {
         const filteredUpdateEntries = Object.entries(updates).filter(([, value]) => value !== undefined);
         const hasUpdates = filteredUpdateEntries.length > 0;
+        if (!hasUpdates && !remove?.length) {
+            return this.getItem(key);
+        }
         const setAttributesExpression = hasUpdates ? `SET ${filteredUpdateEntries
             .map(
                 ([key]) =>
@@ -336,7 +339,11 @@ export class DynamoDbRepository<K, T> {
                 if (limit && collectedKeys.length >= limit) break;
             }
             const keysBatch = limit ? collectedKeys.slice(0, limit) : collectedKeys;
-            const items = await this.batchGetItems(keysBatch, query as ProjectedQuery);
+            const keyAttrs = [this.hashKey, ...(this.rangKey ? [this.rangKey] : [])];
+            const batchProjectedQuery = projectedAttributes
+                ? { ...query, projectedAttributes: [...new Set([...projectedAttributes, ...keyAttrs])] } as ProjectedQuery
+                : query as ProjectedQuery;
+            const items = await this.batchGetItems(keysBatch, batchProjectedQuery);
             const orderedItems = keysBatch.flatMap((key) => {
                 const k = key as Record<string, unknown>;
                 const match = (items as Array<T | undefined>).find((item) => {
@@ -347,6 +354,12 @@ export class DynamoDbRepository<K, T> {
                 });
                 return match ? [match] : [];
             });
+            if (projectedAttributes) {
+                const projSet = new Set(projectedAttributes);
+                return orderedItems.map(item =>
+                    pickBy(item as object, (_, key) => projSet.has(key)) as T
+                ) as Array<T>;
+            }
             return orderedItems as Array<T>;
         }
 
