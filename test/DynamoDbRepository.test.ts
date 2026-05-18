@@ -1274,6 +1274,92 @@ describe('DynamoDbRepository Integration Tests', () => {
             });
         });
 
+        describe('BEGINS_WITH operator', () => {
+            it('should filter items where attribute begins with prefix', async () => {
+                const results = await repository.getItems({
+                    id: 'filter-1',
+                    filterExpressions: [
+                        { attribute: 'name', value: 'Al', operator: FilterOperator.BEGINS_WITH }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBe(1);
+                expect(results?.[0].name).toBe('Alice');
+                expect(sumConsumedCapacity()).toEqual(0.5);
+            });
+
+            it('should return empty array when no item begins with prefix', async () => {
+                const results = await repository.getItems({
+                    id: 'filter-1',
+                    filterExpressions: [
+                        { attribute: 'name', value: 'Z', operator: FilterOperator.BEGINS_WITH }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBe(0);
+                expect(sumConsumedCapacity()).toEqual(0.5);
+            });
+
+            it('should support negating BEGINS_WITH', async () => {
+                const results = await repository.getItems({
+                    id: 'filter-2',
+                    filterExpressions: [
+                        { attribute: 'name', value: 'Z', operator: FilterOperator.BEGINS_WITH, negate: true }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBe(1);
+                expect(results?.[0].name).toBe('Bob');
+                expect(sumConsumedCapacity()).toEqual(0.5);
+            });
+        });
+
+        describe('CONTAINS operator', () => {
+            it('should filter items where string attribute contains substring', async () => {
+                const results = await repository.getItems({
+                    id: 'filter-2',
+                    filterExpressions: [
+                        { attribute: 'name', value: 'ob', operator: FilterOperator.CONTAINS }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBe(1);
+                expect(results?.[0].name).toBe('Bob');
+                expect(sumConsumedCapacity()).toEqual(0.5);
+            });
+
+            it('should return empty array when attribute does not contain substring', async () => {
+                const results = await repository.getItems({
+                    id: 'filter-2',
+                    filterExpressions: [
+                        { attribute: 'name', value: 'xyz', operator: FilterOperator.CONTAINS }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBe(0);
+                expect(sumConsumedCapacity()).toEqual(0.5);
+            });
+
+            it('should support negating CONTAINS', async () => {
+                const results = await repository.getItems({
+                    id: 'filter-3',
+                    filterExpressions: [
+                        { attribute: 'status', value: 'pending', operator: FilterOperator.CONTAINS, negate: true }
+                    ]
+                });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBe(1);
+                expect(results?.[0].status).toBe('inactive');
+                expect(sumConsumedCapacity()).toEqual(0.5);
+            });
+        });
+
         describe('Multiple filter expressions', () => {
             it('should apply multiple filter conditions (AND logic)', async () => {
                 const results = await repository.getItems({
