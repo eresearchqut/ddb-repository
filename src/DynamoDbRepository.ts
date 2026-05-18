@@ -257,20 +257,35 @@ export class DynamoDbRepository<K, T> {
         const keyExpressionAttributeValues = Object.entries(keys)
             .reduce((acc, [key, value]) => ({...acc, [`:${expressionAttributeKey(key)}`]: value}), Object.assign({}));
 
-        const ProjectionExpression = !index && projectedAttributes
-            ? projectedAttributes.map((attribute) => `#${expressionAttributeKey(attribute)}`).join(',')
-            : undefined;
-        const projectionAttributeNames: Record<string, string> = !index && projectedAttributes ? projectedAttributes.reduce(
-            (
-                reduction: Record<string, string>,
-                attribute: string,
-            ) => ({
-                ...reduction,
-                [`#${expressionAttributeKey(attribute)}`]:
-                attribute,
-            }),
-            Object.assign({}),
-        ) : {}
+        const gsiKeyAttributes = index
+            ? [this.hashKey, ...(this.rangKey ? [this.rangKey] : [])]
+            : [];
+
+        const ProjectionExpression = index
+            ? gsiKeyAttributes.map((attr) => `#${expressionAttributeKey(attr)}`).join(',')
+            : (projectedAttributes
+                ? projectedAttributes.map((attribute) => `#${expressionAttributeKey(attribute)}`).join(',')
+                : undefined);
+
+        const projectionAttributeNames: Record<string, string> = index
+            ? gsiKeyAttributes.reduce(
+                (acc: Record<string, string>, attr: string) => ({
+                    ...acc,
+                    [`#${expressionAttributeKey(attr)}`]: attr,
+                }),
+                {},
+            )
+            : (projectedAttributes ? projectedAttributes.reduce(
+                (
+                    reduction: Record<string, string>,
+                    attribute: string,
+                ) => ({
+                    ...reduction,
+                    [`#${expressionAttributeKey(attribute)}`]:
+                    attribute,
+                }),
+                Object.assign({}),
+            ) : {})
         const hasFilterExpressions = Array.isArray(filterExpressions) && filterExpressions.length > 0;
         const FilterExpression = hasFilterExpressions
             ? mapFilterExpressions(filterExpressions!)
