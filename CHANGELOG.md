@@ -1,3 +1,10 @@
+## [1.9.6](https://github.com/eresearchqut/ddb-repository/compare/v1.9.5...v1.9.6) (2026-05-18)
+
+
+### Bug Fixes
+
+* return deleted item from deleteItem via ReturnValues ALL_OLD ([a9a48ce](https://github.com/eresearchqut/ddb-repository/commit/a9a48ce7cbf1ad8ae1c0bc86177c7db44933e687))
+
 ## [1.9.5](https://github.com/eresearchqut/ddb-repository/compare/v1.9.4...v1.9.5) (2026-05-18)
 
 
