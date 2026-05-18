@@ -1,3 +1,10 @@
+# [1.13.0](https://github.com/eresearchqut/ddb-repository/compare/v1.12.1...v1.13.0) (2026-05-18)
+
+
+### Features
+
+* add patchDocument to JsonPointerRepository ([80cbdeb](https://github.com/eresearchqut/ddb-repository/commit/80cbdebbce5f985388f63708eb140b4ed27f7965))
+
 ## [1.12.1](https://github.com/eresearchqut/ddb-repository/compare/v1.12.0...v1.12.1) (2026-05-18)
 
 
