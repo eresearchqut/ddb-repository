@@ -1537,4 +1537,3 @@ describe('DynamoDbRepository Integration Tests', () => {
         });
     });
 });
-});
