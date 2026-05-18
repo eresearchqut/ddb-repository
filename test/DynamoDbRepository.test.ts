@@ -1454,4 +1454,87 @@ describe('DynamoDbRepository Integration Tests', () => {
             });
         });
     });
+
+    describe('batchGetItems with projection', () => {
+        it('should return only projected attributes', async () => {
+            const key = { id: 'batch-proj-1' };
+            await repository.putItem(key, { id: 'batch-proj-1', name: 'Projected', email: 'proj@example.com', age: 30 });
+            consumedCapacityRegister.splice(0, consumedCapacityRegister.length);
+
+            const results = await repository.batchGetItems(
+                [key],
+                { projectedAttributes: ['id', 'name'] }
+            );
+
+            expect(results).toBeDefined();
+            expect(results.length).toBe(1);
+            expect(results[0]).toHaveProperty('id', 'batch-proj-1');
+            expect(results[0]).toHaveProperty('name', 'Projected');
+            expect(results[0]).not.toHaveProperty('email');
+            expect(results[0]).not.toHaveProperty('age');
+        });
+
+        it('should return projected attributes for multiple items', async () => {
+            await repository.putItem(
+                { id: 'batch-proj-2' },
+                { id: 'batch-proj-2', name: 'Item Two', email: 'two@example.com', age: 20 }
+            );
+            await repository.putItem(
+                { id: 'batch-proj-3' },
+                { id: 'batch-proj-3', name: 'Item Three', email: 'three@example.com', age: 30 }
+            );
+            consumedCapacityRegister.splice(0, consumedCapacityRegister.length);
+
+            const results = await repository.batchGetItems(
+                [{ id: 'batch-proj-2' }, { id: 'batch-proj-3' }],
+                { projectedAttributes: ['id', 'name'] }
+            );
+
+            expect(results).toBeDefined();
+            expect(results.length).toBe(2);
+            results.forEach((item) => {
+                expect(item).toHaveProperty('id');
+                expect(item).toHaveProperty('name');
+                expect(item).not.toHaveProperty('email');
+                expect(item).not.toHaveProperty('age');
+            });
+        });
+    });
+
+    describe('getItems with explicit sortOrder', () => {
+        beforeEach(async () => {
+            await compositeRepository.putItem(
+                { userId: 'user-sort-asc', itemId: 'sort-item-1' },
+                { userId: 'user-sort-asc', itemId: 'sort-item-1', name: 'Item One', price: 100 }
+            );
+            await compositeRepository.putItem(
+                { userId: 'user-sort-asc', itemId: 'sort-item-2' },
+                { userId: 'user-sort-asc', itemId: 'sort-item-2', name: 'Item Two', price: 200 }
+            );
+            await compositeRepository.putItem(
+                { userId: 'user-sort-asc', itemId: 'sort-item-3' },
+                { userId: 'user-sort-asc', itemId: 'sort-item-3', name: 'Item Three', price: 300 }
+            );
+            consumedCapacityRegister.splice(0, consumedCapacityRegister.length);
+        });
+
+        it('should return items in ascending order when sortOrder is ASC', async () => {
+            const results = await compositeRepository.getItems({ userId: 'user-sort-asc', sortOrder: 'ASC' });
+
+            expect(results).toBeDefined();
+            expect(results?.length).toBe(3);
+            const ids = results!.map(r => r.itemId);
+            expect(ids).toEqual(['sort-item-1', 'sort-item-2', 'sort-item-3']);
+        });
+
+        it('should return same order for explicit ASC and default (no sortOrder)', async () => {
+            const [ascending, defaultOrder] = await Promise.all([
+                compositeRepository.getItems({ userId: 'user-sort-asc', sortOrder: 'ASC' }),
+                compositeRepository.getItems({ userId: 'user-sort-asc' }),
+            ]);
+
+            expect(ascending?.map(r => r.itemId)).toEqual(defaultOrder?.map(r => r.itemId));
+        });
+    });
+});
 });
