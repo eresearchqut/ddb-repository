@@ -330,6 +330,17 @@ describe('DynamoDbRepository Integration Tests', () => {
             expect(result).toBeDefined();
             expect(result).toHaveProperty('name', 'Updated');
         });
+
+        it('should treat updates with all-undefined values as a no-op SET', async () => {
+            const key = { id: 'update-all-undefined' };
+            await repository.putItem(key, { id: 'update-all-undefined', name: 'Original' });
+            consumedCapacityRegister.splice(0, consumedCapacityRegister.length);
+
+            const result = await repository.updateItem(key, { name: undefined });
+
+            expect(result).toBeDefined();
+            expect(result).toHaveProperty('name', 'Original');
+        });
     });
 
     describe('batchGetItems', () => {
