@@ -1,3 +1,10 @@
+## [1.13.2](https://github.com/eresearchqut/ddb-repository/compare/v1.13.1...v1.13.2) (2026-05-18)
+
+
+### Reverts
+
+* Revert "fix: use NPM_TOKEN secret for npm publishing in release workflow" ([8c3c783](https://github.com/eresearchqut/ddb-repository/commit/8c3c783da15c37ef63f11462fcb7d849339db2bc))
+
 ## [1.13.1](https://github.com/eresearchqut/ddb-repository/compare/v1.13.0...v1.13.1) (2026-05-18)
 
 
