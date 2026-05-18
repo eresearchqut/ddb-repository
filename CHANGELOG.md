@@ -1,3 +1,10 @@
+## [1.9.8](https://github.com/eresearchqut/ddb-repository/compare/v1.9.7...v1.9.8) (2026-05-18)
+
+
+### Performance Improvements
+
+* add key-only ProjectionExpression to GSI query in getItems ([ea54b8a](https://github.com/eresearchqut/ddb-repository/commit/ea54b8a8f273ab46a5af295d1d9d9606e26d759c))
+
 ## [1.9.7](https://github.com/eresearchqut/ddb-repository/compare/v1.9.6...v1.9.7) (2026-05-18)
 
 
