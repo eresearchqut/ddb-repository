@@ -1,3 +1,10 @@
+## [1.9.7](https://github.com/eresearchqut/ddb-repository/compare/v1.9.6...v1.9.7) (2026-05-18)
+
+
+### Bug Fixes
+
+* treat all-undefined updates as no-op in updateItem ([4b4c561](https://github.com/eresearchqut/ddb-repository/commit/4b4c5614610835358d4ff6bd7a758108d6ee3f69))
+
 ## [1.9.6](https://github.com/eresearchqut/ddb-repository/compare/v1.9.5...v1.9.6) (2026-05-18)
 
 
