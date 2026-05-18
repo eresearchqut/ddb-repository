@@ -23,8 +23,8 @@ export enum FilterOperator {
     LESS_THAN_OR_EQUALS = "<=",
     IN = "IN",
     BETWEEN = "BETWEEN",
-    BEGINS_WITH = "begins_with",
-    CONTAINS = "contains",
+    BEGINS_WITH = "BEGINS_WITH",
+    CONTAINS = "CONTAINS",
 }
 
 export interface FilterExpression {
