@@ -773,6 +773,34 @@ describe('DynamoDbRepository Integration Tests', () => {
                 expect(results?.length).toBe(0);
                 expect(sumConsumedCapacity()).toEqual(0);
             });
+
+            it('should respect sortOrder ASC when querying via GSI', async () => {
+                const results = await gsiRepository.getItems({
+                    status: 'active',
+                    index: 'StatusIndex',
+                    sortOrder: 'ASC'
+                });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBe(3);
+                expect(results![0].itemId).toBe('gsi-item-1');
+                expect(results![1].itemId).toBe('gsi-item-2');
+                expect(results![2].itemId).toBe('gsi-item-3');
+            });
+
+            it('should respect sortOrder DESC when querying via GSI', async () => {
+                const results = await gsiRepository.getItems({
+                    status: 'active',
+                    index: 'StatusIndex',
+                    sortOrder: 'DESC'
+                });
+
+                expect(results).toBeDefined();
+                expect(results?.length).toBe(3);
+                expect(results![0].itemId).toBe('gsi-item-3');
+                expect(results![1].itemId).toBe('gsi-item-2');
+                expect(results![2].itemId).toBe('gsi-item-1');
+            });
         });
 
         describe('pagination with GSI', () => {
