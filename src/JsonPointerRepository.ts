@@ -148,20 +148,14 @@ export class JsonPointerRepository<T extends Record<string, unknown>> {
         const existingPointers = existing.map(item => item[this.pointerKey] as string);
         const stalePointers = existingPointers.filter(p => !newPointerSet.has(p));
 
-        await Promise.all([
-            ...stalePointers.map(pointer =>
-                this.repository.deleteItem({
-                    [this.idKey]: id,
-                    [this.pointerKey]: pointer,
-                } as PointerKey),
-            ),
-            ...Object.entries(flat).map(([pointer, value]) =>
-                this.repository.putItem(
-                    { [this.idKey]: id, [this.pointerKey]: pointer } as PointerKey,
-                    { [this.idKey]: id, [this.pointerKey]: pointer, [this.valueKey]: value } as PointerItem,
-                ),
-            ),
-        ]);
+        const puts = Object.entries(flat).map(([pointer, value]) => {
+            const key = { [this.idKey]: id, [this.pointerKey]: pointer } as PointerKey;
+            return { key, item: { ...key, [this.valueKey]: value } as PointerItem };
+        });
+        const deleteKeys = stalePointers.map(
+            pointer => ({ [this.idKey]: id, [this.pointerKey]: pointer } as PointerKey),
+        );
+        await this.repository.batchWriteItems(puts, deleteKeys);
     };
 
     getDocument = async (id: string): Promise<T | undefined> => {
@@ -208,13 +202,10 @@ export class JsonPointerRepository<T extends Record<string, unknown>> {
 
     deleteDocument = async (id: string): Promise<void> => {
         const items = await this.repository.getItems({ [this.idKey]: id }) ?? [];
-        await Promise.all(
-            items.map(item =>
-                this.repository.deleteItem({
-                    [this.idKey]: id,
-                    [this.pointerKey]: item[this.pointerKey] as string,
-                } as PointerKey),
-            ),
+        if (items.length === 0) return;
+        const deleteKeys = items.map(
+            item => ({ [this.idKey]: id, [this.pointerKey]: item[this.pointerKey] as string } as PointerKey),
         );
+        await this.repository.batchWriteItems([], deleteKeys);
     };
 }

@@ -1,6 +1,7 @@
 import {
     BatchGetItemCommand,
     BatchGetItemCommandInput,
+    BatchWriteItemCommand,
     DeleteItemCommand,
     DynamoDBClient,
     GetItemCommand,
@@ -10,6 +11,7 @@ import {
     ReturnConsumedCapacity,
     ReturnValue,
     UpdateItemCommand,
+    WriteRequest,
 } from "@aws-sdk/client-dynamodb";
 import {marshall, unmarshall, NativeAttributeValue} from "@aws-sdk/util-dynamodb";
 import {replace, uniqWith, isEqual, pickBy} from "lodash";
@@ -88,7 +90,7 @@ const mapFilterExpression = (filterExpression: FilterExpression) => {
         case FilterOperator.BEGINS_WITH:
         case FilterOperator.CONTAINS:
             return (
-                `${filterExpression.operator}(#${expressionAttributeKey(filterExpression.attribute)}, ` +
+                `${filterExpression.operator.toLowerCase()}(#${expressionAttributeKey(filterExpression.attribute)}, ` +
                 `:${expressionAttributeKey(filterExpression.attribute)})`
             );
         default:
@@ -431,24 +433,57 @@ export class DynamoDbRepository<K, T> {
                 },
                 ReturnConsumedCapacity: this.returnConsumedCapacity,
             }
-            const items: T[] = [];
-            let result = await this.dynamoDBClient.send(new BatchGetItemCommand(batchRequest));
-            items.push(...(result.Responses?.[this.tableName]?.map((item) => unmarshall(item) as T) ?? []));
 
-            let delay = 100;
-            while (result.UnprocessedKeys && Object.keys(result.UnprocessedKeys).length > 0) {
-                await new Promise(resolve => setTimeout(resolve, delay));
-                delay = Math.min(delay * 2, 3200);
-                result = await this.dynamoDBClient.send(new BatchGetItemCommand({
-                    RequestItems: result.UnprocessedKeys,
+            const fetchPage = async (request: BatchGetItemCommandInput): Promise<T[]> => {
+                const result = await this.dynamoDBClient.send(new BatchGetItemCommand(request));
+                const retrieved = result.Responses?.[this.tableName]?.map((item) => unmarshall(item) as T) ?? [];
+                const unprocessed = result.UnprocessedKeys;
+                if (!unprocessed || Object.keys(unprocessed).length === 0) return retrieved;
+                return [...retrieved, ...await fetchPage({
+                    RequestItems: unprocessed,
                     ReturnConsumedCapacity: this.returnConsumedCapacity,
-                }));
-                items.push(...(result.Responses?.[this.tableName]?.map((item) => unmarshall(item) as T) ?? []));
-            }
-            return items;
+                })];
+            };
+
+            return fetchPage(batchRequest);
         })))
             .then((itemSets) => itemSets.flat());
+    };
 
+    batchWriteItems = async (
+        puts: { key: K; item: T }[],
+        deletes: K[],
+    ): Promise<void> => {
+        const requests: WriteRequest[] = [
+            ...puts.map(({ key, item }) => ({
+                PutRequest: {
+                    Item: marshall(
+                        { ...item, ...key } as Record<string, NativeAttributeValue>,
+                        { removeUndefinedValues: true },
+                    ),
+                },
+            })),
+            ...deletes.map((key) => ({
+                DeleteRequest: { Key: marshallKey(key) },
+            })),
+        ];
+
+        const sendBatch = async (requestItems: Record<string, WriteRequest[]>): Promise<void> => {
+            const result = await this.dynamoDBClient.send(
+                new BatchWriteItemCommand({
+                    RequestItems: requestItems,
+                    ReturnConsumedCapacity: this.returnConsumedCapacity,
+                }),
+            );
+            const unprocessed = result.UnprocessedItems;
+            if (unprocessed && Object.keys(unprocessed).length > 0) {
+                await sendBatch(unprocessed as Record<string, WriteRequest[]>);
+            }
+        };
+
+        await Promise.all(
+            paginate(requests, 25).map(batch => sendBatch({ [this.tableName]: batch })),
+        );
     };
 }
 

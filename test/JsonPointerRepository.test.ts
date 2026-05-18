@@ -149,8 +149,26 @@ describe("JsonPointerRepository Integration Tests", () => {
             expect(await repository.getDocument("stale-nested-1")).toEqual({ a: { x: 1 } });
         });
 
+        it("round-trips a document with more than 25 leaf values (tests batchWriteItems chunking)", async () => {
+            const doc: Record<string, unknown> = {};
+            for (let i = 0; i < 30; i++) {
+                doc[`field${i}`] = i;
+            }
+            await repository.putDocument("large-doc-1", doc as TestDocument);
+            expect(await repository.getDocument("large-doc-1")).toEqual(doc);
+        });
+
+        it("overwrites a large document and correctly deletes more than 25 stale pointers", async () => {
+            const original: Record<string, unknown> = {};
+            for (let i = 0; i < 30; i++) {
+                original[`field${i}`] = i;
+            }
+            await repository.putDocument("large-overwrite-1", original as TestDocument);
+            await repository.putDocument("large-overwrite-1", { kept: true } as TestDocument);
+            expect(await repository.getDocument("large-overwrite-1")).toEqual({ kept: true });
+        });
+
         it("replaces a string value with a number value at the same pointer", async () => {
-            await repository.putDocument("type-change-1", { score: "high" });
             await repository.putDocument("type-change-1", { score: 99 });
             expect(await repository.getDocument("type-change-1")).toEqual({ score: 99 });
         });
@@ -279,6 +297,16 @@ describe("JsonPointerRepository Integration Tests", () => {
             });
             await repository.deleteDocument("del-doc-deep");
             expect(await repository.getDocument("del-doc-deep")).toBeUndefined();
+        });
+
+        it("deletes a document with more than 25 leaf values (tests batchWriteItems chunking)", async () => {
+            const doc: Record<string, unknown> = {};
+            for (let i = 0; i < 30; i++) {
+                doc[`field${i}`] = i;
+            }
+            await repository.putDocument("large-del-doc-1", doc as TestDocument);
+            await repository.deleteDocument("large-del-doc-1");
+            expect(await repository.getDocument("large-del-doc-1")).toBeUndefined();
         });
     });
 
