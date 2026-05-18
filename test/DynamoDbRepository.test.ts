@@ -193,6 +193,25 @@ describe('DynamoDbRepository Integration Tests', () => {
             expect(result).not.toHaveProperty('email');
             expect(sumConsumedCapacity()).toEqual(1);
         });
+
+        it('should strip undefined values from the record when storing', async () => {
+            const key = { id: 'put-strip-undefined' };
+            const result = await repository.putItem(key, {
+                id: 'put-strip-undefined',
+                name: 'Has Undefined',
+                email: undefined,
+                age: undefined,
+            });
+
+            expect(result).toBeDefined();
+            expect(result).toHaveProperty('name', 'Has Undefined');
+            expect(result).not.toHaveProperty('email');
+            expect(result).not.toHaveProperty('age');
+
+            const fetched = await repository.getItem(key);
+            expect(fetched).not.toHaveProperty('email');
+            expect(fetched).not.toHaveProperty('age');
+        });
     });
 
     describe('deleteItem', () => {
@@ -512,6 +531,44 @@ describe('DynamoDbRepository Integration Tests', () => {
                 expect(results?.[0]).not.toHaveProperty('email');
             });
 
+            it('should apply projection and filter expressions together', async () => {
+                const testId = 'query-proj-filter';
+                await repository.putItem(
+                    { id: testId },
+                    { id: testId, name: 'Proj-Filter Item', age: 50, email: 'pf@example.com', status: 'active' },
+                );
+                consumedCapacityRegister.splice(0, consumedCapacityRegister.length);
+
+                const matchingResults = await repository.getItems({
+                    id: testId,
+                    projectedAttributes: ['id', 'name'],
+                    filterExpressions: [
+                        { attribute: 'age', value: 50, operator: FilterOperator.EQUALS },
+                    ],
+                });
+
+                expect(matchingResults).toBeDefined();
+                expect(matchingResults?.length).toBe(1);
+                expect(matchingResults?.[0]).toHaveProperty('id', testId);
+                expect(matchingResults?.[0]).toHaveProperty('name', 'Proj-Filter Item');
+                expect(matchingResults?.[0]).not.toHaveProperty('age');
+                expect(matchingResults?.[0]).not.toHaveProperty('email');
+                expect(matchingResults?.[0]).not.toHaveProperty('status');
+
+                consumedCapacityRegister.splice(0, consumedCapacityRegister.length);
+
+                const noMatchResults = await repository.getItems({
+                    id: testId,
+                    projectedAttributes: ['id', 'name'],
+                    filterExpressions: [
+                        { attribute: 'age', value: 99, operator: FilterOperator.EQUALS },
+                    ],
+                });
+
+                expect(noMatchResults).toBeDefined();
+                expect(noMatchResults?.length).toBe(0);
+            });
+
         });
 
         describe('with composite key (partition + sort)', () => {
@@ -743,6 +800,16 @@ describe('DynamoDbRepository Integration Tests', () => {
                 });
 
                 expect(results).toBeDefined();
+                if (results && results.length > 0) {
+                    results.forEach(item => {
+                        expect(item).toHaveProperty('name');
+                        expect(item).toHaveProperty('status');
+                        expect(item).not.toHaveProperty('userId');
+                        expect(item).not.toHaveProperty('itemId');
+                        expect(item).not.toHaveProperty('category');
+                        expect(item).not.toHaveProperty('createdAt');
+                    });
+                }
                 expect(results!.length).toBeGreaterThan(0);
                 // Note: Since we use batchGetItems after GSI query,
                 // we get full items from main table
