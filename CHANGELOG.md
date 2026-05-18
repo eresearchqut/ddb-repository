@@ -1,3 +1,10 @@
+## [1.9.4](https://github.com/eresearchqut/ddb-repository/compare/v1.9.3...v1.9.4) (2026-05-18)
+
+
+### Performance Improvements
+
+* eliminate redundant GetItem call in putItem by unmarshalling the item directly ([b8218db](https://github.com/eresearchqut/ddb-repository/commit/b8218dbef0641fe4d7cc507a7baa16f3ce279a43))
+
 ## [1.9.3](https://github.com/eresearchqut/ddb-repository/compare/v1.9.2...v1.9.3) (2026-05-18)
 
 
