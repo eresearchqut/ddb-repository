@@ -1,3 +1,10 @@
+## [1.9.5](https://github.com/eresearchqut/ddb-repository/compare/v1.9.4...v1.9.5) (2026-05-18)
+
+
+### Performance Improvements
+
+* use ReturnValues ALL_NEW in updateItem to eliminate extra GetItem call ([6e2d37b](https://github.com/eresearchqut/ddb-repository/commit/6e2d37bc851beefc43c2202fbf2baf91b329896a))
+
 ## [1.9.4](https://github.com/eresearchqut/ddb-repository/compare/v1.9.3...v1.9.4) (2026-05-18)
 
 
