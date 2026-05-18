@@ -1,3 +1,10 @@
+## [1.12.1](https://github.com/eresearchqut/ddb-repository/compare/v1.12.0...v1.12.1) (2026-05-18)
+
+
+### Bug Fixes
+
+* correct test assertions for getItemsPage pagination ([2d94ca8](https://github.com/eresearchqut/ddb-repository/commit/2d94ca8d538f41271677dbbc0aaa30ebfaf1d961))
+
 # [1.12.0](https://github.com/eresearchqut/ddb-repository/compare/v1.11.0...v1.12.0) (2026-05-18)
 
 
