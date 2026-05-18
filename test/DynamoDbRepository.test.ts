@@ -2,7 +2,7 @@
 import { DynamoDBClient, CreateTableCommand, DescribeTableCommand, PutItemCommand, type DynamoDBClientConfig } from "@aws-sdk/client-dynamodb";
 import { marshall } from "@aws-sdk/util-dynamodb";
 import { GenericContainer, StartedTestContainer } from "testcontainers";
-import {ConsumedCapacityDetail, consumedCapacityMiddleware, DynamoDbRepository, FilterOperator} from "../src";
+import {ConsumedCapacityDetail, consumedCapacityMiddleware, DynamoDbRepository, FilterOperator, type PageResult} from "../src";
 
 describe('DynamoDbRepository Integration Tests', () => {
     let container: StartedTestContainer;
@@ -920,6 +920,82 @@ describe('DynamoDbRepository Integration Tests', () => {
                 // Should handle pagination internally via batchGetItems
             }, 60000);
 
+        });
+    });
+
+    describe('getItemsPage', () => {
+        beforeEach(async () => {
+            for (let i = 1; i <= 15; i++) {
+                await compositeRepository.putItem(
+                    { userId: 'page-user-1', itemId: `page-item-${i.toString().padStart(2, '0')}` },
+                    { userId: 'page-user-1', itemId: `page-item-${i.toString().padStart(2, '0')}`, name: `Item ${i}`, category: i % 2 === 0 ? 'even' : 'odd' }
+                );
+            }
+            consumedCapacityRegister.splice(0, consumedCapacityRegister.length);
+        });
+
+        it('should return the first page of results and a cursor when there are more items', async () => {
+            const result: PageResult<{ userId: string; itemId: string; name: string; category: string }> =
+                await compositeRepository.getItemsPage({ userId: 'page-user-1', limit: 5 });
+
+            expect(result.items).toHaveLength(5);
+            expect(result.cursor).toBeDefined();
+        });
+
+        it('should return all items on a single page when limit exceeds total', async () => {
+            const result = await compositeRepository.getItemsPage({ userId: 'page-user-1', limit: 20 });
+
+            expect(result.items).toHaveLength(15);
+            expect(result.cursor).toBeUndefined();
+        });
+
+        it('should allow fetching subsequent pages using the returned cursor', async () => {
+            const page1 = await compositeRepository.getItemsPage({ userId: 'page-user-1', limit: 5 });
+            expect(page1.items).toHaveLength(5);
+            expect(page1.cursor).toBeDefined();
+
+            const page2 = await compositeRepository.getItemsPage({ userId: 'page-user-1', limit: 5, cursor: page1.cursor });
+            expect(page2.items).toHaveLength(5);
+            expect(page2.cursor).toBeDefined();
+
+            const page3 = await compositeRepository.getItemsPage({ userId: 'page-user-1', limit: 5, cursor: page2.cursor });
+            expect(page3.items).toHaveLength(5);
+            expect(page3.cursor).toBeUndefined();
+
+            const allIds = [...page1.items, ...page2.items, ...page3.items].map(i => i.itemId);
+            expect(new Set(allIds).size).toBe(15);
+        });
+
+        it('should return an empty items array and no cursor when there are no results', async () => {
+            const result = await compositeRepository.getItemsPage({ userId: 'page-user-nonexistent', limit: 5 });
+
+            expect(result.items).toHaveLength(0);
+            expect(result.cursor).toBeUndefined();
+        });
+
+        it('should support filter expressions alongside pagination', async () => {
+            const result = await compositeRepository.getItemsPage({
+                userId: 'page-user-1',
+                limit: 10,
+                filterExpressions: [
+                    { attribute: 'category', value: 'even', operator: FilterOperator.EQUALS }
+                ]
+            });
+
+            expect(result.items.every(item => item.category === 'even')).toBe(true);
+        });
+
+        it('should support descending sort order', async () => {
+            const result = await compositeRepository.getItemsPage({
+                userId: 'page-user-1',
+                limit: 3,
+                sortOrder: 'DESC'
+            });
+
+            expect(result.items).toHaveLength(3);
+            expect(result.items[0].itemId).toBe('page-item-15');
+            expect(result.items[1].itemId).toBe('page-item-14');
+            expect(result.items[2].itemId).toBe('page-item-13');
         });
     });
 
