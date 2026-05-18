@@ -310,6 +310,59 @@ describe("JsonPointerRepository Integration Tests", () => {
         });
     });
 
+    // ─── patchDocument ───────────────────────────────────────────────────────
+
+    describe("patchDocument", () => {
+        it("updates an existing pointer value", async () => {
+            await repository.putDocument("patch-1", { name: "Alice", age: 30 });
+            await repository.patchDocument("patch-1", { "/name": "Bob" });
+            expect(await repository.getDocument("patch-1")).toEqual({ name: "Bob", age: 30 });
+        });
+
+        it("adds a new pointer to an existing document", async () => {
+            await repository.putDocument("patch-2", { a: 1 });
+            await repository.patchDocument("patch-2", { "/b": 2 });
+            expect(await repository.getDocument("patch-2")).toEqual({ a: 1, b: 2 });
+        });
+
+        it("deletes a pointer when value is undefined", async () => {
+            await repository.putDocument("patch-3", { keep: "yes", drop: "no" });
+            await repository.patchDocument("patch-3", { "/drop": undefined });
+            expect(await repository.getDocument("patch-3")).toEqual({ keep: "yes" });
+        });
+
+        it("handles mixed puts and deletes in one call", async () => {
+            await repository.putDocument("patch-4", { a: 1, b: 2, c: 3 });
+            await repository.patchDocument("patch-4", { "/a": 10, "/b": undefined, "/d": 4 });
+            expect(await repository.getDocument("patch-4")).toEqual({ a: 10, c: 3, d: 4 });
+        });
+
+        it("is a no-op when updates is empty", async () => {
+            await repository.putDocument("patch-5", { x: "original" });
+            await repository.patchDocument("patch-5", {});
+            expect(await repository.getDocument("patch-5")).toEqual({ x: "original" });
+        });
+
+        it("patches a nested pointer", async () => {
+            await repository.putDocument("patch-6", { user: { name: "Alice", age: 30 } });
+            await repository.patchDocument("patch-6", { "/user/name": "Carol" });
+            expect(await repository.getDocument("patch-6")).toEqual({ user: { name: "Carol", age: 30 } });
+        });
+
+        it("patches a null value", async () => {
+            await repository.putDocument("patch-7", { status: "active" });
+            await repository.patchDocument("patch-7", { "/status": null });
+            expect(await repository.getDocument("patch-7")).toEqual({ status: null });
+        });
+
+        it("throws TypeError for a pointer not starting with '/'", async () => {
+            await repository.putDocument("patch-8", { a: 1 });
+            await expect(repository.patchDocument("patch-8", { "name": "value" })).rejects.toThrow(
+                'Invalid JSON Pointer "name"',
+            );
+        });
+    });
+
     // ─── validation ──────────────────────────────────────────────────────────
 
     describe("validation", () => {

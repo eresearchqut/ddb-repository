@@ -208,4 +208,23 @@ export class JsonPointerRepository<T extends Record<string, unknown>> {
         );
         await this.repository.batchWriteItems([], deleteKeys);
     };
+
+    patchDocument = async (
+        id: string,
+        updates: Record<string, JsonPointerValue | undefined>,
+    ): Promise<void> => {
+        const entries = Object.entries(updates);
+        if (entries.length === 0) return;
+        entries.forEach(([pointer]) => validatePointer(pointer));
+        const puts = entries
+            .filter((entry): entry is [string, JsonPointerValue] => entry[1] !== undefined)
+            .map(([pointer, value]) => {
+                const key = { [this.idKey]: id, [this.pointerKey]: pointer } as PointerKey;
+                return { key, item: { ...key, [this.valueKey]: value } as PointerItem };
+            });
+        const deleteKeys = entries
+            .filter(([, value]) => value === undefined)
+            .map(([pointer]) => ({ [this.idKey]: id, [this.pointerKey]: pointer } as PointerKey));
+        await this.repository.batchWriteItems(puts, deleteKeys);
+    };
 }

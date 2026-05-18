@@ -2,7 +2,7 @@
 import { DynamoDBClient, CreateTableCommand, DescribeTableCommand, PutItemCommand, type DynamoDBClientConfig } from "@aws-sdk/client-dynamodb";
 import { marshall } from "@aws-sdk/util-dynamodb";
 import { GenericContainer, StartedTestContainer } from "testcontainers";
-import {ConsumedCapacityDetail, consumedCapacityMiddleware, DynamoDbRepository, FilterOperator, type PageResult} from "../src";
+import {ConsumedCapacityDetail, consumedCapacityMiddleware, DynamoDbRepository, FilterOperator} from "../src";
 
 describe('DynamoDbRepository Integration Tests', () => {
     let container: StartedTestContainer;
