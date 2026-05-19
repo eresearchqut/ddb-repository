@@ -47,7 +47,9 @@ jobs:
           fi
       - name: Publish to npmjs.com
         if: steps.post-release.outputs.released == 'true'
-        run: npm publish --provenance
+        run: |
+          sed -i '/@eresearchqut:registry/d' .npmrc
+          npm publish --provenance
       - name: Setup Node.js for GitHub Packages
         if: steps.post-release.outputs.released == 'true'
         uses: actions/setup-node@v4
