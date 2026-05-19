@@ -6,6 +6,7 @@ import {
     DynamoDBClient,
     GetItemCommand,
     paginateQuery,
+    paginateScan,
     PutItemCommand,
     QueryCommand,
     QueryCommandInput,
@@ -62,6 +63,13 @@ export interface Query extends Partial<FilterableQuery>, Partial<ProjectedQuery>
     index?: string;
     sortOrder?: "ASC" | "DESC";
     limit?: number
+}
+
+export interface ScanQuery extends Partial<FilterableQuery>, Partial<ProjectedQuery>, Partial<IndexedQuery> {
+    filterExpressions?: Array<FilterExpression>;
+    projectedAttributes?: string[];
+    index?: string;
+    limit?: number;
 }
 
 const marshallKey = (key: unknown) =>
@@ -494,6 +502,72 @@ export class DynamoDbRepository<K, T> {
 
         const items = (result.Items ?? []).map((item) => unmarshall(item) as T);
         return {items, cursor: nextCursor};
+    };
+
+
+    scan = async (options?: ScanQuery): Promise<Array<T>> => {
+        const { filterExpressions, projectedAttributes, limit, index } = options ?? {};
+
+        const ProjectionExpression = projectedAttributes?.length
+            ? projectedAttributes.map((attribute) => `#${expressionAttributeKey(attribute)}`).join(',')
+            : undefined;
+        const projectionAttributeNames: Record<string, string> = projectedAttributes?.length
+            ? projectedAttributes.reduce(
+                (acc: Record<string, string>, attribute: string) => ({
+                    ...acc,
+                    [`#${expressionAttributeKey(attribute)}`]: attribute,
+                }),
+                {},
+              )
+            : {};
+
+        const hasFilterExpressions = Array.isArray(filterExpressions) && filterExpressions.length > 0;
+        const FilterExpression = hasFilterExpressions
+            ? mapFilterExpressions(filterExpressions!)
+            : undefined;
+        const filterAttributeNames: Record<string, string> = hasFilterExpressions
+            ? filterExpressions!.reduce(
+                (acc: Record<string, string>, fe: FilterExpression) => ({
+                    ...acc,
+                    [`#${expressionAttributeKey(fe.attribute)}`]: fe.attribute,
+                }),
+                {},
+              )
+            : {};
+        const filterAttributeValues = hasFilterExpressions
+            ? filterExpressions!.reduce(
+                (acc, fe) => ({ ...acc, ...mapFilterExpressionValues(fe) }),
+                {} as Record<string, unknown>,
+              )
+            : {};
+
+        const allAttributeNames = { ...filterAttributeNames, ...projectionAttributeNames };
+        const ExpressionAttributeNames = Object.keys(allAttributeNames).length > 0 ? allAttributeNames : undefined;
+        const ExpressionAttributeValues = hasFilterExpressions
+            ? marshall(filterAttributeValues as Record<string, NativeAttributeValue>, { removeUndefinedValues: true })
+            : undefined;
+
+        const paginator = paginateScan(
+            { client: this.dynamoDBClient, pageSize: 100 },
+            {
+                TableName: this.tableName,
+                ReturnConsumedCapacity: this.returnConsumedCapacity,
+                IndexName: index,
+                FilterExpression,
+                ProjectionExpression,
+                ExpressionAttributeNames,
+                ExpressionAttributeValues,
+            },
+        );
+
+        const items: Array<T> = [];
+        for await (const page of paginator) {
+            if (page.Items) {
+                items.push(...page.Items.map((item) => unmarshall(item) as T));
+            }
+            if (limit && items.length >= limit) break;
+        }
+        return limit ? items.slice(0, limit) : items;
     };
 
 
