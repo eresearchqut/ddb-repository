@@ -1,3 +1,10 @@
+## [1.13.5](https://github.com/eresearchqut/ddb-repository/compare/v1.13.4...v1.13.5) (2026-05-19)
+
+
+### Bug Fixes
+
+* update dependencies in package.json and package-lock.json ([211b602](https://github.com/eresearchqut/ddb-repository/commit/211b60289614b670b60060e9aa78fb5b7a67fa4f))
+
 ## [1.13.4](https://github.com/eresearchqut/ddb-repository/compare/v1.13.3...v1.13.4) (2026-05-19)
 
 
