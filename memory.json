@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-05-18T13:55:44Z",
-  "run_id": "26037927325",
+  "last_run": "2026-05-19T01:26:29Z",
+  "run_id": "26070437384",
   "comments_made": {
     "pr_26": {"timestamp": "2026-05-04T01:17:30Z", "note": "noted PR #26 superseded by PR #33"},
     "issue_37": {"timestamp": "2026-05-05T13:00:36Z", "note": "linked to PR #38 fixing the GSI sortOrder bug"}
@@ -16,7 +16,7 @@
     "8": {"title": "fix: retry UnprocessedKeys in batchGetItems with exponential backoff", "outcome": "merged"},
     "9": {"title": "fix: apply expressionAttributeKey to IN filter value placeholders", "outcome": "merged"},
     "11": {"title": "fix: correct ExpressionAttributeNames for hyphenated attributes in updateItem remove", "outcome": "merged"},
-    "14": {"title": "feat: add BEGINS_WITH and CONTAINS filter operators", "outcome": "merged"},
+    "14": {"title": "feat: add BEGINS_WITH and CONTAINS filter operators", "outcome": "merged_by_maintainer"},
     "15": {"title": "feat: JsonPointerRepository", "outcome": "merged_by_maintainer"},
     "16": {"title": "fix: treat empty remove array as no-op in updateItem", "outcome": "merged"},
     "17": {"title": "perf: stop paginating getItems once limit is reached", "outcome": "merged"},
@@ -33,11 +33,12 @@
     "33": {"title": "test: remove conditional-expect anti-patterns from filter and GSI tests", "outcome": "merged"},
     "34": {"title": "test: add cross-method consistency tests for JsonPointerRepository", "outcome": "merged"},
     "38": {"title": "fix: preserve GSI query order after batchGetItems in getItems", "outcome": "merged"},
-    "39": {"title": "perf: use BatchWriteItem in JsonPointerRepository for putDocument and deleteDocument", "outcome": "merged_or_superseded_by_maintainer"},
-    "40": {"title": "perf: add key-only ProjectionExpression to GSI query in getItems", "outcome": "merged"}
+    "39": {"title": "perf: use BatchWriteItem in JsonPointerRepository for putDocument and deleteDocument", "outcome": "merged_by_maintainer"},
+    "40": {"title": "perf: add key-only ProjectionExpression to GSI query in getItems", "outcome": "merged_by_maintainer"},
+    "41": {"title": "feat: add patchDocument to JsonPointerRepository", "outcome": "merged_by_maintainer"}
   },
   "open_repo_assist_prs": [
-    {"number": "TBD", "title": "feat: add patchDocument to JsonPointerRepository", "branch": "repo-assist/feat-json-pointer-patch-document-2026-05-18", "note": "Created 2026-05-18. Adds patchDocument() for partial document updates without full replacement. Uses batchWriteItems."}
+    {"number": 42, "title": "feat: add scan to DynamoDbRepository and listDocumentIds to JsonPointerRepository", "branch": "repo-assist/feat-scan-list-document-ids-2026-05-19", "note": "Created 2026-05-19. Adds scan() and ScanQuery type to DynamoDbRepository; adds listDocumentIds() to JsonPointerRepository."}
   ],
   "issues_labelled": {},
   "backlog_cursor": {
@@ -51,8 +52,8 @@
   },
   "future_work": {
     "type_improvement": "batchGetItems return type is Array<T | undefined> but implementation never returns undefined — could narrow to Array<T>; deferred as low priority",
-    "missing_features_noted": "DynamoDbRepository: scan, transactWrite/transactGet still missing. JsonPointerRepository: patchDocument now done. Next: listDocumentIds (needs GSI) or scan.",
-    "maintainer_note": "Maintainer merged all 16 open Repo Assist PRs between 2026-05-08 and 2026-05-18. Maintainer also added batchWriteItems directly and fixed standardize enum casing. Current main is v1.12.1."
+    "missing_features_noted": "DynamoDbRepository: transactWrite/transactGet still missing. JsonPointerRepository: scan+listDocumentIds now done (PR #42). Next: transactWrite or listDocumentIds with pagination.",
+    "maintainer_note": "Maintainer merged PRs #40, #41 between 2026-05-18 and 2026-05-19. Repository now at v1.13.5."
   },
-  "notes": "MAJOR UPDATE 2026-05-18: All 16 previously open Repo Assist PRs have been merged by maintainer. Repository advanced from v1.9.2 to v1.12.1. Maintainer added batchWriteItems themselves (feat: add batchWriteItems with recursive retry and fix filter function casing). getItemsPage now in. All 11 open issues are system-generated. No user-filed issues. PR #41 (TBD): feat: patchDocument for JsonPointerRepository. Also fixed pre-existing lint error in DynamoDbRepository.test.ts (unused PageResult import). npm outdated check still clean as of v1.9.2 — needs recheck."
+  "notes": "MAJOR UPDATE 2026-05-19: PR #42 created for feat: add scan to DynamoDbRepository and listDocumentIds to JsonPointerRepository. PR #41 (patchDocument) was merged by maintainer as PR. Repository at v1.13.5. All 11 open issues are system-generated. No user-filed issues. npm outdated check still clean as of v1.9.2 — needs recheck for v1.13.5."
 }
