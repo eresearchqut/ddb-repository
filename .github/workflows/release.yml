@@ -33,4 +33,22 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_CONFIG_PROVENANCE: 'true'
         run: npx semantic-release
+      - name: Setup Node.js for GitHub Packages
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@eresearchqut'
+      - name: Publish to GitHub Packages
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          CURRENT=$(node -p "require('./package.json').version")
+          PUBLISHED=$(npm view "@eresearchqut/ddb-repository" version 2>/dev/null || echo "none")
+          if [ "$PUBLISHED" = "$CURRENT" ]; then
+            echo "v${CURRENT} already published to GitHub Packages, skipping"
+          else
+            npm publish --registry https://npm.pkg.github.com
+          fi
