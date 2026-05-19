@@ -29,26 +29,34 @@ jobs:
         run: npm run build
       - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
         run: npm audit signatures
+      - name: Get current version
+        id: pre-release
+        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
       - name: Semantic Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_CONFIG_PROVENANCE: 'true'
         run: npx semantic-release
+      - name: Check if a new release was made
+        id: post-release
+        run: |
+          NEW=$(node -p "require('./package.json').version")
+          if [ "$NEW" != "${{ steps.pre-release.outputs.version }}" ]; then
+            echo "released=true" >> $GITHUB_OUTPUT
+          else
+            echo "released=false" >> $GITHUB_OUTPUT
+          fi
+      - name: Publish to npmjs.com
+        if: steps.post-release.outputs.released == 'true'
+        run: npm publish --provenance
       - name: Setup Node.js for GitHub Packages
+        if: steps.post-release.outputs.released == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: 'lts/*'
           registry-url: 'https://npm.pkg.github.com'
           scope: '@eresearchqut'
       - name: Publish to GitHub Packages
+        if: steps.post-release.outputs.released == 'true'
+        run: npm publish --registry https://npm.pkg.github.com
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          CURRENT=$(node -p "require('./package.json').version")
-          PUBLISHED=$(npm view "@eresearchqut/ddb-repository" version 2>/dev/null || echo "none")
-          if [ "$PUBLISHED" = "$CURRENT" ]; then
-            echo "v${CURRENT} already published to GitHub Packages, skipping"
-          else
-            npm publish --registry https://npm.pkg.github.com
-          fi
