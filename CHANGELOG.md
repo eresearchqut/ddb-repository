@@ -1,3 +1,11 @@
+## [1.13.3](https://github.com/eresearchqut/ddb-repository/compare/v1.13.2...v1.13.3) (2026-05-19)
+
+
+### Bug Fixes
+
+* decouple npm publishing from semantic-release to use OIDC ([8e18c8d](https://github.com/eresearchqut/ddb-repository/commit/8e18c8d46a6c35fb17a95994dafcbf860b63a355))
+* publish to both npmjs.com and GitHub Packages ([d28b45d](https://github.com/eresearchqut/ddb-repository/commit/d28b45d4d31607877501c8d40ad871a2bf230d54))
+
 ## [1.13.2](https://github.com/eresearchqut/ddb-repository/compare/v1.13.1...v1.13.2) (2026-05-18)
 
 
