@@ -1696,4 +1696,85 @@ describe('DynamoDbRepository Integration Tests', () => {
             expect(ascending?.map(r => r.itemId)).toEqual(defaultOrder?.map(r => r.itemId));
         });
     });
+
+    describe('scan', () => {
+        const scanStatus = 'scan-only-unique-2026';
+
+        beforeEach(async () => {
+            await repository.putItem(
+                { id: 'scan-1' },
+                { id: 'scan-1', name: 'Scan Alpha', status: scanStatus, score: 10 }
+            );
+            await repository.putItem(
+                { id: 'scan-2' },
+                { id: 'scan-2', name: 'Scan Beta', status: scanStatus, score: 20 }
+            );
+            await repository.putItem(
+                { id: 'scan-3' },
+                { id: 'scan-3', name: 'Scan Gamma', status: scanStatus, score: 30 }
+            );
+        });
+
+        it('should return all items including those inserted for scan tests', async () => {
+            const results = await repository.scan();
+            const scanItems = results.filter(r => r.status === scanStatus);
+            expect(scanItems.length).toBe(3);
+        });
+
+        it('should filter items using a filter expression', async () => {
+            const results = await repository.scan({
+                filterExpressions: [
+                    { attribute: 'status', operator: FilterOperator.EQUALS, value: scanStatus },
+                ],
+            });
+            expect(results.length).toBe(3);
+            expect(results.map(r => r.id).sort()).toEqual(['scan-1', 'scan-2', 'scan-3']);
+        });
+
+        it('should filter and return only items matching score condition', async () => {
+            const results = await repository.scan({
+                filterExpressions: [
+                    { attribute: 'status', operator: FilterOperator.EQUALS, value: scanStatus },
+                    { attribute: 'score', operator: FilterOperator.GREATER_THAN, value: 15 },
+                ],
+            });
+            expect(results.length).toBe(2);
+            expect(results.map(r => r.id).sort()).toEqual(['scan-2', 'scan-3']);
+        });
+
+        it('should return only projected attributes', async () => {
+            const results = await repository.scan({
+                filterExpressions: [
+                    { attribute: 'status', operator: FilterOperator.EQUALS, value: scanStatus },
+                ],
+                projectedAttributes: ['id', 'name'],
+            });
+            expect(results.length).toBe(3);
+            results.forEach(r => {
+                expect(r.id).toBeDefined();
+                expect(r.name).toBeDefined();
+                expect(r.email).toBeUndefined();
+                expect(r.score).toBeUndefined();
+            });
+        });
+
+        it('should respect limit option', async () => {
+            const results = await repository.scan({
+                filterExpressions: [
+                    { attribute: 'status', operator: FilterOperator.EQUALS, value: scanStatus },
+                ],
+                limit: 2,
+            });
+            expect(results.length).toBe(2);
+        });
+
+        it('should return an empty array when no items match the filter', async () => {
+            const results = await repository.scan({
+                filterExpressions: [
+                    { attribute: 'status', operator: FilterOperator.EQUALS, value: 'nonexistent-status-xyz' },
+                ],
+            });
+            expect(results).toEqual([]);
+        });
+    });
 });

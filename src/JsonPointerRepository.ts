@@ -209,6 +209,15 @@ export class JsonPointerRepository<T extends Record<string, unknown>> {
         await this.repository.batchWriteItems([], deleteKeys);
     };
 
+    listDocumentIds = async (): Promise<string[]> => {
+        const items = await this.repository.scan({ projectedAttributes: [this.idKey] });
+        const seen = new Set<string>();
+        for (const item of items) {
+            seen.add(item[this.idKey] as string);
+        }
+        return [...seen];
+    };
+
     patchDocument = async (
         id: string,
         updates: Record<string, JsonPointerValue | undefined>,

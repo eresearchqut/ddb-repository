@@ -452,6 +452,107 @@ describe("JsonPointerRepository Integration Tests", () => {
         });
     });
 
+    // ─── listDocumentIds ─────────────────────────────────────────────────────
+
+    describe("listDocumentIds", () => {
+        it("returns an empty array when there are no documents", async () => {
+            const emptyTable = "json-pointer-empty-for-scan";
+            await dynamoDBClient.send(
+                new CreateTableCommand({
+                    TableName: emptyTable,
+                    KeySchema: [
+                        { AttributeName: "id", KeyType: "HASH" },
+                        { AttributeName: "pointer", KeyType: "RANGE" },
+                    ],
+                    AttributeDefinitions: [
+                        { AttributeName: "id", AttributeType: "S" },
+                        { AttributeName: "pointer", AttributeType: "S" },
+                    ],
+                    BillingMode: "PAY_PER_REQUEST",
+                }),
+            );
+            let active = false;
+            while (!active) {
+                const res = await dynamoDBClient.send(new DescribeTableCommand({ TableName: emptyTable }));
+                active = res.Table?.TableStatus === "ACTIVE";
+                if (!active) await new Promise(r => setTimeout(r, 100));
+            }
+            const emptyRepo = new JsonPointerRepository<TestDocument>({
+                client: dynamoDBClient,
+                tableName: emptyTable,
+            });
+            expect(await emptyRepo.listDocumentIds()).toEqual([]);
+        });
+
+        it("returns unique document IDs for all stored documents", async () => {
+            const scanTable = "json-pointer-scan-table";
+            await dynamoDBClient.send(
+                new CreateTableCommand({
+                    TableName: scanTable,
+                    KeySchema: [
+                        { AttributeName: "id", KeyType: "HASH" },
+                        { AttributeName: "pointer", KeyType: "RANGE" },
+                    ],
+                    AttributeDefinitions: [
+                        { AttributeName: "id", AttributeType: "S" },
+                        { AttributeName: "pointer", AttributeType: "S" },
+                    ],
+                    BillingMode: "PAY_PER_REQUEST",
+                }),
+            );
+            let active = false;
+            while (!active) {
+                const res = await dynamoDBClient.send(new DescribeTableCommand({ TableName: scanTable }));
+                active = res.Table?.TableStatus === "ACTIVE";
+                if (!active) await new Promise(r => setTimeout(r, 100));
+            }
+            const scanRepo = new JsonPointerRepository<TestDocument>({
+                client: dynamoDBClient,
+                tableName: scanTable,
+            });
+            await scanRepo.putDocument("doc-a", { name: "Alpha", count: 1 });
+            await scanRepo.putDocument("doc-b", { name: "Beta", count: 2 });
+            await scanRepo.putDocument("doc-c", { name: "Gamma", count: 3 });
+
+            const ids = await scanRepo.listDocumentIds();
+            expect(ids.sort()).toEqual(["doc-a", "doc-b", "doc-c"]);
+        });
+
+        it("does not return IDs for deleted documents", async () => {
+            const scanTable2 = "json-pointer-scan-table-2";
+            await dynamoDBClient.send(
+                new CreateTableCommand({
+                    TableName: scanTable2,
+                    KeySchema: [
+                        { AttributeName: "id", KeyType: "HASH" },
+                        { AttributeName: "pointer", KeyType: "RANGE" },
+                    ],
+                    AttributeDefinitions: [
+                        { AttributeName: "id", AttributeType: "S" },
+                        { AttributeName: "pointer", AttributeType: "S" },
+                    ],
+                    BillingMode: "PAY_PER_REQUEST",
+                }),
+            );
+            let active = false;
+            while (!active) {
+                const res = await dynamoDBClient.send(new DescribeTableCommand({ TableName: scanTable2 }));
+                active = res.Table?.TableStatus === "ACTIVE";
+                if (!active) await new Promise(r => setTimeout(r, 100));
+            }
+            const scanRepo2 = new JsonPointerRepository<TestDocument>({
+                client: dynamoDBClient,
+                tableName: scanTable2,
+            });
+            await scanRepo2.putDocument("keep-1", { x: 1 });
+            await scanRepo2.putDocument("delete-1", { x: 2 });
+            await scanRepo2.deleteDocument("delete-1");
+
+            const ids = await scanRepo2.listDocumentIds();
+            expect(ids).toEqual(["keep-1"]);
+        });
+    });
+
     // ─── custom key names ────────────────────────────────────────────────────
 
     describe("custom key names", () => {
