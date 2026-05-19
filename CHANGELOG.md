@@ -1,3 +1,10 @@
+## [1.13.4](https://github.com/eresearchqut/ddb-repository/compare/v1.13.3...v1.13.4) (2026-05-19)
+
+
+### Bug Fixes
+
+* strip .npmrc scope routing before publishing to npmjs.com ([273f15d](https://github.com/eresearchqut/ddb-repository/commit/273f15dfa1f3d60831e8e0ecb0bc05af178605e8))
+
 ## [1.13.3](https://github.com/eresearchqut/ddb-repository/compare/v1.13.2...v1.13.3) (2026-05-19)
 
 
