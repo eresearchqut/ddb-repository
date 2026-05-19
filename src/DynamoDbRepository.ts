@@ -377,8 +377,7 @@ export class DynamoDbRepository<K, T> {
             const items = await this.batchGetItems(keysBatch, batchProjectedQuery);
             const orderedItems = keysBatch.flatMap((key) => {
                 const k = key as Record<string, unknown>;
-                const match = (items as Array<T | undefined>).find((item) => {
-                    if (!item) return false;
+                const match = items.find((item) => {
                     const t = item as Record<string, unknown>;
                     return t[this.hashKey] === k[this.hashKey] &&
                         (!this.rangKey || t[this.rangKey] === k[this.rangKey]);
@@ -490,7 +489,7 @@ export class DynamoDbRepository<K, T> {
                     pickBy(item as object, (_, key) => (key === this.hashKey || key === this.rangKey)) as K
                 );
             const items = await this.batchGetItems(collectedKeys, query as ProjectedQuery);
-            return {items: items.filter((item): item is T => item !== undefined), cursor: nextCursor};
+            return {items, cursor: nextCursor};
         }
 
         const items = (result.Items ?? []).map((item) => unmarshall(item) as T);
@@ -500,7 +499,7 @@ export class DynamoDbRepository<K, T> {
 
     batchGetItems = async (
         keys: K[], projectedQuery?: ProjectedQuery
-    ): Promise<Array<T | undefined>> => {
+    ): Promise<Array<T>> => {
         const uniqueKeys = uniqWith(keys, isEqual);
         const keyPages = paginate(uniqueKeys, 100);
         const {projectedAttributes} = projectedQuery || {};
