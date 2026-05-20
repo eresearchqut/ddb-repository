@@ -883,6 +883,17 @@ describe('DynamoDbRepository Integration Tests', () => {
                 expect(results![1].itemId).toBe('gsi-item-2');
                 expect(results![2].itemId).toBe('gsi-item-1');
             });
+
+        it('should respect limit when querying items via GSI', async () => {
+            const results = await gsiRepository.getItems({
+                status: 'active',
+                index: 'StatusIndex',
+                limit: 2
+            });
+            expect(results).toBeDefined();
+            expect(results).toHaveLength(2);
+            results!.forEach(item => expect(item.status).toBe('active'));
+        });
         });
 
         describe('pagination with GSI', () => {
@@ -994,6 +1005,93 @@ describe('DynamoDbRepository Integration Tests', () => {
             expect(result.items[0].itemId).toBe('page-item-15');
             expect(result.items[1].itemId).toBe('page-item-14');
             expect(result.items[2].itemId).toBe('page-item-13');
+        });
+
+        it('should return only projected attributes per page', async () => {
+            const result = await compositeRepository.getItemsPage({
+                userId: 'page-user-1',
+                limit: 5,
+                projectedAttributes: ['userId', 'itemId', 'category']
+            });
+            expect(result.items).toHaveLength(5);
+            result.items.forEach(item => {
+                expect(item).toHaveProperty('userId');
+                expect(item).toHaveProperty('itemId');
+                expect(item).toHaveProperty('category');
+                expect(item).not.toHaveProperty('name');
+            });
+        });
+
+        describe('with GSI', () => {
+            beforeEach(async () => {
+                const baseTime = new Date('2025-01-01T00:00:00Z').getTime();
+                for (let i = 1; i <= 5; i++) {
+                    await gsiRepository.putItem(
+                        { userId: `user-gsipage-${i}`, itemId: `gsipage-item-${i}` },
+                        {
+                            userId: `user-gsipage-${i}`,
+                            itemId: `gsipage-item-${i}`,
+                            name: `GSI Page Item ${i}`,
+                            category: 'test',
+                            status: 'gsi-paged',
+                            createdAt: new Date(baseTime + i * 60000).toISOString()
+                        }
+                    );
+                }
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                consumedCapacityRegister.splice(0, consumedCapacityRegister.length);
+            });
+
+            it('should return paged results via GSI with a cursor when more items exist', async () => {
+                const result = await gsiRepository.getItemsPage({
+                    status: 'gsi-paged',
+                    index: 'StatusIndex',
+                    limit: 2
+                });
+                expect(result.items).toHaveLength(2);
+                expect(result.cursor).toBeDefined();
+                result.items.forEach(item => expect(item.status).toBe('gsi-paged'));
+            });
+
+            it('should return all items and no cursor when limit exceeds total via GSI', async () => {
+                const result = await gsiRepository.getItemsPage({
+                    status: 'gsi-paged',
+                    index: 'StatusIndex',
+                    limit: 10
+                });
+                expect(result.items).toHaveLength(5);
+                expect(result.cursor).toBeUndefined();
+            });
+
+            it('should page through all items via GSI using cursor', async () => {
+                const page1 = await gsiRepository.getItemsPage({
+                    status: 'gsi-paged',
+                    index: 'StatusIndex',
+                    limit: 2
+                });
+                expect(page1.items).toHaveLength(2);
+                expect(page1.cursor).toBeDefined();
+
+                const page2 = await gsiRepository.getItemsPage({
+                    status: 'gsi-paged',
+                    index: 'StatusIndex',
+                    limit: 2,
+                    cursor: page1.cursor
+                });
+                expect(page2.items).toHaveLength(2);
+
+                const page3 = await gsiRepository.getItemsPage({
+                    status: 'gsi-paged',
+                    index: 'StatusIndex',
+                    limit: 2,
+                    cursor: page2.cursor
+                });
+                expect(page3.items).toHaveLength(1);
+                expect(page3.cursor).toBeUndefined();
+
+                const allIds = [...page1.items, ...page2.items, ...page3.items].map(i => i.itemId);
+                expect(new Set(allIds).size).toBe(5);
+            });
         });
     });
 

@@ -376,6 +376,13 @@ describe("JsonPointerRepository Integration Tests", () => {
             await expect(repository.putDocument("invalid-bigint", doc)).rejects.toThrow(TypeError);
         });
 
+        it("throws TypeError for an unsupported leaf type at a nested path", async () => {
+            const doc = { outer: { inner: (() => {}) } } as unknown as TestDocument;
+            await expect(repository.putDocument("nested-invalid-type", doc)).rejects.toThrow(
+                'Unsupported value at JSON pointer "/outer/inner"'
+            );
+        });
+
         it("throws TypeError when storing an empty document", async () => {
             await expect(repository.putDocument("empty-doc", {} as TestDocument)).rejects.toThrow(
                 "Cannot store a document with no leaf values",
