@@ -1,3 +1,10 @@
+# [1.16.0](https://github.com/eresearchqut/ddb-repository/compare/v1.15.1...v1.16.0) (2026-05-20)
+
+
+### Features
+
+* add scan to DynamoDbRepository and listDocumentIds to JsonPointerRepository ([c79a421](https://github.com/eresearchqut/ddb-repository/commit/c79a421ef6e9a107a8f98aac70153e31c5579c9d))
+
 ## [1.15.1](https://github.com/eresearchqut/ddb-repository/compare/v1.15.0...v1.15.1) (2026-05-20)
 
 
