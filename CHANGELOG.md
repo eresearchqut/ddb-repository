@@ -1,3 +1,10 @@
+## [1.16.1](https://github.com/eresearchqut/ddb-repository/compare/v1.16.0...v1.16.1) (2026-05-20)
+
+
+### Bug Fixes
+
+* preserve GSI sort order and projection in getItemsPage ([1e45f24](https://github.com/eresearchqut/ddb-repository/commit/1e45f249a488ac09187629295cf7b7dbbc5a4c0a)), closes [#38](https://github.com/eresearchqut/ddb-repository/issues/38)
+
 # [1.16.0](https://github.com/eresearchqut/ddb-repository/compare/v1.15.1...v1.16.0) (2026-05-20)
 
 
