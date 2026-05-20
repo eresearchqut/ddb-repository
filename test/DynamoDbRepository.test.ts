@@ -1092,6 +1092,46 @@ describe('DynamoDbRepository Integration Tests', () => {
                 const allIds = [...page1.items, ...page2.items, ...page3.items].map(i => i.itemId);
                 expect(new Set(allIds).size).toBe(5);
             });
+
+            it('should preserve ASC sort order via GSI', async () => {
+                const result = await gsiRepository.getItemsPage({
+                    status: 'gsi-paged',
+                    index: 'StatusIndex',
+                    sortOrder: 'ASC',
+                    limit: 10
+                });
+                expect(result.items).toHaveLength(5);
+                const createdAts = result.items.map(i => i.createdAt!);
+                expect(createdAts).toEqual([...createdAts].sort());
+            });
+
+            it('should preserve DESC sort order via GSI', async () => {
+                const result = await gsiRepository.getItemsPage({
+                    status: 'gsi-paged',
+                    index: 'StatusIndex',
+                    sortOrder: 'DESC',
+                    limit: 10
+                });
+                expect(result.items).toHaveLength(5);
+                const createdAts = result.items.map(i => i.createdAt!);
+                expect(createdAts).toEqual([...createdAts].sort().reverse());
+            });
+
+            it('should apply projection and exclude key attrs when projectedAttributes is specified via GSI', async () => {
+                const result = await gsiRepository.getItemsPage({
+                    status: 'gsi-paged',
+                    index: 'StatusIndex',
+                    projectedAttributes: ['name', 'category'],
+                    limit: 10
+                });
+                expect(result.items).toHaveLength(5);
+                result.items.forEach(item => {
+                    expect(item.name).toBeDefined();
+                    expect(item.category).toBeDefined();
+                    expect((item as Record<string, unknown>).userId).toBeUndefined();
+                    expect((item as Record<string, unknown>).itemId).toBeUndefined();
+                });
+            });
         });
     });
 
