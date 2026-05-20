@@ -1,3 +1,10 @@
+# [1.14.0](https://github.com/eresearchqut/ddb-repository/compare/v1.13.5...v1.14.0) (2026-05-20)
+
+
+### Features
+
+* migrate from Jest to Vitest and cleanup redundant dependencies ([46be998](https://github.com/eresearchqut/ddb-repository/commit/46be998bd78e05fb279ee0684f2f3758416260e5))
+
 ## [1.13.5](https://github.com/eresearchqut/ddb-repository/compare/v1.13.4...v1.13.5) (2026-05-19)
 
 
