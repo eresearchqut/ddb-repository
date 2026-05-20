@@ -9,5 +9,5 @@ export default defineConfig({
     format: ['cjs', 'esm'],
     target: false,
     exports: true,
-    external: ['@smithy/types']
+    deps: { neverBundle: ['@smithy/types'] }
 })
