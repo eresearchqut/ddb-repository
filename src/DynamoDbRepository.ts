@@ -496,8 +496,28 @@ export class DynamoDbRepository<K, T> {
                 .map((item: T) =>
                     pickBy(item as object, (_, key) => (key === this.hashKey || key === this.rangKey)) as K
                 );
-            const items = await this.batchGetItems(collectedKeys, query as ProjectedQuery);
-            return {items, cursor: nextCursor};
+            const keyAttrs = [this.hashKey, ...(this.rangKey ? [this.rangKey] : [])];
+            const batchProjectedQuery = projectedAttributes
+                ? { ...query, projectedAttributes: [...new Set([...projectedAttributes, ...keyAttrs])] } as ProjectedQuery
+                : query as ProjectedQuery;
+            const items = await this.batchGetItems(collectedKeys, batchProjectedQuery);
+            const orderedItems = collectedKeys.flatMap((key) => {
+                const k = key as Record<string, unknown>;
+                const match = items.find((item) => {
+                    const t = item as Record<string, unknown>;
+                    return t[this.hashKey] === k[this.hashKey] &&
+                        (!this.rangKey || t[this.rangKey] === k[this.rangKey]);
+                });
+                return match ? [match] : [];
+            });
+            if (projectedAttributes) {
+                const projSet = new Set(projectedAttributes);
+                return {
+                    items: orderedItems.map(item => pickBy(item as object, (_, key) => projSet.has(key)) as T),
+                    cursor: nextCursor,
+                };
+            }
+            return {items: orderedItems, cursor: nextCursor};
         }
 
         const items = (result.Items ?? []).map((item) => unmarshall(item) as T);
