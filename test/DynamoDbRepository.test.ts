@@ -995,6 +995,78 @@ describe('DynamoDbRepository Integration Tests', () => {
             expect(result.items[1].itemId).toBe('page-item-14');
             expect(result.items[2].itemId).toBe('page-item-13');
         });
+
+        describe('with GSI', () => {
+            beforeEach(async () => {
+                const baseTime = new Date('2024-06-01T00:00:00Z').getTime();
+                for (let i = 1; i <= 5; i++) {
+                    await gsiRepository.putItem(
+                        { userId: `gsi-page-user-${i}`, itemId: `gsi-page-item-${i.toString().padStart(2, '0')}` },
+                        {
+                            userId: `gsi-page-user-${i}`,
+                            itemId: `gsi-page-item-${i.toString().padStart(2, '0')}`,
+                            name: `GSI Page Item ${i}`,
+                            category: i % 2 === 0 ? 'even' : 'odd',
+                            status: 'gsi-page-test',
+                            createdAt: new Date(baseTime + i * 3600000).toISOString(),
+                        },
+                    );
+                }
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                consumedCapacityRegister.splice(0, consumedCapacityRegister.length);
+            });
+
+            it('should preserve GSI sort order (ASC) in returned items', async () => {
+                const result = await gsiRepository.getItemsPage({
+                    status: 'gsi-page-test',
+                    index: 'StatusIndex',
+                    sortOrder: 'ASC',
+                    limit: 5,
+                });
+
+                expect(result.items).toHaveLength(5);
+                expect(result.items[0].itemId).toBe('gsi-page-item-01');
+                expect(result.items[1].itemId).toBe('gsi-page-item-02');
+                expect(result.items[2].itemId).toBe('gsi-page-item-03');
+                expect(result.items[3].itemId).toBe('gsi-page-item-04');
+                expect(result.items[4].itemId).toBe('gsi-page-item-05');
+            });
+
+            it('should preserve GSI sort order (DESC) in returned items', async () => {
+                const result = await gsiRepository.getItemsPage({
+                    status: 'gsi-page-test',
+                    index: 'StatusIndex',
+                    sortOrder: 'DESC',
+                    limit: 5,
+                });
+
+                expect(result.items).toHaveLength(5);
+                expect(result.items[0].itemId).toBe('gsi-page-item-05');
+                expect(result.items[1].itemId).toBe('gsi-page-item-04');
+                expect(result.items[2].itemId).toBe('gsi-page-item-03');
+                expect(result.items[3].itemId).toBe('gsi-page-item-02');
+                expect(result.items[4].itemId).toBe('gsi-page-item-01');
+            });
+
+            it('should apply projection and exclude key attributes when using GSI', async () => {
+                const result = await gsiRepository.getItemsPage({
+                    status: 'gsi-page-test',
+                    index: 'StatusIndex',
+                    limit: 5,
+                    projectedAttributes: ['name', 'status'],
+                });
+
+                expect(result.items).toHaveLength(5);
+                result.items.forEach(item => {
+                    expect(item).toHaveProperty('name');
+                    expect(item).toHaveProperty('status');
+                    expect(item).not.toHaveProperty('userId');
+                    expect(item).not.toHaveProperty('itemId');
+                    expect(item).not.toHaveProperty('category');
+                    expect(item).not.toHaveProperty('createdAt');
+                });
+            });
+        });
     });
 
     describe('multiple operations', () => {
