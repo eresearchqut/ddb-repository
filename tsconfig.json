@@ -10,5 +10,5 @@
     "skipLibCheck": true,
     "outDir": "dist"
   },
-  "include": ["src", "test", "jest.config.ts", "tsdown.config.ts"]
+  "include": ["src", "vitest.config.ts", "tsdown.config.ts"]
 }
