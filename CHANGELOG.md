@@ -1,3 +1,10 @@
+## [1.15.1](https://github.com/eresearchqut/ddb-repository/compare/v1.15.0...v1.15.1) (2026-05-20)
+
+
+### Bug Fixes
+
+* narrow batchGetItems return type from Array<T | undefined> to Array<T> ([0693de5](https://github.com/eresearchqut/ddb-repository/commit/0693de587297b58052f4b7f286bb2e668dbb45f5))
+
 # [1.15.0](https://github.com/eresearchqut/ddb-repository/compare/v1.14.0...v1.15.0) (2026-05-20)
 
 
