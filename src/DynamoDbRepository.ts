@@ -383,13 +383,15 @@ export class DynamoDbRepository<K, T> {
                 ? { ...query, projectedAttributes: [...new Set([...projectedAttributes, ...keyAttrs])] } as ProjectedQuery
                 : query as ProjectedQuery;
             const items = await this.batchGetItems(keysBatch, batchProjectedQuery);
+            const gsiItemKey = (item: Record<string, unknown>): string =>
+                this.rangKey
+                    ? `${String(item[this.hashKey])}\0${String(item[this.rangKey])}`
+                    : String(item[this.hashKey]);
+            const itemMap = new Map<string, T>(
+                items.map(item => [gsiItemKey(item as Record<string, unknown>), item])
+            );
             const orderedItems = keysBatch.flatMap((key) => {
-                const k = key as Record<string, unknown>;
-                const match = items.find((item) => {
-                    const t = item as Record<string, unknown>;
-                    return t[this.hashKey] === k[this.hashKey] &&
-                        (!this.rangKey || t[this.rangKey] === k[this.rangKey]);
-                });
+                const match = itemMap.get(gsiItemKey(key as Record<string, unknown>));
                 return match ? [match] : [];
             });
             if (projectedAttributes) {
@@ -499,13 +501,15 @@ export class DynamoDbRepository<K, T> {
                 ? { ...query, projectedAttributes: [...new Set([...projectedAttributes, ...keyAttrs])] } as ProjectedQuery
                 : query as ProjectedQuery;
             const items = await this.batchGetItems(collectedKeys, batchProjectedQuery);
+            const gsiItemKey = (item: Record<string, unknown>): string =>
+                this.rangKey
+                    ? `${String(item[this.hashKey])}\0${String(item[this.rangKey])}`
+                    : String(item[this.hashKey]);
+            const itemMap = new Map<string, T>(
+                items.map(item => [gsiItemKey(item as Record<string, unknown>), item])
+            );
             const orderedItems = collectedKeys.flatMap((key) => {
-                const k = key as Record<string, unknown>;
-                const match = items.find((item) => {
-                    const t = item as Record<string, unknown>;
-                    return t[this.hashKey] === k[this.hashKey] &&
-                        (!this.rangKey || t[this.rangKey] === k[this.rangKey]);
-                });
+                const match = itemMap.get(gsiItemKey(key as Record<string, unknown>));
                 return match ? [match] : [];
             });
             if (projectedAttributes) {
