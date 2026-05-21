@@ -10,9 +10,11 @@ describe('DynamoDbRepository Integration Tests', () => {
     let repository: DynamoDbRepository<{ id: string }, { id: string; name: string; email?: string; age?: number; status?: string, score?: number }>;
     let compositeRepository: DynamoDbRepository<{ userId: string; itemId?: string }, { userId: string; itemId: string; name: string; category?: string; price?: number }>;
     let gsiRepository: DynamoDbRepository<{ userId: string; itemId: string, status?: string }, { userId: string; itemId: string; name: string; category?: string; status?: string; createdAt?: string }>;
+    let hashOnlyGsiRepository: DynamoDbRepository<{ id: string }, { id: string; name: string; category?: string }>;
     const tableName = 'test-table';
     const compositeTableName = 'test-composite-table';
     const gsiTableName = 'test-gsi-table';
+    const hashOnlyGsiTableName = 'test-hash-only-gsi-table';
     const consumedCapacityRegister = new Array<ConsumedCapacityDetail>() ;
 
     const getConsumedCapacity = (consumedCapacity: ConsumedCapacityDetail) => {
@@ -104,8 +106,32 @@ describe('DynamoDbRepository Integration Tests', () => {
             })
         );
 
+        // Create hash-only table with a GSI (no range key on base table)
+        await dynamoDBClient.send(
+            new CreateTableCommand({
+                TableName: hashOnlyGsiTableName,
+                KeySchema: [
+                    { AttributeName: "id", KeyType: "HASH" },
+                ],
+                AttributeDefinitions: [
+                    { AttributeName: "id", AttributeType: "S" },
+                    { AttributeName: "category", AttributeType: "S" },
+                ],
+                GlobalSecondaryIndexes: [
+                    {
+                        IndexName: "CategoryIndex",
+                        KeySchema: [
+                            { AttributeName: "category", KeyType: "HASH" },
+                        ],
+                        Projection: { ProjectionType: "ALL" },
+                    },
+                ],
+                BillingMode: "PAY_PER_REQUEST",
+            })
+        );
+
         // Wait for tables to be active
-        for (const table of [tableName, compositeTableName, gsiTableName]) {
+        for (const table of [tableName, compositeTableName, gsiTableName, hashOnlyGsiTableName]) {
             let tableActive = false;
             while (!tableActive) {
                 const response = await dynamoDBClient.send(
@@ -135,6 +161,11 @@ describe('DynamoDbRepository Integration Tests', () => {
             tableName: gsiTableName,
             hashKey: "userId",
             rangeKey: "itemId"
+        });
+        hashOnlyGsiRepository = new DynamoDbRepository({
+            client: dynamoDBClient,
+            tableName: hashOnlyGsiTableName,
+            hashKey: "id",
         });
     });
 
@@ -1913,6 +1944,39 @@ describe('DynamoDbRepository Integration Tests', () => {
                 ],
             });
             expect(results).toEqual([]);
+        });
+    });
+
+    describe('getItems via GSI on hash-only base table (no range key)', () => {
+        beforeEach(async () => {
+            await hashOnlyGsiRepository.putItem({ id: 'hgsi-1' }, { id: 'hgsi-1', name: 'Alpha', category: 'fruits' });
+            await hashOnlyGsiRepository.putItem({ id: 'hgsi-2' }, { id: 'hgsi-2', name: 'Beta', category: 'fruits' });
+            await hashOnlyGsiRepository.putItem({ id: 'hgsi-3' }, { id: 'hgsi-3', name: 'Gamma', category: 'veggies' });
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            consumedCapacityRegister.splice(0, consumedCapacityRegister.length);
+        });
+
+        it('should return full items via GSI on a hash-only table', async () => {
+            const results = await hashOnlyGsiRepository.getItems({
+                category: 'fruits',
+                index: 'CategoryIndex',
+            });
+            expect(results).toHaveLength(2);
+            expect(results?.map(r => r.id).sort()).toEqual(['hgsi-1', 'hgsi-2']);
+        });
+
+        it('should apply projection when querying via GSI on a hash-only table', async () => {
+            const results = await hashOnlyGsiRepository.getItems({
+                category: 'fruits',
+                index: 'CategoryIndex',
+                projectedAttributes: ['id', 'name'],
+            });
+            expect(results).toHaveLength(2);
+            results?.forEach(item => {
+                expect(item).toHaveProperty('id');
+                expect(item).toHaveProperty('name');
+                expect(item).not.toHaveProperty('category');
+            });
         });
     });
 });

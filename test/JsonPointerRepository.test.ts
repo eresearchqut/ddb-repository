@@ -383,6 +383,12 @@ describe("JsonPointerRepository Integration Tests", () => {
             );
         });
 
+        it("throws TypeError with pointer '/' when an unsupported type is the root value", async () => {
+            await expect(
+                repository.putDocument("fn-root", (() => {}) as unknown as TestDocument)
+            ).rejects.toThrow('Unsupported value at JSON pointer "/"');
+        });
+
         it("throws TypeError when storing an empty document", async () => {
             await expect(repository.putDocument("empty-doc", {} as TestDocument)).rejects.toThrow(
                 "Cannot store a document with no leaf values",
