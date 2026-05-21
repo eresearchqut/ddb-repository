@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-05-20T13:28:53Z",
-  "run_id": "26165615843",
+  "last_run": "2026-05-21T01:28:05Z",
+  "run_id": "26199901455",
   "comments_made": {
     "pr_26": {"timestamp": "2026-05-04T01:17:30Z", "note": "noted PR #26 superseded by PR #33"},
     "issue_37": {"timestamp": "2026-05-05T13:00:36Z", "note": "linked to PR #38 fixing the GSI sortOrder bug"}
@@ -34,13 +34,14 @@
     "39": {"title": "perf: use BatchWriteItem in JsonPointerRepository for putDocument and deleteDocument", "outcome": "merged_by_maintainer"},
     "40": {"title": "perf: add key-only ProjectionExpression to GSI query in getItems", "outcome": "merged_by_maintainer"},
     "41": {"title": "feat: add patchDocument to JsonPointerRepository", "outcome": "merged_by_maintainer"},
+    "42": {"title": "feat: add scan to DynamoDbRepository and listDocumentIds to JsonPointerRepository", "outcome": "merged_by_maintainer"},
     "43": {"title": "fix: narrow batchGetItems return type from Array<T|undefined> to Array<T>", "outcome": "merged_by_maintainer"},
-    "44": {"title": "fix: preserve GSI sort order and projection in getItemsPage", "outcome": "closed_no_merge_conflict"}
+    "44": {"title": "fix: preserve GSI sort order and projection in getItemsPage", "outcome": "closed_no_merge_conflict"},
+    "50": {"title": "fix: preserve GSI sort order and projection in getItemsPage (re-apply)", "outcome": "merged_by_maintainer"},
+    "52": {"title": "chore: bump vitest and @vitest/coverage-v8 from 4.1.6 to 4.1.7", "outcome": "merged_by_maintainer"}
   },
   "open_repo_assist_prs": [
-    {"number": 42, "title": "feat: add scan to DynamoDbRepository and listDocumentIds to JsonPointerRepository", "branch": "repo-assist/feat-scan-list-document-ids-2026-05-19", "note": "Created 2026-05-19."},
-    {"number": 45, "title": "chore(deps): bump vitest and @vitest/coverage-v8 4.1.6 -> 4.1.7", "branch": "repo-assist/eng-vitest-update-2026-05-20", "note": "Created 2026-05-20. Patch dep update."},
-    {"number": 46, "title": "fix: preserve GSI sort order and projection in getItemsPage", "branch": "repo-assist/fix-getitemspage-gsi-order-2026-05-20", "note": "Created 2026-05-20. Re-apply of closed PR #44 on current main (after PR #43 merge)."}
+    {"number": 53, "title": "perf: add key-only ProjectionExpression to GSI query in getItemsPage", "branch": "repo-assist/perf-getitemspage-gsi-projection-2026-05-21", "note": "Created 2026-05-21. Mirrors PR #40 optimisation for getItemsPage GSI path."}
   ],
   "issues_labelled": {},
   "backlog_cursor": {
@@ -55,5 +56,5 @@
   "future_work": {
     "transact_operations": "transactWrite/transactGet — atomic multi-item operations not yet implemented"
   },
-  "notes": "2026-05-20 run2: PR #43 merged by maintainer. PR #44 closed (conflict). Re-applied getItemsPage GSI fix as new PR (TBD#46). Vitest patch bump PR (TBD#45). Dependabot PRs #45(actions/github-script) and #47(gh-aw-actions) are .github/workflows updates — avoid modifying those files."
+  "notes": "2026-05-21 run: All prior PRs (#42, #50, #52) merged by maintainer. Created PR #53 (perf: key-only GSI projection in getItemsPage). Note: PR #45 in old memory was actually Dependabot PR for actions/github-script, not a vitest bump. vitest bump was #52 (Dependabot). No open user-filed issues."
 }
