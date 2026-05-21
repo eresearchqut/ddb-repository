@@ -144,7 +144,7 @@ export class JsonPointerRepository<T extends Record<string, unknown>> {
         }
 
         const newPointerSet = new Set(newPointers);
-        const existing = await this.repository.getItems({ [this.idKey]: id }) ?? [];
+        const existing = await this.repository.getItems({ [this.idKey]: id });
         const existingPointers = existing.map(item => item[this.pointerKey] as string);
         const stalePointers = existingPointers.filter(p => !newPointerSet.has(p));
 
@@ -201,7 +201,7 @@ export class JsonPointerRepository<T extends Record<string, unknown>> {
     };
 
     deleteDocument = async (id: string): Promise<void> => {
-        const items = await this.repository.getItems({ [this.idKey]: id }) ?? [];
+        const items = await this.repository.getItems({ [this.idKey]: id });
         if (items.length === 0) return;
         const deleteKeys = items.map(
             item => ({ [this.idKey]: id, [this.pointerKey]: item[this.pointerKey] as string } as PointerKey),

@@ -274,7 +274,7 @@ export class DynamoDbRepository<K, T> {
 
     getItems = async (
         query: Query
-    ): Promise<Array<T> | undefined> => {
+    ): Promise<Array<T>> => {
         const {index, filterExpressions, projectedAttributes, limit, sortOrder,...keys} = query;
         const KeyConditionExpression = Object.keys(keys)
             .map((key) => `#${expressionAttributeKey(key)} = :${expressionAttributeKey(key)}`).join(' AND ');
@@ -404,9 +404,7 @@ export class DynamoDbRepository<K, T> {
         const items: Array<T> = [];
         for await (const page of paginator) {
             if (page.Items) {
-                items.push(
-                    ...(page.Items?.map((item) => unmarshall(item) as T) || []),
-                )
+                items.push(...page.Items.map((item) => unmarshall(item) as T));
             }
             if (limit && items.length >= limit) break;
         }
