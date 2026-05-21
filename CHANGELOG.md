@@ -1,3 +1,10 @@
+## [1.16.2](https://github.com/eresearchqut/ddb-repository/compare/v1.16.1...v1.16.2) (2026-05-21)
+
+
+### Bug Fixes
+
+* remove dead code branches and correct getItems return type ([65079de](https://github.com/eresearchqut/ddb-repository/commit/65079de8c9b7fe4bfabe2613ed23861d1f5a7bc7))
+
 ## [1.16.1](https://github.com/eresearchqut/ddb-repository/compare/v1.16.0...v1.16.1) (2026-05-20)
 
 
