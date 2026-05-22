@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-05-21T13:46:38Z",
-  "run_id": "26229893013",
+  "last_run": "2026-05-22T01:26:31Z",
+  "run_id": "26262968830",
   "comments_made": {
     "pr_26": {
       "timestamp": "2026-05-04T01:17:30Z",
@@ -12,157 +12,58 @@
     }
   },
   "prs_closed_or_merged": {
-    "2": {
-      "title": "refactor: replace Object.assign({}) with {} and fix rangKey typo",
-      "outcome": "closed_without_merge"
-    },
-    "4": {
-      "title": "fix: add ReturnConsumedCapacity and removeUndefinedValues to deleteItem",
-      "outcome": "merged"
-    },
-    "5": {
-      "title": "test: add missing coverage for updateItem, putItem, deleteItem, getItems",
-      "outcome": "merged"
-    },
-    "6": {
-      "title": "fix: resolve TypeScript type error in consumedCapacityMiddleware",
-      "outcome": "merged"
-    },
-    "7": {
-      "title": "fix: add removeUndefinedValues to marshall calls in updateItem and batchGetItems",
-      "outcome": "merged"
-    },
-    "8": {
-      "title": "fix: retry UnprocessedKeys in batchGetItems with exponential backoff",
-      "outcome": "merged"
-    },
-    "9": {
-      "title": "fix: apply expressionAttributeKey to IN filter value placeholders",
-      "outcome": "merged"
-    },
-    "11": {
-      "title": "fix: correct ExpressionAttributeNames for hyphenated attributes in updateItem remove",
-      "outcome": "merged"
-    },
-    "14": {
-      "title": "feat: add BEGINS_WITH and CONTAINS filter operators",
-      "outcome": "merged_by_maintainer"
-    },
-    "15": {
-      "title": "feat: JsonPointerRepository",
-      "outcome": "merged_by_maintainer"
-    },
-    "16": {
-      "title": "fix: treat empty remove array as no-op in updateItem",
-      "outcome": "merged"
-    },
-    "17": {
-      "title": "perf: stop paginating getItems once limit is reached",
-      "outcome": "merged"
-    },
-    "19": {
-      "title": "docs: rewrite README to document current API",
-      "outcome": "merged"
-    },
-    "20": {
-      "title": "test: add coverage for hyphenated attribute names in filter expressions and updateItem SET",
-      "outcome": "merged"
-    },
-    "21": {
-      "title": "feat: add getItemsPage for cursor-based pagination",
-      "outcome": "merged"
-    },
-    "22": {
-      "title": "fix: return deleted item from deleteItem via ReturnValues ALL_OLD",
-      "outcome": "merged"
-    },
-    "25": {
-      "title": "fix: treat all-undefined updates as no-op in updateItem",
-      "outcome": "merged"
-    },
-    "26": {
-      "title": "ci: wire up eslint-plugin-jest for test files",
-      "outcome": "merged"
-    },
-    "27": {
-      "title": "test: add coverage for batchGetItems projection and explicit ASC sort order",
-      "outcome": "merged"
-    },
-    "29": {
-      "title": "perf: use ReturnValues ALL_NEW in updateItem to eliminate extra GetItem call",
-      "outcome": "merged"
-    },
-    "31": {
-      "title": "test: add coverage for putItem undefined stripping, projection+filter combo, stronger GSI projection assertions",
-      "outcome": "merged"
-    },
-    "32": {
-      "title": "perf: eliminate redundant GetItem call in putItem by unmarshalling the item in memory",
-      "outcome": "merged"
-    },
-    "33": {
-      "title": "test: remove conditional-expect anti-patterns from filter and GSI tests",
-      "outcome": "merged"
-    },
-    "34": {
-      "title": "test: add cross-method consistency tests for JsonPointerRepository",
-      "outcome": "merged"
-    },
-    "38": {
-      "title": "fix: preserve GSI query order after batchGetItems in getItems",
-      "outcome": "merged"
-    },
-    "39": {
-      "title": "perf: use BatchWriteItem in JsonPointerRepository for putDocument and deleteDocument",
-      "outcome": "merged_by_maintainer"
-    },
-    "40": {
-      "title": "perf: add key-only ProjectionExpression to GSI query in getItems",
-      "outcome": "merged_by_maintainer"
-    },
-    "41": {
-      "title": "feat: add patchDocument to JsonPointerRepository",
-      "outcome": "merged_by_maintainer"
-    },
-    "42": {
-      "title": "feat: add scan to DynamoDbRepository and listDocumentIds to JsonPointerRepository",
-      "outcome": "merged_by_maintainer"
-    },
-    "43": {
-      "title": "fix: narrow batchGetItems return type from Array<T|undefined> to Array<T>",
-      "outcome": "merged_by_maintainer"
-    },
-    "44": {
-      "title": "fix: preserve GSI sort order and projection in getItemsPage",
-      "outcome": "closed_no_merge_conflict"
-    },
-    "50": {
-      "title": "fix: preserve GSI sort order and projection in getItemsPage (re-apply)",
-      "outcome": "merged_by_maintainer"
-    },
-    "52": {
-      "title": "chore: bump vitest and @vitest/coverage-v8 from 4.1.6 to 4.1.7",
-      "outcome": "merged_by_maintainer"
-    }
+    "2": {"title": "refactor: replace Object.assign({}) with {} and fix rangKey typo", "outcome": "closed_without_merge"},
+    "4": {"title": "fix: add ReturnConsumedCapacity and removeUndefinedValues to deleteItem", "outcome": "merged"},
+    "5": {"title": "test: add missing coverage for updateItem, putItem, deleteItem, getItems", "outcome": "merged"},
+    "6": {"title": "fix: resolve TypeScript type error in consumedCapacityMiddleware", "outcome": "merged"},
+    "7": {"title": "fix: add removeUndefinedValues to marshall calls in updateItem and batchGetItems", "outcome": "merged"},
+    "8": {"title": "fix: retry UnprocessedKeys in batchGetItems with exponential backoff", "outcome": "merged"},
+    "9": {"title": "fix: apply expressionAttributeKey to IN filter value placeholders", "outcome": "merged"},
+    "11": {"title": "fix: correct ExpressionAttributeNames for hyphenated attributes in updateItem remove", "outcome": "merged"},
+    "14": {"title": "feat: add BEGINS_WITH and CONTAINS filter operators", "outcome": "merged_by_maintainer"},
+    "15": {"title": "feat: JsonPointerRepository", "outcome": "merged_by_maintainer"},
+    "16": {"title": "fix: treat empty remove array as no-op in updateItem", "outcome": "merged"},
+    "17": {"title": "perf: stop paginating getItems once limit is reached", "outcome": "merged"},
+    "19": {"title": "docs: rewrite README to document current API", "outcome": "merged"},
+    "20": {"title": "test: add coverage for hyphenated attribute names in filter expressions and updateItem SET", "outcome": "merged"},
+    "21": {"title": "feat: add getItemsPage for cursor-based pagination", "outcome": "merged"},
+    "22": {"title": "fix: return deleted item from deleteItem via ReturnValues ALL_OLD", "outcome": "merged"},
+    "25": {"title": "fix: treat all-undefined updates as no-op in updateItem", "outcome": "merged"},
+    "26": {"title": "ci: wire up eslint-plugin-jest for test files", "outcome": "merged"},
+    "27": {"title": "test: add coverage for batchGetItems projection and explicit ASC sort order", "outcome": "merged"},
+    "29": {"title": "perf: use ReturnValues ALL_NEW in updateItem to eliminate extra GetItem call", "outcome": "merged"},
+    "31": {"title": "test: add coverage for putItem undefined stripping, projection+filter combo, stronger GSI projection assertions", "outcome": "merged"},
+    "32": {"title": "perf: eliminate redundant GetItem call in putItem by unmarshalling the item in memory", "outcome": "merged"},
+    "33": {"title": "test: remove conditional-expect anti-patterns from filter and GSI tests", "outcome": "merged"},
+    "34": {"title": "test: add cross-method consistency tests for JsonPointerRepository", "outcome": "merged"},
+    "38": {"title": "fix: preserve GSI query order after batchGetItems in getItems", "outcome": "merged"},
+    "39": {"title": "perf: use BatchWriteItem in JsonPointerRepository for putDocument and deleteDocument", "outcome": "merged_by_maintainer"},
+    "40": {"title": "perf: add key-only ProjectionExpression to GSI query in getItems", "outcome": "merged_by_maintainer"},
+    "41": {"title": "feat: add patchDocument to JsonPointerRepository", "outcome": "merged_by_maintainer"},
+    "42": {"title": "feat: add scan to DynamoDbRepository and listDocumentIds to JsonPointerRepository", "outcome": "merged_by_maintainer"},
+    "43": {"title": "fix: narrow batchGetItems return type from Array<T|undefined> to Array<T>", "outcome": "merged_by_maintainer"},
+    "44": {"title": "fix: preserve GSI sort order and projection in getItemsPage", "outcome": "closed_no_merge_conflict"},
+    "50": {"title": "fix: preserve GSI sort order and projection in getItemsPage (re-apply)", "outcome": "merged_by_maintainer"},
+    "52": {"title": "chore: bump vitest and @vitest/coverage-v8 from 4.1.6 to 4.1.7", "outcome": "merged_by_maintainer"}
   },
   "open_repo_assist_prs": [
     {
       "number": 53,
       "title": "perf: add key-only ProjectionExpression to GSI query in getItemsPage",
       "branch": "repo-assist/perf-getitemspage-gsi-projection-2026-05-21-1000730be465afc5",
-      "note": "Created 2026-05-21. Mirrors PR #40 optimisation for getItemsPage GSI path."
+      "note": "Created 2026-05-21. Mirrors PR #40 optimisation for getItemsPage GSI path. Clean on main."
     },
     {
-      "number": "TBD-54",
+      "number": 54,
       "title": "perf: use Map for O(n) GSI item ordering in getItems and getItemsPage",
-      "branch": "repo-assist/perf-o1-gsi-ordering-2026-05-21",
-      "note": "Created 2026-05-21T13:46. O(n^2)->O(n) fix for GSI reordering in both getItems and getItemsPage."
+      "branch": "repo-assist/perf-o1-gsi-ordering-2026-05-21-6f96e4f47d9a6a3c",
+      "note": "Created 2026-05-21. O(n^2)->O(n) fix for GSI reordering. Clean on main."
     },
     {
-      "number": "TBD-55",
-      "title": "ci: add concurrency cancellation and typecheck step",
-      "branch": "repo-assist/eng-ci-concurrency-typecheck-2026-05-21",
-      "note": "Created 2026-05-21T13:46. Add CI concurrency cancel-in-progress and typecheck npm script."
+      "number": "TBD-56",
+      "title": "test: add coverage for scan via GSI index and getItemsPage GSI filter expressions",
+      "branch": "repo-assist/test-scan-gsi-getitemspage-gsi-filter-2026-05-22",
+      "note": "Created 2026-05-22. Covers scan IndexName branch and getItemsPage GSI+filter branch."
     }
   ],
   "issues_labelled": {},
@@ -176,7 +77,7 @@
     "status": "updated"
   },
   "future_work": {
-    "transact_operations": "transactWrite/transactGet \u2014 atomic multi-item operations not yet implemented"
+    "transact_operations": "transactWrite/transactGet — atomic multi-item operations not yet implemented"
   },
-  "notes": "2026-05-21 13:46 run: Task 8 - created PR for O(n) Map-based GSI ordering fix (both getItems and getItemsPage). Task 4 - created PR for CI concurrency cancellation + typecheck script. PR #53 still open. New PRs TBD-54, TBD-55 pending number assignment."
+  "notes": "2026-05-22 01:26 run: Task 6 - PRs #53 and #54 both clean on main (no CI failures, no conflicts). Issue #55 is an issue not a PR (blocked push). Task 9 - created PR for scan+GSI and getItemsPage GSI+filter coverage. Maintainer merged: fix remove dead code branches (65079de) and test coverage 94.2% (dea1b19). Main is now at v1.16.2."
 }
