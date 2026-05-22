@@ -1163,6 +1163,24 @@ describe('DynamoDbRepository Integration Tests', () => {
                     expect((item as Record<string, unknown>).itemId).toBeUndefined();
                 });
             });
+
+            it('should support filter expressions alongside GSI query', async () => {
+                const threshold = new Date(
+                    new Date('2025-01-01T00:00:00Z').getTime() + 3 * 60000
+                ).toISOString();
+                const result = await gsiRepository.getItemsPage({
+                    status: 'gsi-paged',
+                    index: 'StatusIndex',
+                    filterExpressions: [
+                        { attribute: 'createdAt', value: threshold, operator: FilterOperator.GREATER_THAN }
+                    ],
+                    limit: 10
+                });
+                expect(result.items).toHaveLength(2);
+                result.items.forEach(item => {
+                    expect(item.createdAt! > threshold).toBe(true);
+                });
+            });
         });
     });
 
@@ -1977,6 +1995,14 @@ describe('DynamoDbRepository Integration Tests', () => {
                 expect(item).toHaveProperty('name');
                 expect(item).not.toHaveProperty('category');
             });
+        });
+
+        it('should scan via GSI index', async () => {
+            const results = await hashOnlyGsiRepository.scan({ index: 'CategoryIndex' });
+            const hgsiItems = results.filter(r => r.id.startsWith('hgsi-'));
+            expect(hgsiItems.length).toBeGreaterThanOrEqual(3);
+            expect(hgsiItems.filter(r => r.category === 'fruits').length).toBeGreaterThanOrEqual(2);
+            expect(hgsiItems.filter(r => r.category === 'veggies').length).toBeGreaterThanOrEqual(1);
         });
     });
 });
