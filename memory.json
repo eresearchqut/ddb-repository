@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-05-22T01:26:31Z",
-  "run_id": "26262968830",
+  "last_run": "2026-05-22T13:28:05Z",
+  "run_id": "26290506911",
   "comments_made": {
     "pr_26": {
       "timestamp": "2026-05-04T01:17:30Z",
@@ -51,19 +51,25 @@
       "number": 53,
       "title": "perf: add key-only ProjectionExpression to GSI query in getItemsPage",
       "branch": "repo-assist/perf-getitemspage-gsi-projection-2026-05-21-1000730be465afc5",
-      "note": "Created 2026-05-21. Mirrors PR #40 optimisation for getItemsPage GSI path. Clean on main."
+      "note": "Created 2026-05-21. Mirrors PR #40 optimisation for getItemsPage GSI path."
     },
     {
       "number": 54,
       "title": "perf: use Map for O(n) GSI item ordering in getItems and getItemsPage",
       "branch": "repo-assist/perf-o1-gsi-ordering-2026-05-21-6f96e4f47d9a6a3c",
-      "note": "Created 2026-05-21. O(n^2)->O(n) fix for GSI reordering. Clean on main."
+      "note": "Created 2026-05-21. O(n^2)->O(n) fix for GSI reordering."
     },
     {
-      "number": "TBD-56",
+      "number": 56,
       "title": "test: add coverage for scan via GSI index and getItemsPage GSI filter expressions",
-      "branch": "repo-assist/test-scan-gsi-getitemspage-gsi-filter-2026-05-22",
+      "branch": "repo-assist/test-scan-gsi-getitemspage-gsi-filter-2026-05-22-d0afaf7044b28e17",
       "note": "Created 2026-05-22. Covers scan IndexName branch and getItemsPage GSI+filter branch."
+    },
+    {
+      "number": "TBD-transact",
+      "title": "feat: add transactGetItems and transactWriteItems for atomic multi-item operations",
+      "branch": "repo-assist/feat-transact-operations-2026-05-22",
+      "note": "Created 2026-05-22. Adds DynamoDB transaction support. PR number assigned after patch applied."
     }
   ],
   "issues_labelled": {},
@@ -77,7 +83,7 @@
     "status": "updated"
   },
   "future_work": {
-    "transact_operations": "transactWrite/transactGet — atomic multi-item operations not yet implemented"
+    "note": "transactGetItems/transactWriteItems implemented in PR this run. Future: ConditionExpression support in transact operations, conditionCheck items."
   },
-  "notes": "2026-05-22 01:26 run: Task 6 - PRs #53 and #54 both clean on main (no CI failures, no conflicts). Issue #55 is an issue not a PR (blocked push). Task 9 - created PR for scan+GSI and getItemsPage GSI+filter coverage. Maintainer merged: fix remove dead code branches (65079de) and test coverage 94.2% (dea1b19). Main is now at v1.16.2."
+  "notes": "2026-05-22 13:28 run: Task 10 - created transact operations PR (transactGetItems + transactWriteItems). Task 3 - no open bug issues to fix, focused on Task 10. Issue #1 already closed by maintainer. Issues #10, #13 were already closed (not in open issues list). Issue #55 still open (CI improvement, blocked). Main is at v1.16.2."
 }
