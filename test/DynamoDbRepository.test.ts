@@ -1965,6 +1965,88 @@ describe('DynamoDbRepository Integration Tests', () => {
         });
     });
 
+    describe('transactGetItems', () => {
+        beforeEach(async () => {
+            await repository.putItem({ id: 'tx-get-1' }, { id: 'tx-get-1', name: 'Transact One', age: 1 });
+            await repository.putItem({ id: 'tx-get-2' }, { id: 'tx-get-2', name: 'Transact Two', age: 2 });
+            consumedCapacityRegister.splice(0, consumedCapacityRegister.length);
+        });
+
+        it('should retrieve multiple items atomically', async () => {
+            const results = await repository.transactGetItems([
+                { id: 'tx-get-1' },
+                { id: 'tx-get-2' },
+            ]);
+            expect(results).toHaveLength(2);
+            expect(results[0]).toMatchObject({ id: 'tx-get-1', name: 'Transact One', age: 1 });
+            expect(results[1]).toMatchObject({ id: 'tx-get-2', name: 'Transact Two', age: 2 });
+        });
+
+        it('should return undefined for missing items', async () => {
+            const results = await repository.transactGetItems([
+                { id: 'tx-get-1' },
+                { id: 'tx-get-nonexistent' },
+            ]);
+            expect(results).toHaveLength(2);
+            expect(results[0]).toMatchObject({ id: 'tx-get-1' });
+            expect(results[1]).toBeUndefined();
+        });
+
+        it('should preserve key order in results', async () => {
+            const results = await repository.transactGetItems([
+                { id: 'tx-get-2' },
+                { id: 'tx-get-1' },
+            ]);
+            expect(results[0]).toMatchObject({ id: 'tx-get-2' });
+            expect(results[1]).toMatchObject({ id: 'tx-get-1' });
+        });
+    });
+
+    describe('transactWriteItems', () => {
+        beforeEach(async () => {
+            await repository.putItem({ id: 'tx-write-existing' }, { id: 'tx-write-existing', name: 'Existing' });
+            consumedCapacityRegister.splice(0, consumedCapacityRegister.length);
+        });
+
+        it('should atomically put and delete items', async () => {
+            await repository.transactWriteItems(
+                [{ key: { id: 'tx-write-new' }, item: { id: 'tx-write-new', name: 'New Item' } }],
+                [{ id: 'tx-write-existing' }],
+            );
+
+            const newItem = await repository.getItem({ id: 'tx-write-new' });
+            expect(newItem).toMatchObject({ id: 'tx-write-new', name: 'New Item' });
+
+            const deletedItem = await repository.getItem({ id: 'tx-write-existing' });
+            expect(deletedItem).toBeUndefined();
+        });
+
+        it('should atomically put multiple items', async () => {
+            await repository.transactWriteItems(
+                [
+                    { key: { id: 'tx-write-a' }, item: { id: 'tx-write-a', name: 'Alpha' } },
+                    { key: { id: 'tx-write-b' }, item: { id: 'tx-write-b', name: 'Beta' } },
+                ],
+                [],
+            );
+
+            const a = await repository.getItem({ id: 'tx-write-a' });
+            const b = await repository.getItem({ id: 'tx-write-b' });
+            expect(a).toMatchObject({ id: 'tx-write-a', name: 'Alpha' });
+            expect(b).toMatchObject({ id: 'tx-write-b', name: 'Beta' });
+        });
+
+        it('should strip undefined values from put items', async () => {
+            await repository.transactWriteItems(
+                [{ key: { id: 'tx-write-undef' }, item: { id: 'tx-write-undef', name: 'Has Undef', email: undefined } }],
+                [],
+            );
+            const item = await repository.getItem({ id: 'tx-write-undef' });
+            expect(item).toMatchObject({ id: 'tx-write-undef', name: 'Has Undef' });
+            expect(item).not.toHaveProperty('email');
+        });
+    });
+
     describe('getItems via GSI on hash-only base table (no range key)', () => {
         beforeEach(async () => {
             await hashOnlyGsiRepository.putItem({ id: 'hgsi-1' }, { id: 'hgsi-1', name: 'Alpha', category: 'fruits' });
