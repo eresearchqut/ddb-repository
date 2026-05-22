@@ -12,6 +12,8 @@ import {
     QueryCommandInput,
     ReturnConsumedCapacity,
     ReturnValue,
+    TransactGetItemsCommand,
+    TransactWriteItemsCommand,
     UpdateItemCommand,
     WriteRequest,
 } from "@aws-sdk/client-dynamodb";
@@ -671,6 +673,52 @@ export class DynamoDbRepository<K, T> {
 
         await Promise.all(
             paginate(requests, 25).map(batch => sendBatch({ [this.tableName]: batch })),
+        );
+    };
+
+    transactGetItems = async (keys: K[]): Promise<Array<T | undefined>> => {
+        const result = await this.dynamoDBClient.send(
+            new TransactGetItemsCommand({
+                TransactItems: keys.map((key) => ({
+                    Get: {
+                        TableName: this.tableName,
+                        Key: marshallKey(key),
+                    },
+                })),
+                ReturnConsumedCapacity: this.returnConsumedCapacity,
+            }),
+        );
+        return (result.Responses ?? []).map((response) =>
+            response.Item ? unmarshall(response.Item) as T : undefined,
+        );
+    };
+
+    transactWriteItems = async (
+        puts: { key: K; item: T }[],
+        deletes: K[],
+    ): Promise<void> => {
+        const transactItems = [
+            ...puts.map(({ key, item }) => ({
+                Put: {
+                    TableName: this.tableName,
+                    Item: marshall(
+                        { ...item, ...key } as Record<string, NativeAttributeValue>,
+                        { removeUndefinedValues: true },
+                    ),
+                },
+            })),
+            ...deletes.map((key) => ({
+                Delete: {
+                    TableName: this.tableName,
+                    Key: marshallKey(key),
+                },
+            })),
+        ];
+        await this.dynamoDBClient.send(
+            new TransactWriteItemsCommand({
+                TransactItems: transactItems,
+                ReturnConsumedCapacity: this.returnConsumedCapacity,
+            }),
         );
     };
 }
