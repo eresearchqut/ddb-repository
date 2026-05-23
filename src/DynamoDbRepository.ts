@@ -132,7 +132,7 @@ const mapFilterExpressionValues = (
                 ...reduction,
                 [`:${expressionAttributeKey(filterExpression.attribute)}${index}`]: value,
             }),
-            Object.assign({}),
+            {},
         )
         : {
             [`:${expressionAttributeKey(filterExpression.attribute)}`]:
@@ -252,9 +252,7 @@ export class DynamoDbRepository<K, T> {
                         ...acc,
                         [`#${expressionAttributeKey(key)}`]: key,
                     }),
-                    Object.assign(
-                        removeAttributeNames,
-                    ),
+                    {...removeAttributeNames},
                 ) as Record<string, string>,
             ExpressionAttributeValues: hasUpdates ? marshall(
                 filteredUpdateEntries.reduce(
@@ -281,9 +279,9 @@ export class DynamoDbRepository<K, T> {
         const KeyConditionExpression = Object.keys(keys)
             .map((key) => `#${expressionAttributeKey(key)} = :${expressionAttributeKey(key)}`).join(' AND ');
         const keyExpressionAttributeNames = Object.keys(keys)
-            .reduce((acc, key) => ({...acc, [`#${expressionAttributeKey(key)}`]: key}), Object.assign({}));
+            .reduce((acc, key) => ({...acc, [`#${expressionAttributeKey(key)}`]: key}), {});
         const keyExpressionAttributeValues = Object.entries(keys)
-            .reduce((acc, [key, value]) => ({...acc, [`:${expressionAttributeKey(key)}`]: value}), Object.assign({}));
+            .reduce((acc, [key, value]) => ({...acc, [`:${expressionAttributeKey(key)}`]: value}), {});
 
         const gsiKeyAttributes = index
             ? [this.hashKey, ...(this.rangKey ? [this.rangKey] : [])]
@@ -312,7 +310,7 @@ export class DynamoDbRepository<K, T> {
                     [`#${expressionAttributeKey(attribute)}`]:
                     attribute,
                 }),
-                Object.assign({}),
+                {},
             ) : {})
         const hasFilterExpressions = Array.isArray(filterExpressions) && filterExpressions.length > 0;
         const FilterExpression = hasFilterExpressions
@@ -328,7 +326,7 @@ export class DynamoDbRepository<K, T> {
                     [`#${expressionAttributeKey(filterExpression.attribute)}`]:
                     filterExpression.attribute,
                 }),
-                Object.assign({}),
+                {},
             )
             : {};
         const filterAttributeValues = filterExpressions
@@ -337,7 +335,7 @@ export class DynamoDbRepository<K, T> {
                     ...reduction,
                     ...mapFilterExpressionValues(filterExpression),
                 }),
-                Object.assign({}),
+                {},
             )
             : {};
 
@@ -423,9 +421,9 @@ export class DynamoDbRepository<K, T> {
         const KeyConditionExpression = Object.keys(keys)
             .map((key) => `#${expressionAttributeKey(key)} = :${expressionAttributeKey(key)}`).join(' AND ');
         const keyExpressionAttributeNames = Object.keys(keys)
-            .reduce((acc, key) => ({...acc, [`#${expressionAttributeKey(key)}`]: key}), Object.assign({}));
+            .reduce((acc, key) => ({...acc, [`#${expressionAttributeKey(key)}`]: key}), {});
         const keyExpressionAttributeValues = Object.entries(keys)
-            .reduce((acc, [key, value]) => ({...acc, [`:${expressionAttributeKey(key)}`]: value}), Object.assign({}));
+            .reduce((acc, [key, value]) => ({...acc, [`:${expressionAttributeKey(key)}`]: value}), {});
 
         const gsiKeyAttributes = index
             ? [this.hashKey, ...(this.rangKey ? [this.rangKey] : [])]
@@ -448,7 +446,7 @@ export class DynamoDbRepository<K, T> {
                     ...reduction,
                     [`#${expressionAttributeKey(attribute)}`]: attribute,
                 }),
-                Object.assign({}),
+                {},
             ) : {});
         const hasFilterExpressions = Array.isArray(filterExpressions) && filterExpressions.length > 0;
         const FilterExpression = hasFilterExpressions
@@ -460,7 +458,7 @@ export class DynamoDbRepository<K, T> {
                     ...reduction,
                     [`#${expressionAttributeKey(filterExpression.attribute)}`]: filterExpression.attribute,
                 }),
-                Object.assign({}),
+                {},
             )
             : {};
         const filterAttributeValues = filterExpressions
@@ -469,7 +467,7 @@ export class DynamoDbRepository<K, T> {
                     ...reduction,
                     ...mapFilterExpressionValues(filterExpression),
                 }),
-                Object.assign({}),
+                {},
             )
             : {};
 
@@ -627,7 +625,7 @@ export class DynamoDbRepository<K, T> {
                 [`#${expressionAttributeKey(attribute)}`]:
                 attribute,
             }),
-            Object.assign({}),
+            {},
         ) : undefined;
         return Promise.all((keyPages.map(async (keyPage) => {
             const batchRequest: BatchGetItemCommandInput = {
