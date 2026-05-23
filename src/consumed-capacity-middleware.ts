@@ -11,8 +11,6 @@ import {
     InitializeHandlerOutput,
 } from "@smithy/types";
 
-import {get} from "lodash";
-
 export interface ConsumedCapacityDetail {
     ReturnConsumedCapacity: ReturnConsumedCapacity | undefined
     ConsumedCapacity: ConsumedCapacity | ConsumedCapacity[] | undefined
@@ -27,10 +25,10 @@ export const consumedCapacityMiddleware =
         (next: InitializeHandler<ServiceInputTypes, ServiceOutputTypes>) =>
             async (args: InitializeHandlerArguments<ServiceInputTypes>): Promise<InitializeHandlerOutput<ServiceOutputTypes>> => {
                 const {input} = args;
-                const returnConsumedCapacity = get(input, "ReturnConsumedCapacity") as ReturnConsumedCapacity | undefined;
+                const returnConsumedCapacity = (input as unknown as Record<string, unknown>)["ReturnConsumedCapacity"] as ReturnConsumedCapacity | undefined;
                 const response = await next(args);
                 const {output} = response;
-                const consumedCapacity = get(output, "ConsumedCapacity") as ConsumedCapacity | ConsumedCapacity[] | undefined;
+                const consumedCapacity = (output as unknown as Record<string, unknown>)["ConsumedCapacity"] as ConsumedCapacity | ConsumedCapacity[] | undefined;
                 await consumedCapacityMiddlewareConfig.onConsumedCapacity({ReturnConsumedCapacity: returnConsumedCapacity, ConsumedCapacity: consumedCapacity});
                 return response;
             };

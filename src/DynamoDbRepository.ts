@@ -16,7 +16,6 @@ import {
     WriteRequest,
 } from "@aws-sdk/client-dynamodb";
 import {marshall, unmarshall, NativeAttributeValue} from "@aws-sdk/util-dynamodb";
-import {replace, uniqWith, isEqual, pickBy} from "lodash";
 
 export enum FilterOperator {
     EQUALS = "=",
@@ -75,7 +74,7 @@ export interface ScanQuery extends Partial<FilterableQuery>, Partial<ProjectedQu
 const marshallKey = (key: unknown) =>
     marshall(key as Record<string, NativeAttributeValue>, {removeUndefinedValues: true});
 
-const expressionAttributeKey = (key: string) => replace(key, /-/g, "_");
+const expressionAttributeKey = (key: string) => key.replace(/-/g, "_");
 
 const mapInKeys = (filterExpression: FilterExpression) =>
     Array.isArray(filterExpression.value)
@@ -372,7 +371,7 @@ export class DynamoDbRepository<K, T> {
                     collectedKeys.push(
                         ...(page.Items.map((item) => unmarshall(item) as T)
                             .map((item: T) =>
-                                pickBy(item as object, (_, key) => (key === this.hashKey || key === this.rangKey)) as K)),
+                                Object.fromEntries(Object.entries(item as object).filter(([key]) => key === this.hashKey || key === this.rangKey)) as K)),
                     )
                 }
                 if (limit && collectedKeys.length >= limit) break;
@@ -395,7 +394,7 @@ export class DynamoDbRepository<K, T> {
             if (projectedAttributes) {
                 const projSet = new Set(projectedAttributes);
                 return orderedItems.map(item =>
-                    pickBy(item as object, (_, key) => projSet.has(key)) as T
+                    Object.fromEntries(Object.entries(item as object).filter(([key]) => projSet.has(key))) as T
                 ) as Array<T>;
             }
             return orderedItems as Array<T>;
@@ -492,7 +491,7 @@ export class DynamoDbRepository<K, T> {
             const collectedKeys = (result.Items ?? [])
                 .map((item) => unmarshall(item) as T)
                 .map((item: T) =>
-                    pickBy(item as object, (_, key) => (key === this.hashKey || key === this.rangKey)) as K
+                    Object.fromEntries(Object.entries(item as object).filter(([key]) => key === this.hashKey || key === this.rangKey)) as K
                 );
             const keyAttrs = [this.hashKey, ...(this.rangKey ? [this.rangKey] : [])];
             const batchProjectedQuery = projectedAttributes
@@ -511,7 +510,7 @@ export class DynamoDbRepository<K, T> {
             if (projectedAttributes) {
                 const projSet = new Set(projectedAttributes);
                 return {
-                    items: orderedItems.map(item => pickBy(item as object, (_, key) => projSet.has(key)) as T),
+                    items: orderedItems.map(item => Object.fromEntries(Object.entries(item as object).filter(([key]) => projSet.has(key))) as T),
                     cursor: nextCursor,
                 };
             }
@@ -592,7 +591,13 @@ export class DynamoDbRepository<K, T> {
     batchGetItems = async (
         keys: K[], projectedQuery?: ProjectedQuery
     ): Promise<Array<T>> => {
-        const uniqueKeys = uniqWith(keys, isEqual);
+        const seen = new Set<string>();
+        const uniqueKeys = keys.filter(key => {
+            const k = JSON.stringify(key);
+            if (seen.has(k)) return false;
+            seen.add(k);
+            return true;
+        });
         const keyPages = paginate(uniqueKeys, 100);
         const {projectedAttributes} = projectedQuery || {};
         const ProjectionExpression = projectedAttributes
