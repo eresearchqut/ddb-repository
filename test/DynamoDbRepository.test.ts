@@ -9,7 +9,7 @@ describe('DynamoDbRepository Integration Tests', () => {
     let dynamoDBClient: DynamoDBClient;
     let repository: DynamoDbRepository<{ id: string }, { id: string; name: string; email?: string; age?: number; status?: string, score?: number }>;
     let compositeRepository: DynamoDbRepository<{ userId: string; itemId?: string }, { userId: string; itemId: string; name: string; category?: string; price?: number }>;
-    let gsiRepository: DynamoDbRepository<{ userId: string; itemId: string, status?: string }, { userId: string; itemId: string; name: string; category?: string; status?: string; createdAt?: string }>;
+    let gsiRepository: DynamoDbRepository<{ userId: string; itemId: string, status?: string }, { userId: string; itemId: string; name: string; category?: string; status?: string; createdAt?: string; score?: number }>;
     let hashOnlyGsiRepository: DynamoDbRepository<{ id: string }, { id: string; name: string; category?: string }>;
     const tableName = 'test-table';
     const compositeTableName = 'test-composite-table';
@@ -1065,7 +1065,8 @@ describe('DynamoDbRepository Integration Tests', () => {
                             name: `GSI Page Item ${i}`,
                             category: 'test',
                             status: 'gsi-paged',
-                            createdAt: new Date(baseTime + i * 60000).toISOString()
+                            createdAt: new Date(baseTime + i * 60000).toISOString(),
+                            score: i
                         }
                     );
                 }
@@ -1165,20 +1166,17 @@ describe('DynamoDbRepository Integration Tests', () => {
             });
 
             it('should support filter expressions alongside GSI query', async () => {
-                const threshold = new Date(
-                    new Date('2025-01-01T00:00:00Z').getTime() + 3 * 60000
-                ).toISOString();
                 const result = await gsiRepository.getItemsPage({
                     status: 'gsi-paged',
                     index: 'StatusIndex',
                     filterExpressions: [
-                        { attribute: 'createdAt', value: threshold, operator: FilterOperator.GREATER_THAN }
+                        { attribute: 'score', value: 3, operator: FilterOperator.GREATER_THAN }
                     ],
                     limit: 10
                 });
                 expect(result.items).toHaveLength(2);
                 result.items.forEach(item => {
-                    expect(item.createdAt! > threshold).toBe(true);
+                    expect(item.score! > 3).toBe(true);
                 });
             });
         });
