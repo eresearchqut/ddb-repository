@@ -610,7 +610,13 @@ export class DynamoDbRepository<K, T> {
     batchGetItems = async (
         keys: K[], projectedQuery?: ProjectedQuery
     ): Promise<Array<T>> => {
-        const uniqueKeys = Array.from(new Map(keys.map(k => [JSON.stringify(k), k])).values());
+        const dedupeKey = (key: K): string => {
+            const record = key as Record<string, unknown>;
+            return this.rangKey
+                ? `${String(record[this.hashKey])}\0${String(record[this.rangKey])}`
+                : String(record[this.hashKey]);
+        };
+        const uniqueKeys = Array.from(new Map(keys.map(k => [dedupeKey(k), k])).values());
         const keyPages = paginate(uniqueKeys, 100);
         const {projectedAttributes} = projectedQuery || {};
         const ProjectionExpression = projectedAttributes
