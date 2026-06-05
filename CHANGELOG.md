@@ -1,3 +1,10 @@
+# [1.17.0](https://github.com/eresearchqut/ddb-repository/compare/v1.16.4...v1.17.0) (2026-06-05)
+
+
+### Features
+
+* add transactGetItems and transactWriteItems for atomic multi-item operations ([145126d](https://github.com/eresearchqut/ddb-repository/commit/145126d30843febd5b62364605fcae278ff3ed1e))
+
 ## [1.16.4](https://github.com/eresearchqut/ddb-repository/compare/v1.16.3...v1.16.4) (2026-06-05)
 
 
