@@ -1,3 +1,10 @@
+## [1.16.4](https://github.com/eresearchqut/ddb-repository/compare/v1.16.3...v1.16.4) (2026-06-05)
+
+
+### Performance Improvements
+
+* use Map for O(n) GSI item ordering in getItems and getItemsPage ([27aea0a](https://github.com/eresearchqut/ddb-repository/commit/27aea0a4a197d3f56e29947ca15a23a36dbbb9f6))
+
 ## [1.16.3](https://github.com/eresearchqut/ddb-repository/compare/v1.16.2...v1.16.3) (2026-05-24)
 
 
