@@ -33,3 +33,8 @@ updates:
       interval: weekly
       day: monday
     open-pull-requests-limit: 5
+    ignore:
+      # Action pins inside the generated repo-assist.lock.yml are managed by
+      # `gh aw compile` (see .github/aw/actions-lock.json). Letting Dependabot
+      # bump them corrupts the generated artifact and breaks the workflow.
+      - dependency-name: "github/gh-aw-actions*"
