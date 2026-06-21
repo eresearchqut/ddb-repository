@@ -1,3 +1,10 @@
+## [1.17.1](https://github.com/eresearchqut/ddb-repository/compare/v1.17.0...v1.17.1) (2026-06-21)
+
+
+### Bug Fixes
+
+* repair Repo Assist workflow broken by Dependabot lock-file edit ([6fe4c18](https://github.com/eresearchqut/ddb-repository/commit/6fe4c18045d452b2cd1e8d6841bdb68ebf2116d3)), closes [#84](https://github.com/eresearchqut/ddb-repository/issues/84) [#85](https://github.com/eresearchqut/ddb-repository/issues/85) [93-#96](https://github.com/93-/issues/96)
+
 # [1.17.0](https://github.com/eresearchqut/ddb-repository/compare/v1.16.4...v1.17.0) (2026-06-05)
 
 
