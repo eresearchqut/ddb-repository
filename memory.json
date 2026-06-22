@@ -1,16 +1,7 @@
 {
-  "last_run": "2026-05-24T01:26:40Z",
-  "run_id": "26348500967",
-  "comments_made": {
-    "pr_26": {
-      "timestamp": "2026-05-04T01:17:30Z",
-      "note": "noted PR #26 superseded by PR #33"
-    },
-    "issue_37": {
-      "timestamp": "2026-05-05T13:00:36Z",
-      "note": "linked to PR #38 fixing the GSI sortOrder bug"
-    }
-  },
+  "last_run": "2026-06-22T01:42:14Z",
+  "run_id": "27924383371",
+  "comments_made": {},
   "prs_closed_or_merged": {
     "2": {"title": "refactor: replace Object.assign({}) with {} and fix rangKey typo", "outcome": "closed_without_merge"},
     "4": {"title": "fix: add ReturnConsumedCapacity and removeUndefinedValues to deleteItem", "outcome": "merged"},
@@ -42,40 +33,21 @@
     "41": {"title": "feat: add patchDocument to JsonPointerRepository", "outcome": "merged_by_maintainer"},
     "42": {"title": "feat: add scan to DynamoDbRepository and listDocumentIds to JsonPointerRepository", "outcome": "merged_by_maintainer"},
     "43": {"title": "fix: narrow batchGetItems return type from Array<T|undefined> to Array<T>", "outcome": "merged_by_maintainer"},
-    "44": {"title": "fix: preserve GSI sort order and projection in getItemsPage", "outcome": "closed_no_merge_conflict"},
     "50": {"title": "fix: preserve GSI sort order and projection in getItemsPage (re-apply)", "outcome": "merged_by_maintainer"},
-    "52": {"title": "chore: bump vitest and @vitest/coverage-v8 from 4.1.6 to 4.1.7", "outcome": "merged_by_maintainer"}
+    "52": {"title": "chore: bump vitest and @vitest/coverage-v8 from 4.1.6 to 4.1.7", "outcome": "merged_by_maintainer"},
+    "53": {"title": "perf: add key-only ProjectionExpression to GSI query in getItemsPage", "outcome": "merged_by_maintainer"},
+    "54": {"title": "perf: use Map for O(n) GSI item ordering in getItems and getItemsPage", "outcome": "merged_by_maintainer"},
+    "56": {"title": "test: add coverage for scan via GSI index and getItemsPage GSI filter expressions", "outcome": "merged_by_maintainer"},
+    "57": {"title": "feat: add transactGetItems and transactWriteItems for atomic multi-item operations", "outcome": "merged_by_maintainer"},
+    "59": {"title": "refactor: replace Object.assign({}) with {} in reduce initial values", "outcome": "merged_by_maintainer"},
+    "71": {"title": "refactor: replace lodash with native implementations and remove peer dependency", "outcome": "closed_without_merge"}
   },
   "open_repo_assist_prs": [
     {
-      "number": 53,
-      "title": "perf: add key-only ProjectionExpression to GSI query in getItemsPage",
-      "branch": "repo-assist/perf-getitemspage-gsi-projection-2026-05-21-1000730be465afc5",
-      "note": "Created 2026-05-21. Mirrors PR #40 optimisation for getItemsPage GSI path. Verified clean 2026-05-24."
-    },
-    {
-      "number": 54,
-      "title": "perf: use Map for O(n) GSI item ordering in getItems and getItemsPage",
-      "branch": "repo-assist/perf-o1-gsi-ordering-2026-05-21-6f96e4f47d9a6a3c",
-      "note": "Created 2026-05-21. O(n^2)->O(n) fix for GSI reordering. Verified clean 2026-05-24."
-    },
-    {
-      "number": 56,
-      "title": "test: add coverage for scan via GSI index and getItemsPage GSI filter expressions",
-      "branch": "repo-assist/test-scan-gsi-getitemspage-gsi-filter-2026-05-22-d0afaf7044b28e17",
-      "note": "Created 2026-05-22. Covers scan IndexName branch and getItemsPage GSI+filter branch. Verified clean 2026-05-24."
-    },
-    {
-      "number": 57,
-      "title": "feat: add transactGetItems and transactWriteItems for atomic multi-item operations",
-      "branch": "repo-assist/feat-transact-operations-2026-05-22-18de10d71a4eeb73",
-      "note": "Created 2026-05-22. Adds DynamoDB transaction support. Verified clean 2026-05-24."
-    },
-    {
-      "number": 59,
-      "title": "refactor: replace Object.assign({}) with {} in reduce initial values",
-      "branch": "repo-assist/improve-object-assign-cleanup-2026-05-23-17d801fe8fe6384a",
-      "note": "Created 2026-05-23. Removes Object.assign({}) anti-pattern. NOTE: similar change was in PR #2 which was declined. This PR is Object.assign-only (no typo fix). Maintainer may close if still not desired. Verified clean 2026-05-24."
+      "number": "TBD",
+      "title": "feat: add scanPage for cursor-based scan pagination",
+      "branch": "repo-assist/feat-scan-page-cursor-pagination-2026-06-22",
+      "note": "Created 2026-06-22. Adds scanPage method + typecheck npm script. Tests pass lint+build; integration tests need Docker."
     }
   ],
   "issues_labelled": {},
@@ -84,12 +56,16 @@
     "labelling": 0
   },
   "monthly_activity_issue": {
+    "number": "TBD_june",
+    "month": "2026-06",
+    "status": "created"
+  },
+  "monthly_activity_issue_may_closed": {
     "number": 30,
-    "month": "2026-05",
-    "status": "updated"
+    "closed": "2026-06-22"
   },
   "future_work": {
-    "note": "lodash removal pending via issue #58 (manual PR creation needed). transactGetItems/transactWriteItems in PR #57. Future: ConditionExpression support in transact operations, conditionCheck items."
+    "note": "ConditionExpression support for putItem/updateItem/deleteItem. getItem with projection. scanPage PR pending review."
   },
-  "notes": "2026-05-24 01:26 run: Task 2 - no user-filed issues open. Task 6 - all 5 open PRs (#53, #54, #56, #57, #59) verified clean: lint passes, tsc --noEmit passes, no conflicts with main (3c657f9). Main is at v1.16.2. DO NOT re-propose: cosmetic Object.assign/{} if #59 is declined, rangKey typo rename."
+  "notes": "2026-06-22 run: Main at v1.17.2. All previous Repo Assist PRs (#53,#54,#56,#57,#59) were merged by maintainer since last run. Lodash refactor (PR #71) was closed without merge (maintainer did their own). PR #30 (May 2026 activity) closed. Tasks: 4+10. Added scanPage + typecheck script. Only open PR is Dependabot #86 (gh-aw-actions). Open issue #55 (CI concurrency+typecheck) - typecheck part addressed by this run's PR. DO NOT re-propose: cosmetic Object.assign/{} (already merged as #59). rangKey typo rename."
 }
