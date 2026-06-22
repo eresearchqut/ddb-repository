@@ -1,3 +1,10 @@
+## [1.17.2](https://github.com/eresearchqut/ddb-repository/compare/v1.17.1...v1.17.2) (2026-06-22)
+
+
+### Bug Fixes
+
+* switch Repo Assist to token-free Copilot auth and upgrade gh-aw ([e8cc708](https://github.com/eresearchqut/ddb-repository/commit/e8cc708f3d1f70e4a37ed2a802b5da07810c9ef8)), closes [#aw](https://github.com/eresearchqut/ddb-repository/issues/aw) [#60](https://github.com/eresearchqut/ddb-repository/issues/60) [#aw](https://github.com/eresearchqut/ddb-repository/issues/aw) [github/#aw-actions](https://github.com/eresearchqut/ddb-repository/issues/aw-actions)
+
 ## [1.17.1](https://github.com/eresearchqut/ddb-repository/compare/v1.17.0...v1.17.1) (2026-06-21)
 
 
