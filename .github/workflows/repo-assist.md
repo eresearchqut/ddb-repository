@@ -22,7 +22,16 @@ on:
 
 timeout-minutes: 60
 
-permissions: read-all
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+  discussions: read
+  actions: read
+  checks: read
+  statuses: read
+  security-events: read
+  copilot-requests: write   # use the per-run Actions token for Copilot inference (org-billed); avoids COPILOT_GITHUB_TOKEN PAT expiry
 
 network:
   allowed:
@@ -63,7 +72,7 @@ safe-outputs:
     max: 4
   push-to-pull-request-branch:
     target: "*"
-    title-prefix: "[Repo Assist] "
+    required-title-prefix: "[Repo Assist] "
     max: 4
     protected-files: fallback-to-issue
   create-issue:
