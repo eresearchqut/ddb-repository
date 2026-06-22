@@ -1,40 +1,37 @@
-version: 2
 updates:
-  - package-ecosystem: npm
-    directory: /
-    schedule:
-      interval: weekly
-      day: monday
-    open-pull-requests-limit: 10
-    groups:
-      aws-sdk:
-        patterns:
-          - "@aws-sdk/*"
-          - "@smithy/*"
-      typescript-tooling:
-        patterns:
-          - "typescript"
-          - "typescript-eslint"
-          - "tsdown"
-      testing:
-        patterns:
-          - "vitest"
-          - "@vitest/*"
-          - "@testcontainers/*"
-          - testcontainers
-      linting:
-        patterns:
-          - "eslint"
-          - "@eslint/*"
-
-  - package-ecosystem: github-actions
-    directory: /
-    schedule:
-      interval: weekly
-      day: monday
-    open-pull-requests-limit: 5
-    ignore:
-      # Action pins inside the generated repo-assist.lock.yml are managed by
-      # `gh aw compile` (see .github/aw/actions-lock.json). Letting Dependabot
-      # bump them corrupts the generated artifact and breaks the workflow.
-      - dependency-name: "github/gh-aw-actions*"
+- directory: /
+  groups:
+    aws-sdk:
+      patterns:
+      - "@aws-sdk/*"
+      - "@smithy/*"
+    linting:
+      patterns:
+      - eslint
+      - "@eslint/*"
+    testing:
+      patterns:
+      - vitest
+      - "@vitest/*"
+      - "@testcontainers/*"
+      - testcontainers
+    typescript-tooling:
+      patterns:
+      - typescript
+      - typescript-eslint
+      - tsdown
+  open-pull-requests-limit: 10
+  package-ecosystem: npm
+  schedule:
+    day: monday
+    interval: weekly
+- directory: /
+  ignore:
+  - dependency-name: "github/gh-aw-actions*"
+  - dependency-name: "github/gh-aw-actions" # Managed by gh aw compile. Version-locked to the gh-aw compiler; do not bump.
+  open-pull-requests-limit: 5
+  package-ecosystem: github-actions
+  schedule:
+    day: monday
+    interval: weekly
+version: 2
