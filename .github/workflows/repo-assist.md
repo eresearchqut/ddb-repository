@@ -14,13 +14,20 @@ description: |
   Always polite, constructive, and mindful of the project's goals.
 
 on:
-  schedule: every 12h
+  schedule: every 24h
   workflow_dispatch:
   slash_command:
     name: repo-assist
   reaction: "eyes"
 
-timeout-minutes: 60
+timeout-minutes: 30
+
+max-ai-credits: 500          # per-run AI credit budget (steering warnings at 80/90/95/99%)
+max-daily-ai-credits: 2000   # 24h cap aggregated across runs; skips the agent job once exceeded
+
+concurrency:
+  group: "repo-assist-${{ github.ref }}"
+  cancel-in-progress: true   # supersede an in-progress run when a newer one starts on the same ref
 
 permissions:
   contents: read
@@ -30,7 +37,6 @@ permissions:
   actions: read
   checks: read
   statuses: read
-  security-events: read
   copilot-requests: write   # use the per-run Actions token for Copilot inference (org-billed); avoids COPILOT_GITHUB_TOKEN PAT expiry
 
 network:
@@ -49,7 +55,7 @@ checkout:
 tools:
   web-fetch:
   github:
-    toolsets: [all]
+    toolsets: [context, repos, issues, pull_requests, users, actions, labels, search]
     min-integrity: none # This workflow is allowed to examine and comment on any issues or PRs
   bash: true
   repo-memory: true
