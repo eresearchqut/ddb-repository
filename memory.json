@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-06-22T01:42:14Z",
-  "run_id": "27924383371",
+  "last_run": "2026-06-23T01:24:47Z",
+  "run_id": "27995600899",
   "comments_made": {},
   "prs_closed_or_merged": {
     "2": {"title": "refactor: replace Object.assign({}) with {} and fix rangKey typo", "outcome": "closed_without_merge"},
@@ -44,10 +44,11 @@
   },
   "open_repo_assist_prs": [
     {
-      "number": "TBD",
-      "title": "feat: add scanPage for cursor-based scan pagination",
-      "branch": "repo-assist/feat-scan-page-cursor-pagination-2026-06-22",
-      "note": "Created 2026-06-22. Adds scanPage method + typecheck npm script. Tests pass lint+build; integration tests need Docker."
+      "number": 105,
+      "title": "ci: add concurrency cancellation and explicit typecheck step",
+      "branch": "repo-assist/eng-ci-improvements-2026-06-23",
+      "status": "draft",
+      "note": "Created 2026-06-23. Implements CI improvements: concurrency auto-cancel + explicit typecheck npm script + CI step. Tests pass: typecheck, lint, build. Resolves issue #55 (partially)."
     }
   ],
   "issues_labelled": {},
@@ -56,16 +57,17 @@
     "labelling": 0
   },
   "monthly_activity_issue": {
-    "number": "TBD_june",
+    "number": 101,
     "month": "2026-06",
-    "status": "created"
+    "status": "updated",
+    "updated_at": "2026-06-23T01:24:47Z"
   },
   "monthly_activity_issue_may_closed": {
     "number": 30,
     "closed": "2026-06-22"
   },
   "future_work": {
-    "note": "ConditionExpression support for putItem/updateItem/deleteItem. getItem with projection. scanPage PR pending review."
+    "note": "ConditionExpression support for putItem/updateItem/deleteItem. getItem with projection. scanPage PR (#100) blocked by protected files - maintainer can create manually if needed."
   },
-  "notes": "2026-06-22 run: Main at v1.17.2. All previous Repo Assist PRs (#53,#54,#56,#57,#59) were merged by maintainer since last run. Lodash refactor (PR #71) was closed without merge (maintainer did their own). PR #30 (May 2026 activity) closed. Tasks: 4+10. Added scanPage + typecheck script. Only open PR is Dependabot #86 (gh-aw-actions). Open issue #55 (CI concurrency+typecheck) - typecheck part addressed by this run's PR. DO NOT re-propose: cosmetic Object.assign/{} (already merged as #59). rangKey typo rename."
+  "notes": "2026-06-23 run: Main at v1.17.2. Tasks: 3+4+11 (selected). Task 4 completed: PR #105 CI improvements (concurrency + typecheck) created. Task 3: No open bugs. Task 11: Updated monthly activity. Only open non-archived issues are #99 (expiring workflow failure), #55 (partial fix via #105), #100 (scanPage blocked), #101 (activity summary), #36 (no-op tracker), #104 (Dependabot). Next: await maintainer review of PRs."
 }
