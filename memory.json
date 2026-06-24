@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-06-23T01:24:47Z",
-  "run_id": "27995600899",
+  "last_run": "2026-06-24T01:22:39Z",
+  "run_id": "28068526657",
   "comments_made": {},
   "prs_closed_or_merged": {
     "2": {"title": "refactor: replace Object.assign({}) with {} and fix rangKey typo", "outcome": "closed_without_merge"},
@@ -44,6 +44,13 @@
   },
   "open_repo_assist_prs": [
     {
+      "number": 106,
+      "title": "test: add comprehensive unit tests for middleware and error handling",
+      "branch": "repo-assist/test-error-cases-middleware-2026-06-24",
+      "status": "draft",
+      "note": "Created 2026-06-24. Implements Task 9: Testing Improvements. Adds consumed-capacity-middleware.test.ts (40+ tests) and enhances DynamoDbRepository.unit.test.ts with error cases and edge case coverage. Lint/build pass."
+    },
+    {
       "number": 105,
       "title": "ci: add concurrency cancellation and explicit typecheck step",
       "branch": "repo-assist/eng-ci-improvements-2026-06-23",
@@ -60,7 +67,7 @@
     "number": 101,
     "month": "2026-06",
     "status": "updated",
-    "updated_at": "2026-06-23T01:24:47Z"
+    "updated_at": "2026-06-24T01:22:39Z"
   },
   "monthly_activity_issue_may_closed": {
     "number": 30,
@@ -69,5 +76,5 @@
   "future_work": {
     "note": "ConditionExpression support for putItem/updateItem/deleteItem. getItem with projection. scanPage PR (#100) blocked by protected files - maintainer can create manually if needed."
   },
-  "notes": "2026-06-23 run: Main at v1.17.2. Tasks: 3+4+11 (selected). Task 4 completed: PR #105 CI improvements (concurrency + typecheck) created. Task 3: No open bugs. Task 11: Updated monthly activity. Only open non-archived issues are #99 (expiring workflow failure), #55 (partial fix via #105), #100 (scanPage blocked), #101 (activity summary), #36 (no-op tracker), #104 (Dependabot). Next: await maintainer review of PRs."
+  "notes": "2026-06-24 run: Main at v1.17.2. Tasks: 3+9+11 (selected). Task 9 completed: PR #106 testing improvements (middleware tests + error case coverage) created. Task 3: No open bugs to fix. Task 11: Updated monthly activity with new PR. Next: await maintainer review of PRs #104-106."
 }
