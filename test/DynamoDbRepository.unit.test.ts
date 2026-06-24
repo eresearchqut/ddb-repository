@@ -45,6 +45,41 @@ describe('DynamoDbRepository Unit Tests', () => {
             expect(callCount).toBe(2);
             expect(result.map(r => r.id).sort()).toEqual(['a', 'b']);
         });
+
+        it('should handle empty UnprocessedKeys response', async () => {
+            const item1 = marshall({ id: 'a', name: 'Alice' });
+
+            vi.spyOn(client, 'send').mockImplementation(async (command) => {
+                if (command instanceof BatchGetItemCommand) {
+                    return {
+                        Responses: { 'unit-test-table': [item1] },
+                        UnprocessedKeys: {},
+                    };
+                }
+                throw new Error('Unexpected command type');
+            });
+
+            const result = await repository.batchGetItems([{ id: 'a' }]);
+
+            expect(result).toHaveLength(1);
+            expect(result[0].id).toBe('a');
+        });
+
+        it('should handle missing Responses table key gracefully', async () => {
+            vi.spyOn(client, 'send').mockImplementation(async (command) => {
+                if (command instanceof BatchGetItemCommand) {
+                    return {
+                        Responses: { /* table key missing */ },
+                        UnprocessedKeys: {},
+                    };
+                }
+                throw new Error('Unexpected command type');
+            });
+
+            const result = await repository.batchGetItems([{ id: 'a' }]);
+
+            expect(result).toHaveLength(0);
+        });
     });
 
     describe('batchWriteItems with UnprocessedItems', () => {
@@ -74,6 +109,83 @@ describe('DynamoDbRepository Unit Tests', () => {
                 )
             ).resolves.not.toThrow();
             expect(callCount).toBe(2);
+        });
+
+        it('should handle empty UnprocessedItems response', async () => {
+            vi.spyOn(client, 'send').mockImplementation(async (command) => {
+                if (command instanceof BatchWriteItemCommand) {
+                    return { UnprocessedItems: {} };
+                }
+                throw new Error('Unexpected command type');
+            });
+
+            await expect(
+                repository.batchWriteItems(
+                    [{ key: { id: 'c' }, item: { id: 'c', name: 'Carol' } }],
+                    [],
+                )
+            ).resolves.not.toThrow();
+        });
+
+        it('should handle multiple retries of UnprocessedItems', async () => {
+            const item = marshall({ id: 'd', name: 'Diana' });
+
+            let callCount = 0;
+            vi.spyOn(client, 'send').mockImplementation(async (command) => {
+                callCount++;
+                if (command instanceof BatchWriteItemCommand) {
+                    if (callCount <= 2) {
+                        return {
+                            UnprocessedItems: {
+                                'unit-test-table': [{ PutRequest: { Item: item } }],
+                            },
+                        };
+                    }
+                    return { UnprocessedItems: {} };
+                }
+                throw new Error('Unexpected command type');
+            });
+
+            await expect(
+                repository.batchWriteItems(
+                    [{ key: { id: 'd' }, item: { id: 'd', name: 'Diana' } }],
+                    [],
+                )
+            ).resolves.not.toThrow();
+            expect(callCount).toBeGreaterThan(2);
+        });
+    });
+
+    describe('error handling', () => {
+        it('should propagate DynamoDB errors from batchGetItems', async () => {
+            const testError = new Error('ValidationException: Provided list of items must not be empty');
+
+            vi.spyOn(client, 'send').mockImplementation(async (command) => {
+                if (command instanceof BatchGetItemCommand) {
+                    throw testError;
+                }
+                throw new Error('Unexpected command type');
+            });
+
+            await expect(repository.batchGetItems([{ id: 'a' }])).rejects.toThrow('ValidationException');
+        });
+
+        it('should propagate DynamoDB errors from batchWriteItems', async () => {
+            const testError = new Error('ResourceNotFoundException: Requested resource not found');
+
+            vi.spyOn(client, 'send').mockImplementation(async (command) => {
+                if (command instanceof BatchWriteItemCommand) {
+                    throw testError;
+                }
+                throw new Error('Unexpected command type');
+            });
+
+            await expect(
+                repository.batchWriteItems(
+                    [{ key: { id: 'e' }, item: { id: 'e', name: 'Eve' } }],
+                    [],
+                )
+            ).rejects.toThrow('ResourceNotFoundException');
         });
     });
 });
