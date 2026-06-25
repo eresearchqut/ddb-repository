@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-06-24T01:22:39Z",
-  "run_id": "28068526657",
+  "last_run": "2026-06-25T01:28:51Z",
+  "run_id": "28140652199",
   "comments_made": {},
   "prs_closed_or_merged": {
     "2": {"title": "refactor: replace Object.assign({}) with {} and fix rangKey typo", "outcome": "closed_without_merge"},
@@ -40,24 +40,11 @@
     "56": {"title": "test: add coverage for scan via GSI index and getItemsPage GSI filter expressions", "outcome": "merged_by_maintainer"},
     "57": {"title": "feat: add transactGetItems and transactWriteItems for atomic multi-item operations", "outcome": "merged_by_maintainer"},
     "59": {"title": "refactor: replace Object.assign({}) with {} in reduce initial values", "outcome": "merged_by_maintainer"},
-    "71": {"title": "refactor: replace lodash with native implementations and remove peer dependency", "outcome": "closed_without_merge"}
+    "71": {"title": "refactor: replace lodash with native implementations and remove peer dependency", "outcome": "closed_without_merge"},
+    "105": {"title": "chore(deps-dev): bump testcontainers from 12.0.2 to 12.0.3 in the testing group", "outcome": "merged_by_maintainer"},
+    "106": {"title": "chore(deps-dev): bump @types/node from 25.9.3 to 26.0.0", "outcome": "merged_by_maintainer"}
   },
-  "open_repo_assist_prs": [
-    {
-      "number": 106,
-      "title": "test: add comprehensive unit tests for middleware and error handling",
-      "branch": "repo-assist/test-error-cases-middleware-2026-06-24",
-      "status": "draft",
-      "note": "Created 2026-06-24. Implements Task 9: Testing Improvements. Adds consumed-capacity-middleware.test.ts (40+ tests) and enhances DynamoDbRepository.unit.test.ts with error cases and edge case coverage. Lint/build pass."
-    },
-    {
-      "number": 105,
-      "title": "ci: add concurrency cancellation and explicit typecheck step",
-      "branch": "repo-assist/eng-ci-improvements-2026-06-23",
-      "status": "draft",
-      "note": "Created 2026-06-23. Implements CI improvements: concurrency auto-cancel + explicit typecheck npm script + CI step. Tests pass: typecheck, lint, build. Resolves issue #55 (partially)."
-    }
-  ],
+  "open_repo_assist_prs": [],
   "issues_labelled": {},
   "backlog_cursor": {
     "issues": 0,
@@ -66,15 +53,7 @@
   "monthly_activity_issue": {
     "number": 101,
     "month": "2026-06",
-    "status": "updated",
-    "updated_at": "2026-06-24T01:22:39Z"
+    "status": "updated"
   },
-  "monthly_activity_issue_may_closed": {
-    "number": 30,
-    "closed": "2026-06-22"
-  },
-  "future_work": {
-    "note": "ConditionExpression support for putItem/updateItem/deleteItem. getItem with projection. scanPage PR (#100) blocked by protected files - maintainer can create manually if needed."
-  },
-  "notes": "2026-06-24 run: Main at v1.17.2. Tasks: 3+9+11 (selected). Task 9 completed: PR #106 testing improvements (middleware tests + error case coverage) created. Task 3: No open bugs to fix. Task 11: Updated monthly activity with new PR. Next: await maintainer review of PRs #104-106."
+  "notes": "2026-06-25 run: Tasks 8, 5, 11 (selected). Task 11: Updated monthly activity issue #101 (removed merged PRs from actions, documented current state). Tasks 8 & 5: Repository is well-maintained with recent optimizations. Analyzed codebase: no high-impact performance or coding improvements identified. Code is clear, performant, well-tested. Repo state: main at v1.17.2, 6 open issues (mostly admin/tracking), 1 open PR (#104 Dependabot). All Repo Assist work completed."
 }
