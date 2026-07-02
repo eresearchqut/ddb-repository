@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-07-01T01:37:00Z",
-  "run_id": "28487264294",
+  "last_run": "2026-07-02T01:27:08Z",
+  "run_id": "28558861752",
   "comments_made": {},
   "prs_closed_or_merged": {
     "2": {"title": "refactor: replace Object.assign({}) with {} and fix rangKey typo", "outcome": "closed_without_merge"},
@@ -44,18 +44,23 @@
     "105": {"title": "chore(deps-dev): bump testcontainers from 12.0.2 to 12.0.3 in the testing group", "outcome": "merged_by_maintainer"},
     "106": {"title": "chore(deps-dev): bump @types/node from 25.9.3 to 26.0.0", "outcome": "merged_by_maintainer"}
   },
-  "open_repo_assist_prs": [
-    {"number": "TBD", "title": "refactor: simplify flattenDocument using map and spread syntax", "branch": "repo-assist/improve-json-pointer-flatten-2026-07-01", "status": "created_this_run"}
+  "open_repo_assist_issues": [
+    {"number": 121, "title": "[Repo Assist] Monthly Activity 2026-07", "status": "updated"},
+    {"number": 120, "title": "[Repo Assist] refactor: simplify flattenDocument", "reason": "blocked_protected_files"},
+    {"number": 119, "title": "[Repo Assist] chore(deps): bundle Dependabot", "reason": "blocked_protected_files"},
+    {"number": 100, "title": "[Repo Assist] feat: add scanPage", "reason": "blocked_protected_files"},
+    {"number": 109, "title": "[Repo Assist] refactor: fix rangeKey typo", "reason": "blocked_protected_files"},
+    {"number": 107, "title": "[Repo Assist] ci: add concurrency cancellation", "reason": "blocked_protected_files"},
+    {"number": 55, "title": "[Repo Assist] ci: add concurrency cancellation", "reason": "likely_duplicate_of_107"}
   ],
-  "issues_labelled": {},
   "backlog_cursor": {
     "issues": 0,
     "labelling": 0
   },
   "monthly_activity_issue": {
-    "number": 102,
+    "number": 121,
     "month": "2026-07",
-    "status": "created"
+    "status": "updated"
   },
-  "notes": "2026-07-01 run: Tasks 2, 5, 11 (selected). Task 2 (Issue Investigation and Comment): No user-filed issues to investigate - only Repo Assist system issues and one auto-managed '[aw] No-Op Runs' tracking issue exist. Task 5 (Coding Improvements): Identified opportunity in JsonPointerRepository.ts - refactored flattenDocument() to use functional mapping and spread syntax instead of imperative loops with Object.assign mutations. Improves code clarity and style. Build ✓, Lint ✓, Unit tests ✓ (18/18). Created PR (TBD). Task 11: Closed June activity issue #101, created July activity issue #102. No pending actions for maintainer at start of month."
+  "notes": "2026-07-02 run (Tasks 3, 9, 11): CRITICAL BLOCKER IDENTIFIED: All pending Repo Assist issues (#120, #119, #100, #109, #107) are blocked by protected file restrictions. GitHub Actions lacks workflows permission to push changes to package.json, package-lock.json, and .github/workflows/. Options: (1) Grant GitHub Actions workflows permission in repo settings, (2) Maintainer manually creates PRs from provided patches, or (3) Create alternate workflow with appropriate permissions. Task 3 (Issue Investigation/Fix): No user-filed bugs exist—all issues are Repo Assist PRs. Task 9 (Testing Improvements): Unit test suite comprehensive (18/18 passing), no coverage gaps identified. Task 11: Updated monthly activity issue with clear action items for maintainer. NEXT RUN: Confirm whether permissions will be changed; if not, guide maintainers on manual patch application."
 }
