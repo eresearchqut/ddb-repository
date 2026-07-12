@@ -7,8 +7,7 @@ updates:
       - "@smithy/*"
     linting:
       patterns:
-      - eslint
-      - "@eslint/*"
+      - oxlint
     testing:
       patterns:
       - vitest
@@ -18,7 +17,6 @@ updates:
     typescript-tooling:
       patterns:
       - typescript
-      - typescript-eslint
       - tsdown
   open-pull-requests-limit: 10
   package-ecosystem: npm

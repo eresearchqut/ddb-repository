@@ -1757,7 +1757,7 @@ describe('DynamoDbRepository Integration Tests', () => {
 
                 expect(results).toBeDefined();
                 expect(results?.length).toBe(1);
-                expect((results?.[0] as Record<string, unknown>)['my-status']).toBe('active');
+                expect((results?.[0] as Record<string, unknown> | undefined)?.['my-status']).toBe('active');
             });
 
             it('should filter items using IN operator on a hyphenated attribute name', async () => {
@@ -1776,7 +1776,7 @@ describe('DynamoDbRepository Integration Tests', () => {
 
                 expect(results).toBeDefined();
                 expect(results?.length).toBe(1);
-                expect((results?.[0] as Record<string, unknown>)['my-type']).toBe('premium');
+                expect((results?.[0] as Record<string, unknown> | undefined)?.['my-type']).toBe('premium');
             });
 
             it('should negate a filter on a hyphenated attribute name', async () => {
@@ -1795,7 +1795,7 @@ describe('DynamoDbRepository Integration Tests', () => {
 
                 expect(results).toBeDefined();
                 expect(results?.length).toBe(1);
-                expect((results?.[0] as Record<string, unknown>)['my-flag']).toBe('yes');
+                expect((results?.[0] as Record<string, unknown> | undefined)?.['my-flag']).toBe('yes');
             });
         });
     });
