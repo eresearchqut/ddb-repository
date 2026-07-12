@@ -166,14 +166,14 @@ export class DynamoDbRepository<K, T> {
     private readonly dynamoDBClient: DynamoDBClient;
     private readonly tableName: string;
     private readonly hashKey: string;
-    private readonly rangKey?: string;
+    private readonly rangeKey?: string;
     private readonly returnConsumedCapacity: ReturnConsumedCapacity | undefined;
 
     constructor(options: DynamoDbRepositoryOptions) {
         this.dynamoDBClient = options.client;
         this.tableName = options.tableName;
         this.hashKey = options.hashKey;
-        this.rangKey = options.rangeKey;
+        this.rangeKey = options.rangeKey;
         this.returnConsumedCapacity = options.returnConsumedCapacity ?? ReturnConsumedCapacity.TOTAL;
     }
 
@@ -285,7 +285,7 @@ export class DynamoDbRepository<K, T> {
             .reduce((acc, [key, value]) => ({...acc, [`:${expressionAttributeKey(key)}`]: value}), {});
 
         const gsiKeyAttributes = index
-            ? [this.hashKey, ...(this.rangKey ? [this.rangKey] : [])]
+            ? [this.hashKey, ...(this.rangeKey ? [this.rangeKey] : [])]
             : [];
 
         const ProjectionExpression = index
@@ -373,20 +373,20 @@ export class DynamoDbRepository<K, T> {
                     collectedKeys.push(
                         ...(page.Items.map((item) => unmarshall(item) as T)
                             .map((item: T) =>
-                                Object.fromEntries(Object.entries(item as object).filter(([key]) => key === this.hashKey || key === this.rangKey)) as K)),
+                                Object.fromEntries(Object.entries(item as object).filter(([key]) => key === this.hashKey || key === this.rangeKey)) as K)),
                     )
                 }
                 if (limit && collectedKeys.length >= limit) break;
             }
             const keysBatch = limit ? collectedKeys.slice(0, limit) : collectedKeys;
-            const keyAttrs = [this.hashKey, ...(this.rangKey ? [this.rangKey] : [])];
+            const keyAttrs = [this.hashKey, ...(this.rangeKey ? [this.rangeKey] : [])];
             const batchProjectedQuery = projectedAttributes
                 ? { ...query, projectedAttributes: [...new Set([...projectedAttributes, ...keyAttrs])] } as ProjectedQuery
                 : query as ProjectedQuery;
             const items = await this.batchGetItems(keysBatch, batchProjectedQuery);
             const gsiItemKey = (item: Record<string, unknown>): string =>
-                this.rangKey
-                    ? `${String(item[this.hashKey])}\0${String(item[this.rangKey])}`
+                this.rangeKey
+                    ? `${String(item[this.hashKey])}\0${String(item[this.rangeKey])}`
                     : String(item[this.hashKey]);
             const itemMap = new Map<string, T>(
                 items.map(item => [gsiItemKey(item as Record<string, unknown>), item])
@@ -427,7 +427,7 @@ export class DynamoDbRepository<K, T> {
             .reduce((acc, [key, value]) => ({...acc, [`:${expressionAttributeKey(key)}`]: value}), {});
 
         const gsiKeyAttributes = index
-            ? [this.hashKey, ...(this.rangKey ? [this.rangKey] : [])]
+            ? [this.hashKey, ...(this.rangeKey ? [this.rangeKey] : [])]
             : [];
         const ProjectionExpression = index
             ? gsiKeyAttributes.map((attr) => `#${expressionAttributeKey(attr)}`).join(',')
@@ -508,16 +508,16 @@ export class DynamoDbRepository<K, T> {
             const collectedKeys = (result.Items ?? [])
                 .map((item) => unmarshall(item) as T)
                 .map((item: T) =>
-                    Object.fromEntries(Object.entries(item as object).filter(([key]) => key === this.hashKey || key === this.rangKey)) as K
+                    Object.fromEntries(Object.entries(item as object).filter(([key]) => key === this.hashKey || key === this.rangeKey)) as K
                 );
-            const keyAttrs = [this.hashKey, ...(this.rangKey ? [this.rangKey] : [])];
+            const keyAttrs = [this.hashKey, ...(this.rangeKey ? [this.rangeKey] : [])];
             const batchProjectedQuery = projectedAttributes
                 ? { ...query, projectedAttributes: [...new Set([...projectedAttributes, ...keyAttrs])] } as ProjectedQuery
                 : query as ProjectedQuery;
             const items = await this.batchGetItems(collectedKeys, batchProjectedQuery);
             const gsiItemKey = (item: Record<string, unknown>): string =>
-                this.rangKey
-                    ? `${String(item[this.hashKey])}\0${String(item[this.rangKey])}`
+                this.rangeKey
+                    ? `${String(item[this.hashKey])}\0${String(item[this.rangeKey])}`
                     : String(item[this.hashKey]);
             const itemMap = new Map<string, T>(
                 items.map(item => [gsiItemKey(item as Record<string, unknown>), item])
@@ -684,8 +684,8 @@ export class DynamoDbRepository<K, T> {
     ): Promise<Array<T>> => {
         const dedupeKey = (key: K): string => {
             const record = key as Record<string, unknown>;
-            return this.rangKey
-                ? `${String(record[this.hashKey])}\0${String(record[this.rangKey])}`
+            return this.rangeKey
+                ? `${String(record[this.hashKey])}\0${String(record[this.rangeKey])}`
                 : String(record[this.hashKey]);
         };
         const uniqueKeys = Array.from(new Map(keys.map(k => [dedupeKey(k), k])).values());
