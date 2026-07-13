@@ -141,12 +141,11 @@ const mapFilterExpressionValues = (
         };
 
 const paginate = <T>(array: Array<T>, pageSize: number) => {
-    return array.reduce((acc, val, i) => {
-        const idx = Math.floor(i / pageSize)
-        const page = acc[idx] || (acc[idx] = [])
-        page.push(val)
-        return acc
-    }, [] as Array<Array<T>>);
+    const pages: Array<Array<T>> = [];
+    for (let i = 0; i < array.length; i += pageSize) {
+        pages.push(array.slice(i, i + pageSize));
+    }
+    return pages;
 }
 
 export interface DynamoDbRepositoryOptions {
