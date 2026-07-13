@@ -1,3 +1,15 @@
+# [1.18.0](https://github.com/eresearchqut/ddb-repository/compare/v1.17.2...v1.18.0) (2026-07-13)
+
+
+### Bug Fixes
+
+* correct rangeKey typo in private field name ([d522d1a](https://github.com/eresearchqut/ddb-repository/commit/d522d1a6eeadc26fcb7f949e80be1744168b87f1)), closes [#127](https://github.com/eresearchqut/ddb-repository/issues/127) [#109](https://github.com/eresearchqut/ddb-repository/issues/109)
+
+
+### Features
+
+* add scanPage for cursor-based scan pagination ([3902ca6](https://github.com/eresearchqut/ddb-repository/commit/3902ca62fc30be0cd189a4cb35505f4fbba1bdeb)), closes [#100](https://github.com/eresearchqut/ddb-repository/issues/100)
+
 ## [1.17.2](https://github.com/eresearchqut/ddb-repository/compare/v1.17.1...v1.17.2) (2026-06-22)
 
 
