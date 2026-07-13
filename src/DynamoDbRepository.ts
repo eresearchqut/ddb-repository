@@ -11,6 +11,8 @@ import {
     QueryCommand,
     QueryCommandInput,
     ReturnConsumedCapacity,
+    ScanCommand,
+    ScanCommandInput,
     ReturnValue,
     TransactGetItemsCommand,
     TransactWriteItemsCommand,
@@ -602,6 +604,78 @@ export class DynamoDbRepository<K, T> {
             if (limit && items.length >= limit) break;
         }
         return limit ? items.slice(0, limit) : items;
+    };
+
+
+    scanPage = async (
+        options?: ScanQuery & { cursor?: string }
+    ): Promise<PageResult<T>> => {
+        const { filterExpressions, projectedAttributes, limit, index, cursor } = options ?? {};
+
+        const ProjectionExpression = projectedAttributes?.length
+            ? projectedAttributes.map((attribute) => `#${expressionAttributeKey(attribute)}`).join(',')
+            : undefined;
+        const projectionAttributeNames: Record<string, string> = projectedAttributes?.length
+            ? projectedAttributes.reduce(
+                (acc: Record<string, string>, attribute: string) => ({
+                    ...acc,
+                    [`#${expressionAttributeKey(attribute)}`]: attribute,
+                }),
+                {},
+              )
+            : {};
+
+        const hasFilterExpressions = Array.isArray(filterExpressions) && filterExpressions.length > 0;
+        const FilterExpression = hasFilterExpressions
+            ? mapFilterExpressions(filterExpressions!)
+            : undefined;
+        const filterAttributeNames: Record<string, string> = hasFilterExpressions
+            ? filterExpressions!.reduce(
+                (acc: Record<string, string>, fe: FilterExpression) => ({
+                    ...acc,
+                    [`#${expressionAttributeKey(fe.attribute)}`]: fe.attribute,
+                }),
+                {},
+              )
+            : {};
+        const filterAttributeValues = hasFilterExpressions
+            ? filterExpressions!.reduce(
+                (acc, fe) => ({ ...acc, ...mapFilterExpressionValues(fe) }),
+                {} as Record<string, unknown>,
+              )
+            : {};
+
+        const allAttributeNames = { ...filterAttributeNames, ...projectionAttributeNames };
+        const ExpressionAttributeNames = Object.keys(allAttributeNames).length > 0 ? allAttributeNames : undefined;
+        const ExpressionAttributeValues = hasFilterExpressions
+            ? marshall(filterAttributeValues as Record<string, NativeAttributeValue>, { removeUndefinedValues: true })
+            : undefined;
+
+        const ExclusiveStartKey = cursor
+            ? JSON.parse(Buffer.from(cursor, 'base64').toString('utf-8')) as Record<string, unknown>
+            : undefined;
+
+        const scanCommandInput: ScanCommandInput = {
+            TableName: this.tableName,
+            ReturnConsumedCapacity: this.returnConsumedCapacity,
+            IndexName: index,
+            FilterExpression,
+            ProjectionExpression,
+            ExpressionAttributeNames,
+            ExpressionAttributeValues,
+            Limit: limit,
+            ExclusiveStartKey: ExclusiveStartKey
+                ? marshall(ExclusiveStartKey as Record<string, NativeAttributeValue>, { removeUndefinedValues: true })
+                : undefined,
+        };
+
+        const result = await this.dynamoDBClient.send(new ScanCommand(scanCommandInput));
+        const nextCursor = result.LastEvaluatedKey
+            ? Buffer.from(JSON.stringify(unmarshall(result.LastEvaluatedKey))).toString('base64')
+            : undefined;
+
+        const items = (result.Items ?? []).map((item) => unmarshall(item) as T);
+        return { items, cursor: nextCursor };
     };
 
 
