@@ -1963,6 +1963,122 @@ describe('DynamoDbRepository Integration Tests', () => {
         });
     });
 
+    describe('scanPage', () => {
+        const scanPageTableName = 'test-scan-page-table';
+        let scanPageRepository: DynamoDbRepository<{ id: string }, { id: string; name: string; category?: string }>;
+
+        beforeAll(async () => {
+            await dynamoDBClient.send(
+                new CreateTableCommand({
+                    TableName: scanPageTableName,
+                    KeySchema: [{ AttributeName: "id", KeyType: "HASH" }],
+                    AttributeDefinitions: [{ AttributeName: "id", AttributeType: "S" }],
+                    BillingMode: "PAY_PER_REQUEST",
+                })
+            );
+            let tableActive = false;
+            while (!tableActive) {
+                const response = await dynamoDBClient.send(
+                    new DescribeTableCommand({ TableName: scanPageTableName })
+                );
+                tableActive = response.Table?.TableStatus === "ACTIVE";
+                if (!tableActive) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+            }
+
+            scanPageRepository = new DynamoDbRepository({
+                client: dynamoDBClient,
+                tableName: scanPageTableName,
+                hashKey: "id",
+            });
+
+            for (let i = 0; i < 12; i++) {
+                const id = `scan-page-${String(i).padStart(2, '0')}`;
+                await scanPageRepository.putItem(
+                    { id },
+                    { id, name: `Item ${i}`, category: i % 2 === 0 ? 'even' : 'odd' }
+                );
+            }
+        });
+
+        it('should return a page of items with a cursor when more items exist', async () => {
+            const page = await scanPageRepository.scanPage({ limit: 5 });
+            expect(page.items.length).toBe(5);
+            expect(page.cursor).toBeDefined();
+        });
+
+        it('should return all items and no cursor when limit exceeds total', async () => {
+            const page = await scanPageRepository.scanPage({ limit: 100 });
+            expect(page.items.length).toBe(12);
+            expect(page.cursor).toBeUndefined();
+        });
+
+        it('should page through all items using the cursor without duplicates', async () => {
+            const collected: string[] = [];
+            let cursor: string | undefined = undefined;
+            let pages = 0;
+            do {
+                const page = await scanPageRepository.scanPage({ limit: 5, cursor });
+                collected.push(...page.items.map(i => i.id));
+                cursor = page.cursor;
+                pages++;
+                expect(pages).toBeLessThanOrEqual(10);
+            } while (cursor);
+
+            expect(collected.length).toBe(12);
+            expect(new Set(collected).size).toBe(12);
+        });
+
+        it('should return an empty page and no cursor when the filter matches nothing', async () => {
+            const page = await scanPageRepository.scanPage({
+                filterExpressions: [
+                    { attribute: 'category', operator: FilterOperator.EQUALS, value: 'nonexistent-category' },
+                ],
+            });
+            expect(page.items).toEqual([]);
+            expect(page.cursor).toBeUndefined();
+        });
+
+        it('should apply a filter expression alongside pagination', async () => {
+            const collected: Array<{ id: string; category?: string }> = [];
+            let cursor: string | undefined = undefined;
+            do {
+                const page = await scanPageRepository.scanPage({
+                    limit: 4,
+                    filterExpressions: [
+                        { attribute: 'category', operator: FilterOperator.EQUALS, value: 'even' },
+                    ],
+                    cursor,
+                });
+                collected.push(...page.items);
+                cursor = page.cursor;
+            } while (cursor);
+
+            expect(collected.length).toBe(6);
+            collected.forEach(item => expect(item.category).toBe('even'));
+        });
+
+        it('should return only projected attributes', async () => {
+            const page = await scanPageRepository.scanPage({
+                limit: 3,
+                projectedAttributes: ['id'],
+            });
+            expect(page.items.length).toBe(3);
+            page.items.forEach(item => {
+                expect(item.id).toBeDefined();
+                expect(item.name).toBeUndefined();
+                expect(item.category).toBeUndefined();
+            });
+        });
+
+        it('should return all items when called with no options', async () => {
+            const page = await scanPageRepository.scanPage();
+            expect(page.items.length).toBe(12);
+            expect(page.cursor).toBeUndefined();
+        });
+    });
+
     describe('transactGetItems', () => {
         beforeEach(async () => {
             await repository.putItem({ id: 'tx-get-1' }, { id: 'tx-get-1', name: 'Transact One', age: 1 });

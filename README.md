@@ -195,6 +195,9 @@ client.middlewareStack.add(
 | `updateItem` | `(key: K, updates: Partial<T>, remove?: string[]) => Promise<T \| undefined>` | Partial update with optional attribute removal |
 | `deleteItem` | `(key: K) => Promise<Partial<T> \| undefined>` | Delete an item |
 | `getItems` | `(query: Query) => Promise<T[] \| undefined>` | Query items (auto-paginates) |
+| `getItemsPage` | `(query: Query & { cursor?: string }) => Promise<PageResult<T>>` | Cursor-based paged query results |
+| `scan` | `(options?: ScanQuery) => Promise<T[]>` | Scan items (auto-paginates) |
+| `scanPage` | `(options?: ScanQuery & { cursor?: string }) => Promise<PageResult<T>>` | Cursor-based paged scan results |
 | `batchGetItems` | `(keys: K[], projectedQuery?: ProjectedQuery) => Promise<Array<T \| undefined>>` | Fetch multiple items by key |
 
 ## JsonPointerRepository
