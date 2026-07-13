@@ -1,5 +1,5 @@
 import { vi, describe, it, expect, afterEach } from 'vitest';
-import { BatchGetItemCommand, BatchWriteItemCommand, DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { BatchGetItemCommand, BatchWriteItemCommand, DeleteItemCommand, DynamoDBClient, GetItemCommand, PutItemCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
 import { DynamoDbRepository } from '../src';
 
@@ -186,6 +186,94 @@ describe('DynamoDbRepository Unit Tests', () => {
                     [],
                 )
             ).rejects.toThrow('ResourceNotFoundException');
+        });
+
+        it('should propagate DynamoDB errors from getItem', async () => {
+            vi.spyOn(client, 'send').mockImplementation(async (command) => {
+                if (command instanceof GetItemCommand) {
+                    throw new Error('ProvisionedThroughputExceededException');
+                }
+                throw new Error('Unexpected command type');
+            });
+
+            await expect(repository.getItem({ id: 'a' })).rejects.toThrow('ProvisionedThroughputExceededException');
+        });
+
+        it('should propagate DynamoDB errors from putItem', async () => {
+            vi.spyOn(client, 'send').mockImplementation(async (command) => {
+                if (command instanceof PutItemCommand) {
+                    throw new Error('ConditionalCheckFailedException');
+                }
+                throw new Error('Unexpected command type');
+            });
+
+            await expect(
+                repository.putItem({ id: 'a' }, { id: 'a', name: 'Alice' })
+            ).rejects.toThrow('ConditionalCheckFailedException');
+        });
+
+        it('should propagate DynamoDB errors from deleteItem', async () => {
+            vi.spyOn(client, 'send').mockImplementation(async (command) => {
+                if (command instanceof DeleteItemCommand) {
+                    throw new Error('ResourceNotFoundException');
+                }
+                throw new Error('Unexpected command type');
+            });
+
+            await expect(repository.deleteItem({ id: 'a' })).rejects.toThrow('ResourceNotFoundException');
+        });
+
+        it('should propagate DynamoDB errors from updateItem', async () => {
+            vi.spyOn(client, 'send').mockImplementation(async (command) => {
+                if (command instanceof UpdateItemCommand) {
+                    throw new Error('ValidationException');
+                }
+                throw new Error('Unexpected command type');
+            });
+
+            await expect(
+                repository.updateItem({ id: 'a' }, { name: 'Updated' })
+            ).rejects.toThrow('ValidationException');
+        });
+    });
+
+    describe('batchGetItems deduplication and pagination', () => {
+        it('deduplicates repeated keys into a single request', async () => {
+            const item = marshall({ id: 'a', name: 'Alice' });
+            const requestedKeyCounts: number[] = [];
+
+            vi.spyOn(client, 'send').mockImplementation(async (command) => {
+                if (command instanceof BatchGetItemCommand) {
+                    const keys = command.input.RequestItems?.['unit-test-table']?.Keys ?? [];
+                    requestedKeyCounts.push(keys.length);
+                    return { Responses: { 'unit-test-table': [item] }, UnprocessedKeys: {} };
+                }
+                throw new Error('Unexpected command type');
+            });
+
+            await repository.batchGetItems([{ id: 'a' }, { id: 'a' }, { id: 'a' }]);
+
+            expect(requestedKeyCounts).toEqual([1]);
+        });
+
+        it('splits more than 100 unique keys across multiple batch requests', async () => {
+            const requestedKeyCounts: number[] = [];
+
+            vi.spyOn(client, 'send').mockImplementation(async (command) => {
+                if (command instanceof BatchGetItemCommand) {
+                    const keys = command.input.RequestItems?.['unit-test-table']?.Keys ?? [];
+                    requestedKeyCounts.push(keys.length);
+                    return { Responses: { 'unit-test-table': [] }, UnprocessedKeys: {} };
+                }
+                throw new Error('Unexpected command type');
+            });
+
+            const keys = Array.from({ length: 150 }, (_, i) => ({ id: `id-${i}` }));
+            await repository.batchGetItems(keys);
+
+            expect(requestedKeyCounts.length).toBe(2);
+            expect(requestedKeyCounts.reduce((a, b) => a + b, 0)).toBe(150);
+            expect(Math.max(...requestedKeyCounts)).toBe(100);
         });
     });
 });
