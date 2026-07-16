@@ -1,46 +1,19 @@
 {
-  "last_run": "2026-05-01T12:57:47Z",
-  "run_id": "25215038609",
+  "last_run": "2026-07-16T01:08:00Z",
+  "run_id": "29463107761",
   "comments_made": {},
-  "prs_created": [
-    {"branch": "repo-assist/test-getitems-projection-filter-putitem-undefs-2026-05-01", "title": "test: add coverage for putItem undefined stripping, projection+filter combo, stronger GSI projection assertions", "status": "created_this_run", "number": "TBD"},
-    {"branch": "repo-assist/perf-putitem-avoid-extra-getitem-2026-05-01", "title": "perf: eliminate redundant GetItem call in putItem by unmarshalling the item in memory", "status": "created_this_run", "number": "TBD"}
-  ],
-  "prs_closed_or_merged": {
-    "2": {"title": "refactor: replace Object.assign({}) with {} and fix rangKey typo", "outcome": "closed_without_merge"},
-    "4": {"title": "fix: add ReturnConsumedCapacity and removeUndefinedValues to deleteItem", "outcome": "merged"},
-    "5": {"title": "test: add missing coverage for updateItem, putItem, deleteItem, getItems", "outcome": "merged"},
-    "6": {"title": "fix: resolve TypeScript type error in consumedCapacityMiddleware", "outcome": "merged"},
-    "7": {"title": "fix: add removeUndefinedValues to marshall calls in updateItem and batchGetItems", "outcome": "merged"},
-    "8": {"title": "fix: retry UnprocessedKeys in batchGetItems with exponential backoff", "outcome": "merged"},
-    "9": {"title": "fix: apply expressionAttributeKey to IN filter value placeholders", "outcome": "merged"},
-    "11": {"title": "fix: correct ExpressionAttributeNames for hyphenated attributes in updateItem remove", "outcome": "merged"},
-    "15": {"title": "feat: JsonPointerRepository — store JSON documents as per-pointer DynamoDB items", "outcome": "merged_by_maintainer"},
-    "16": {"title": "fix: treat empty remove array as no-op in updateItem", "outcome": "merged"},
-    "17": {"title": "perf: stop paginating getItems once limit is reached", "outcome": "merged"}
-  },
-  "open_repo_assist_prs": [
-    {"number": 14, "title": "feat: add BEGINS_WITH and CONTAINS filter operators", "branch": "repo-assist/improve-begins-with-contains-operators-7d0364b1cd05a28a"},
-    {"number": 19, "title": "docs: rewrite README to document current API", "branch": "repo-assist/docs-update-readme-api-42bff8489672e6cb"},
-    {"number": 20, "title": "test: add coverage for hyphenated attribute names in filter expressions and updateItem SET", "branch": "repo-assist/test-hyphenated-attr-filter-expressions-c838084d82aa8697"},
-    {"number": 21, "title": "feat: add getItemsPage for cursor-based pagination", "branch": "repo-assist/feat-get-items-page-cursor-pagination-90af46325e53c9a9"},
-    {"number": 22, "title": "fix: return deleted item from deleteItem via ReturnValues ALL_OLD", "branch": "repo-assist/fix-deleteitem-return-deleted-item-dc50bca7eade2820"},
-    {"number": 25, "title": "fix: treat all-undefined updates as no-op in updateItem", "branch": "repo-assist/fix-update-item-all-undefined-updates-79e4b7b1f4c27d82"},
-    {"number": 26, "title": "ci: wire up eslint-plugin-jest for test files", "branch": "repo-assist/eng-eslint-jest-plugin-2026-04-30-e1a6e0ab80f50764"},
-    {"number": 27, "title": "test: add coverage for batchGetItems projection and explicit ASC sort order", "branch": "repo-assist/test-batch-get-projection-sort-asc-5bedb750a2fd931c"},
-    {"number": 29, "title": "perf: use ReturnValues ALL_NEW in updateItem to eliminate extra GetItem call", "branch": "repo-assist/perf-updateitem-return-values-all-new"},
-    {"number": "TBD", "title": "test: add coverage for putItem undefined stripping, projection+filter combo, stronger GSI projection assertions", "branch": "repo-assist/test-getitems-projection-filter-putitem-undefs-2026-05-01"},
-    {"number": "TBD", "title": "perf: eliminate redundant GetItem call in putItem by unmarshalling the item in memory", "branch": "repo-assist/perf-putitem-avoid-extra-getitem-2026-05-01"}
-  ],
+  "prs_created": [],
+  "prs_closed_or_merged": {},
+  "open_repo_assist_prs": [],
   "issues_labelled": {},
   "backlog_cursor": {
     "issues": 0,
     "labelling": 0
   },
   "monthly_activity_issue": {
-    "number": 30,
-    "month": "2026-05",
+    "number": 121,
+    "month": "2026-07",
     "status": "updated"
   },
-  "notes": "Current main is v1.9.2. Do NOT re-propose: cosmetic Object.assign/{} (PR #2 declined). Issues #10 and #12/#13: CI caching and Dependabot config PRs blocked by GitHub Actions .github/ permission — do not attempt to modify .github/workflows/ files. PR #14 (BEGINS_WITH/CONTAINS) open. PR #19: docs README rewrite. PR #20: test hyphenated attr. PR #21: getItemsPage cursor pagination. PR #22: fix deleteItem ReturnValues. PR #25: fix all-undefined updates no-op. PR #26: eslint-jest plugin. PR #27: test batchGetItems projection + ASC sort. PR #29: perf updateItem ReturnValues ALL_NEW. New test PR (TBD): putItem undefined stripping, projection+filter combo, stronger GSI projection assertions. New perf PR (TBD): putItem avoid extra GetItem. PR #25, #29, and new perf PR all touch updateItem or putItem — rebase needed if merged out of order. 37 existing jest/no-conditional-expect warnings surfaced by PR #26."
+  "notes": "Current main is v1.18.0 with 2 unreleased commits (test: simplify paginate #132, ci: add concurrency cancellation #131). Dependabot PRs have been successfully merged. 7 new Dependabot PRs created and awaiting review: #139, #138, #137, #136, #135, #134, #133. Infrastructure stable: 24/24 unit tests pass, lint clean, build clean. GitHub Actions permissions issue previously blocking work has been resolved. No user-reported issues open. Future work items completed: cursor-based pagination (scanPage), CI concurrency cancellation. Repository in good health."
 }
